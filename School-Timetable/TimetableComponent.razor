@@ -92,6 +92,8 @@
 
     [Parameter, EditorRequired] public EventCallback<DisplayType> OnDisplayTypeChanged { get; set; }
     
+    [Parameter, EditorRequired] public EventCallback<TEvent> OnEventChanged { get; set; }
+    
     protected override void OnInitialized()
     {
         _objectReference = DotNetObjectReference.Create(this);
@@ -160,7 +162,7 @@
     }
 
     [JSInvokable]
-    public void MoveEvent(string eventId, string cellId)
+    public async Task MoveEvent(string eventId, string cellId)
     {
         var targetCell = _rows.SelectMany(row => row.Cells)
         .SingleOrDefault(cell => cell.Id == cellId);
@@ -184,6 +186,8 @@
         currentCell.Events.Remove(timetableEvent);
         targetCell.Events.Add(timetableEvent);
 
+        await OnEventChanged.InvokeAsync(timetableEvent);
+        
         StateHasChanged();
     }
 }

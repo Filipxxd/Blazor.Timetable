@@ -4,7 +4,7 @@
 
 <PageTitle>Home</PageTitle>
 
-<TimetableComponent T=TimetableEvent Events=TestEvents
+<TimetableComponent TEvent=TimetableEvent Events=TestEvents OnEventChanged=HandleEventMoved
                     OnPreviousClicked=HandlePreviousClicked OnNextClicked=HandleNextClicked
                     IdProperty=@nameof(TimetableEvent.Id) TitleProperty=@nameof(TimetableEvent.Title)
                     StartProperty=@nameof(TimetableEvent.StartTime) EndProperty=@nameof(TimetableEvent.EndTime)
@@ -139,6 +139,10 @@ EndTime = todayMidnight.AddDays(-2).AddHours(12),
 Description = "Physics and Chemistry"
 },
 };
+}
+
+public void HandleEventMoved(TimetableEvent timetableEvent){
+    // TODO: Update the event in the database
 }
 
 }
