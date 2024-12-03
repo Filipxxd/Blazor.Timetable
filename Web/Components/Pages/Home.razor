@@ -1,0 +1,144 @@
+﻿@page "/"
+@using School_Timetable
+@rendermode InteractiveServer
+
+<PageTitle>Home</PageTitle>
+
+<TimetableComponent T=TimetableEvent Events=TestEvents
+                    OnPreviousClicked=HandlePreviousClicked OnNextClicked=HandleNextClicked
+                    IdProperty=@nameof(TimetableEvent.Id) TitleProperty=@nameof(TimetableEvent.Title)
+                    StartProperty=@nameof(TimetableEvent.StartTime) EndProperty=@nameof(TimetableEvent.EndTime)
+>
+    <DetailTemplate Context="timetableEvent">
+        <div>
+            <p>Custom Event View</p>
+            <p><strong>Start:</strong> @timetableEvent.StartTime.ToString("g")</p>
+            <p><strong>End:</strong> @timetableEvent.EndTime.ToString("g")</p>
+            <p>@timetableEvent.Description</p>
+        </div>
+    </DetailTemplate>
+</TimetableComponent>
+
+@code{
+static DateTime todayMidnight = DateTime.Today;
+
+public List<TimetableEvent> TestEvents = new List<TimetableEvent>
+{
+new TimetableEvent
+{
+Id = 1,
+Title = "Math Class",
+StartTime = todayMidnight.AddDays(1).AddHours(9),  // Tomorrow at 9 AM
+EndTime = todayMidnight.AddDays(1).AddHours(11),  // Tomorrow at 11 AM
+Description = "Algebra and Geometry"
+},
+new TimetableEvent
+{
+Id = 2,
+Title = "Science Class",
+StartTime = todayMidnight.AddDays(1).AddHours(11), // Tomorrow at 11 AM
+EndTime = todayMidnight.AddDays(1).AddHours(12),  // Tomorrow at 12 PM
+Description = "Physics and Chemistry"
+},
+new TimetableEvent
+{
+Id = 3,
+Title = "History Class",
+StartTime = todayMidnight.AddDays(0).AddHours(13), // Today at 1 PM
+EndTime = todayMidnight.AddDays(0).AddHours(14),  // Today at 2 PM
+Description = "World War II"
+},
+new TimetableEvent
+{
+Id = 4,
+Title = "Art Class",
+StartTime = todayMidnight.AddDays(2).AddHours(9),  // Day-after-tomorrow at 9 AM
+EndTime = todayMidnight.AddDays(2).AddHours(10),  // Day-after-tomorrow at 10 AM
+Description = "Painting and Sculpture"
+},
+new TimetableEvent
+{
+Id = 5,
+Title = "English Class",
+StartTime = todayMidnight.AddDays(3).AddHours(8.5), // In 3 days at 8:30 AM
+EndTime = todayMidnight.AddDays(3).AddHours(9.5),   // In 3 days at 9:30 AM
+Description = "Literature"
+}
+};
+
+public void HandleNextClicked()
+{
+TestEvents = new List<TimetableEvent>()
+{
+new TimetableEvent
+{
+Id = 1,
+Title = "Math Class",
+StartTime = todayMidnight.AddHours(9),
+EndTime = todayMidnight.AddHours(11),
+Description = "Algebra and Geometry"
+},
+
+new TimetableEvent
+{
+Id = 2,
+Title = "Science Class",
+StartTime = todayMidnight.AddHours(11),
+EndTime = todayMidnight.AddHours(12),
+Description = "Physics and Chemistry"
+},
+
+new TimetableEvent
+{
+Id = 3,
+Title = "History Class",
+StartTime = todayMidnight.AddDays(1).AddHours(13),
+EndTime = todayMidnight.AddDays(1).AddHours(14),
+Description = "World War II"
+},
+
+new TimetableEvent
+{
+Id = 4,
+Title = "Art Class",
+StartTime = todayMidnight.AddDays(2).AddHours(9),
+EndTime = todayMidnight.AddDays(2).AddHours(10),
+Description = "Painting and Sculpture"
+},
+
+new TimetableEvent
+{
+Id = 5,
+Title = "English Class",
+StartTime = todayMidnight.AddDays(3).AddHours(8.5),
+EndTime = todayMidnight.AddDays(3).AddHours(9.5),
+Description = "Literature"
+}
+};
+}
+
+public void HandlePreviousClicked()
+{
+TestEvents = new List<TimetableEvent>()
+{
+new TimetableEvent
+{
+Id = 100,
+Title = "Math Class",
+StartTime = todayMidnight.AddDays(-3).AddHours(9),
+EndTime = todayMidnight.AddDays(-3).AddHours(11),
+Description = "Algebra and Geometry"
+},
+
+new TimetableEvent
+{
+Id = 200,
+Title = "Science Class",
+StartTime = todayMidnight.AddDays(-2).AddHours(11),
+EndTime = todayMidnight.AddDays(-2).AddHours(12),
+Description = "Physics and Chemistry"
+},
+};
+}
+
+}
