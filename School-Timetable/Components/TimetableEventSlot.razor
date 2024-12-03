@@ -1,0 +1,29 @@
+﻿<div class="event-pill" draggable="true" data-event-id="@EventId" @onclick=TogglePopover @key=@EventId>
+    @Title
+</div>
+
+@if (_popoverVisible)
+{
+    <div class="popover">
+        <div class="popover-header">
+            <h4>@Title</h4>
+            <button class="close-btn" @onclick=TogglePopover>&#10006;</button>
+        </div>
+        <div class="popover-body">
+            @PopoverContent
+        </div>
+    </div>
+}
+
+@code {
+    private bool _popoverVisible = false;
+    
+    [Parameter] public required string EventId { get; set; }
+    [Parameter] public required string Title { get; set; } = default!;
+    [Parameter] public required RenderFragment PopoverContent { get; set; } = default!; 
+    
+    private void TogglePopover()
+    {
+        _popoverVisible = !_popoverVisible;
+    }
+}

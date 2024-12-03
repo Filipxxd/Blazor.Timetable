@@ -1,0 +1,47 @@
+﻿.event-pill {
+    color: white;
+    border-radius: 10px;
+    font-size: 0.8em;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    display: block;
+}
+
+.popover {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    width: 200px;
+    z-index: 9999;
+}
+
+.popover-header {
+    font-size: 16px;
+    font-weight: bold;
+    position: relative;
+}
+
+.popover-body {
+    font-size: 14px;
+}
+
+.close-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: none;
+    background: transparent;
+    color: #888;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: red;
+}
+
