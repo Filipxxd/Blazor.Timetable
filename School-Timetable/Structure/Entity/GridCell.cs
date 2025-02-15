@@ -1,8 +1,8 @@
 ﻿namespace School_Timetable.Structure.Entity;
 
-internal class GridCell<T> where T : class
+public sealed class GridCell<TEvent> where TEvent : class
 {
-    public string Id { get; set; } = Guid.NewGuid().ToString();
-    public DateTime CellTime { get; set; }
-    public IList<T> Events { get; set; } = [];
+    public Guid Id { get; init; }
+    public DateTime CellTime { get; init; }
+    public IList<GridItem<TEvent>> Events { get; set; } = [];
 }
