@@ -86,12 +86,9 @@
     background-color: white;
     border: 1px solid #e0e0e0;
     position: relative;
-    height: 60px;
+    height: 2rem;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 5px;
 }
 
 .timetable-event {
@@ -107,9 +104,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
-}
-
-.timetable-event, .timetable-event{
     -ms-touch-action: none;
-    touch-action: none;  
+    touch-action: none;
 }

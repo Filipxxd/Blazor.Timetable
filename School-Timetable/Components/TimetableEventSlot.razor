@@ -10,20 +10,7 @@
             <button class="close-btn" @onclick=TogglePopover>&#10006;</button>
         </div>
         <div class="popover-body">
-            @PopoverContent
+            @DetailTemplate
         </div>
     </div>
-}
-
-@code {
-    private bool _popoverVisible = false;
-    
-    [Parameter] public required string EventId { get; set; }
-    [Parameter] public required string Title { get; set; } = default!;
-    [Parameter] public required RenderFragment PopoverContent { get; set; } = default!; 
-    
-    private void TogglePopover()
-    {
-        _popoverVisible = !_popoverVisible;
-    }
 }

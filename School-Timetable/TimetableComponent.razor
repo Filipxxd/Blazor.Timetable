@@ -1,20 +1,22 @@
-﻿@using School_Timetable.Utilities
-@typeparam TEvent where TEvent : class
+﻿@typeparam TEvent where TEvent : class
 @attribute [type: RenderModeInteractiveServer]
-@inject IJSRuntime Js
 
 <div class="timetable-wrapper">
     <div class="header-row">
-        <div class="nav-arrow" @onclick=HandlePreviousClicked>&lt;</div>
+        <div class="nav-arrow" @onclick=OnPreviousClicked>&lt;</div>
         <div class="center-column">
-            <h1>21. Týden 2024</h1>
+            <h1>@GetHeaderTitle()</h1>
             <div class="date-types">
-                <button @onclick="() => HandleDisplayTypeChanged(DisplayType.Day)">Day</button>
-                <button @onclick="() => HandleDisplayTypeChanged(DisplayType.Week)">Week</button>
-                <button @onclick="() => HandleDisplayTypeChanged(DisplayType.Month)">Month</button>
+                @foreach(var displayType in SupportedDisplayTypes)
+                {
+                    <button @onclick="() => OnDisplayTypeChanged.InvokeAsync(displayType)"
+                            class="@(displayType == DefaultDisplayType ? "active" : "")"> @* Implement active UI diff *@
+                        @displayType
+                    </button>
+                }
             </div>
         </div>
-        <div class="nav-arrow" @onclick=HandleNextClicked>&gt;</div>
+        <div class="nav-arrow" @onclick=OnNextClicked>&gt;</div>
     </div>
 
     <div class="timetable">
@@ -24,7 +26,7 @@
             @foreach (var day in Enumerable.Range(0, 7))
             {
                 <div class="day-cell">
-                    @StartOfWeek(CurrentDate).AddDays(day).ToString("dddd d MMM")
+                    @DateHelper.GetStartOfWeekDate(CurrentDate, FirstDayOfWeek).AddDays(day).ToString("dddd d MMM")
                 </div>
             }
         </div>
@@ -37,12 +39,12 @@
                 @foreach (var cell in row.Cells)
                 {
                     <div class="time-slot" data-slot-id="@cell.Id" @key=@cell.Id>
-                        @foreach (var timetableEvent in cell.Events)
+                        @foreach (var cellEvent in cell.Events)
                         {
-                            <div class="timetable-event" data-event-id="@GetId(timetableEvent)" @key=@GetId(timetableEvent)>
-                                <TimetableEventSlot EventId=@GetId(timetableEvent)
-                                                    Title=@(GenericHelper<TEvent>.Get<string>(timetableEvent, TitleProperty))
-                                                    PopoverContent=@(builder => DetailTemplate(timetableEvent)(builder))>
+                            <div class="timetable-event" data-event-id="@cellEvent.Id" @key=@cellEvent.Id>
+                                <TimetableEventSlot EventId=@cellEvent.Id
+                                                    Title=@(_getTitle(cellEvent.EventDetail))
+                                                    DetailTemplate=@(builder => DetailTemplate(cellEvent.EventDetail)(builder))>
                                 </TimetableEventSlot>
                             </div>
                         }
@@ -52,142 +54,3 @@
         </div>
     </div>
 </div>
-
-@code {
-    private DotNetObjectReference<TimetableComponent<TEvent>> _objectReference = default!;
-    
-    private readonly IList<GridRow<TEvent>> _rows = [];
-    private int _hourFrom;
-    private int _hourTo;
-
-    // TODO: Based on DisplayType
-    private static DateTime StartOfWeek(DateTime dt)
-        => dt.AddDays(-(int)dt.DayOfWeek + (int)DayOfWeek.Monday);
-
-    // TODO: Based on DisplayType
-    private DateTime EndOfWeek(DateTime dt)
-        => StartOfWeek(dt).AddDays(6);
-
-    private string GetId(TEvent timetableEvent)
-        => GenericHelper<TEvent>.Get<string>(timetableEvent, IdProperty);
-
-    private DateTime GetStartTime(TEvent timetableEvent)
-        => GenericHelper<TEvent>.Get<DateTime>(timetableEvent, StartProperty);
-
-    private DateTime GetEndTime(TEvent timetableEvent)
-        => GenericHelper<TEvent>.Get<DateTime>(timetableEvent, EndProperty);
-
-    [Parameter] public DateTime CurrentDate { get; set; } = DateTime.Today;
-    [Parameter] public DisplayType DisplayType { get; set; } = DisplayType.Week;
-    
-    [Parameter, EditorRequired] public RenderFragment<TEvent> DetailTemplate { get; set; } = default!;
-    [Parameter, EditorRequired] public IEnumerable<TEvent> Events { get; set; } = [];
-    [Parameter, EditorRequired] public string IdProperty { get; set; } = default!;
-    [Parameter, EditorRequired] public string StartProperty { get; set; } = default!;
-    [Parameter, EditorRequired] public string EndProperty { get; set; } = default!;
-    [Parameter, EditorRequired] public string TitleProperty { get; set; } = default!;
-
-    [Parameter, EditorRequired] public EventCallback OnPreviousClicked { get; set; }
-    [Parameter, EditorRequired] public EventCallback OnNextClicked { get; set; }
-
-    [Parameter, EditorRequired] public EventCallback<DisplayType> OnDisplayTypeChanged { get; set; }
-    
-    [Parameter, EditorRequired] public EventCallback<TEvent> OnEventChanged { get; set; }
-    
-    protected override void OnInitialized()
-    {
-        _objectReference = DotNetObjectReference.Create(this);
-    }
-    
-    protected override void OnParametersSet()
-    {
-        // TODO: Via property either min max from events or predefined?
-        _hourFrom = Events.Min(e => GetStartTime(e).Hour);
-        _hourTo = Events.Max(e => GetEndTime(e).Hour);
-        
-        InitializeTimetable();
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await Js.InvokeVoidAsync("dragDrop.init", _objectReference);
-    }
-
-    private async Task HandleDisplayTypeChanged(DisplayType displayType)
-    {
-        DisplayType = displayType;
-        await OnDisplayTypeChanged.InvokeAsync(displayType);
-    }
-    
-    private async Task HandlePreviousClicked()
-    {
-        await OnPreviousClicked.InvokeAsync();
-        // TODO: Based on DisplayType
-        CurrentDate = CurrentDate.AddDays(-7);
-    }
-
-    private async Task HandleNextClicked()
-    {
-        await OnNextClicked.InvokeAsync();
-        // TODO: Based on DisplayType
-        CurrentDate = CurrentDate.AddDays(7);
-    }
-    
-    // TODO: Based on DisplayType
-    private void InitializeTimetable()
-    {
-        _rows.Clear();
-        
-        foreach (var hour in Enumerable.Range(_hourFrom, _hourTo - _hourFrom))
-        {
-            var rowStartTime = StartOfWeek(CurrentDate).AddHours(hour);
-            var gridRow = new GridRow<TEvent>
-            {
-                RowStartTime = rowStartTime
-            };
-            
-            foreach (var day in Enumerable.Range(0, 7))
-            {
-                var cellTime = rowStartTime.AddDays(day);
-                var gridCell = new GridCell<TEvent>
-                {
-                    CellTime = cellTime,
-                    Events = Events.Where(e => GetStartTime(e).Date == cellTime.Date && GetStartTime(e).Hour == hour).ToList()
-                };
-                gridRow.Cells.Add(gridCell);
-            }
-
-            _rows.Add(gridRow);
-        }
-    }
-
-    [JSInvokable]
-    public async Task MoveEvent(string eventId, string cellId)
-    {
-        var targetCell = _rows.SelectMany(row => row.Cells)
-        .SingleOrDefault(cell => cell.Id == cellId);
-
-        var timetableEvent = Events.SingleOrDefault(e => GetId(e) == eventId);
-
-        if (targetCell is null || timetableEvent is null) return;
-
-        var newStartDate = targetCell.CellTime;
-        var eventDuration = GetEndTime(timetableEvent) - GetStartTime(timetableEvent);
-        var newEndDate = newStartDate.Add(eventDuration);
-
-        typeof(TEvent).GetProperty(StartProperty)!.SetValue(timetableEvent, newStartDate);
-        typeof(TEvent).GetProperty(EndProperty)!.SetValue(timetableEvent, newEndDate);
-
-        var currentCell = _rows.SelectMany(row => row.Cells)
-        .FirstOrDefault(cell => cell.Events.Contains(timetableEvent));
-
-        if (currentCell is null)  return;
-        
-        currentCell.Events.Remove(timetableEvent);
-        targetCell.Events.Add(timetableEvent);
-
-        await OnEventChanged.InvokeAsync(timetableEvent);
-        
-        StateHasChanged();
-    }
-}
