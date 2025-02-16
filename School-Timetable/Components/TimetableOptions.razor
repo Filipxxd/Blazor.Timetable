@@ -1,0 +1,16 @@
+﻿<div class="timetable-header">
+    <div class="nav-arrow" @onclick=OnPreviousClicked>&lt;</div>
+    <div class="center-column">
+        <h3>@GetHeaderTitle()</h3>
+        <div class="date-types">
+            @foreach(var displayType in SupportedDisplayTypes.Where(x => x != SelectedDisplayType))
+            {
+                <button @onclick="() => SelectedDisplayTypeChanged.InvokeAsync(displayType)"
+                        class="@(displayType == SelectedDisplayType ? "active" : "")"> @* Implement active UI diff *@
+                    @displayType
+                </button>
+            }
+        </div>
+    </div>
+    <div class="nav-arrow" @onclick=OnNextClicked>&gt;</div>
+</div>

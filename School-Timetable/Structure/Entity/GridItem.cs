@@ -1,7 +1,9 @@
 ﻿namespace School_Timetable.Structure.Entity;
 
-public sealed class GridItem<TEvent> where TEvent : class
+internal sealed class GridItem<TEvent> where TEvent : class
 {
-    public Guid Id { get; init; }
-    public TEvent EventDetail { get; init; } = default!;
+    public Guid Id { get; set; }
+    public int Span { get; set; }
+    public bool IsWholeDay { get; set; }
+    public TEvent EventDetail { get; set; } = default!;
 }

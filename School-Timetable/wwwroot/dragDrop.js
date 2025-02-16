@@ -1,11 +1,15 @@
+const timetableSelector = '.timetable-body';
+const slotSelector = '.timetable-body-cell';
+const eventSelector = '.timetable-event';
+
 window.dragDrop = {
     init: function(objRef) {
-        interact('.timetable-event').draggable({
+        interact(eventSelector).draggable({
             inertia: false,
 
             modifiers: [
                 interact.modifiers.restrict({
-                    restriction: '.calendar-grid',
+                    restriction: timetableSelector,
                     endOnly: true,
                     elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
                 })
@@ -16,7 +20,8 @@ window.dragDrop = {
             listeners: {
                 start(event) {
                     const target = event.target;
-                    const originalSlot = target.closest('.time-slot');
+                    target.style.zIndex = '1000';
+                    const originalSlot = target.closest(slotSelector);
                     if (originalSlot)
                         target.setAttribute('data-original-slot-id', originalSlot.getAttribute('data-slot-id'));
                 },
@@ -34,7 +39,7 @@ window.dragDrop = {
                 end(event) {
                     const target = event.target;
                     const closestSlot = findClosestSlot(target);
-
+                    target.style.zIndex = '';
                     if (!closestSlot)
                     {
                         resetPosition(target);
@@ -62,30 +67,26 @@ window.dragDrop = {
         }
 
         function findClosestSlot(draggedElement) {
-            const slots = document.querySelectorAll('.time-slot');
+            const slots = document.querySelectorAll(slotSelector);
             const draggedRect = draggedElement.getBoundingClientRect();
-
-            // Calculate the center of the dragged element
+            
             const draggedCenterX = draggedRect.left + draggedRect.width / 2;
-            const draggedCenterY = draggedRect.top + draggedRect.height / 2;
+            const draggedCenterY = draggedRect.top;
 
             let closestSlot = null;
             let closestDistance = Infinity;
 
             slots.forEach(slot => {
                 const slotRect = slot.getBoundingClientRect();
-
-                // Calculate the center of each slot element
+                
                 const slotCenterX = slotRect.left + slotRect.width / 2;
-                const slotCenterY = slotRect.top + slotRect.height / 2;
-
-                // Calculate the distance between the centers
+                const slotCenterY = slotRect.top;
+                
                 const distance = Math.sqrt(
                     Math.pow(draggedCenterX - slotCenterX, 2) +
                     Math.pow(draggedCenterY - slotCenterY, 2)
                 );
-
-                // If this distance is the smallest so far, set this slot as the closest
+                
                 if (distance < closestDistance) {
                     closestDistance = distance;
                     closestSlot = slot;

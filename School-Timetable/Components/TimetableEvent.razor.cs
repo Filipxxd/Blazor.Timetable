@@ -2,7 +2,7 @@
 
 namespace School_Timetable.Components;
 
-public partial class TimetableEventSlot
+public partial class TimetableEvent
 {
     private bool _popoverVisible = false;
     

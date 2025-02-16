@@ -1,0 +1,21 @@
+﻿.timetable-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: blue;
+}
+
+.center-column {
+    text-align: center;
+}
+
+.nav-arrow {
+    cursor: pointer;
+    font-size: 2rem;
+}
+
+.date-types button {
+    background-color: #e0e0e0;
+    color: #333;
+    cursor: pointer;
+}

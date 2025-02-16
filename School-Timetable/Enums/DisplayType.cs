@@ -1,4 +1,4 @@
-﻿namespace School_Timetable;
+﻿namespace School_Timetable.Enums;
 
 public enum DisplayType
 {

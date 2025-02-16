@@ -1,0 +1,18 @@
+﻿<div class="timetable-event" data-event-id="@EventId" @key="@EventId">
+    <div class="timetable-event-pill" @onclick=TogglePopover>
+        @Title
+    </div>
+
+    @if (_popoverVisible)
+    {
+        <div class="popover">
+            <div class="popover-header">
+                <h4>@Title</h4>
+                <button class="close-btn" @onclick=TogglePopover>&#10006;</button>
+            </div>
+            <div class="popover-body">
+                @DetailTemplate
+            </div>
+        </div>
+    }
+</div>
