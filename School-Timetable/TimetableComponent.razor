@@ -17,7 +17,7 @@
             @foreach (var day in Enumerable.Range(0, 7))
             {
                 <div class="timetable-head-cell">
-                    @DateHelper.GetStartOfWeekDate(CurrentDate, TimetableConfig.FirstDayOfWeek).AddDays(day).ToString("dddd")
+                    @DateHelper.GetStartOfWeekDate(CurrentDate, TimetableConfig.FirstDayOfWeek).AddDays(day).ToString("dddd").Capitalize()
                 </div>
             }
         </div>
@@ -34,7 +34,8 @@
                         {
                             <TimetableEvent EventId=@cellEvent.Id
                                             Title=@(_getTitle(cellEvent.EventDetail))
-                                            DetailTemplate=@(builder => DetailTemplate(cellEvent.EventDetail)(builder))>
+                                            DetailTemplate=@(builder => DetailTemplate(cellEvent.EventDetail)(builder))
+                                            Span=@cellEvent.Span>
                             </TimetableEvent>
                         }
                     </div>
