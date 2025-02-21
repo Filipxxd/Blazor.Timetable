@@ -3,12 +3,12 @@
 
 <div class="timetable-wrapper">
     <TimetableOptions 
-        SelectedDisplayType="DefaultDisplayType"
-        SelectedDisplayTypeChanged="OnDisplayTypeChanged"
-        CurrentDate="CurrentDate"
-        SupportedDisplayTypes="SupportedDisplayTypes"
-        OnNextClicked="OnNextClicked"
-        OnPreviousClicked="OnPreviousClicked"
+        SelectedDisplayType=TimetableConfig.DefaultDisplayType
+        SelectedDisplayTypeChanged=OnDisplayTypeChanged
+        CurrentDate=CurrentDate
+        SupportedDisplayTypes=TimetableConfig.SupportedDisplayTypes
+        OnNextClicked=OnNextClicked
+        OnPreviousClicked=OnPreviousClicked
     />
 
     <div class="timetable">
@@ -17,7 +17,7 @@
             @foreach (var day in Enumerable.Range(0, 7))
             {
                 <div class="timetable-head-cell">
-                    @DateHelper.GetStartOfWeekDate(CurrentDate, FirstDayOfWeek).AddDays(day).ToString("dddd d MMM")
+                    @DateHelper.GetStartOfWeekDate(CurrentDate, TimetableConfig.FirstDayOfWeek).AddDays(day).ToString("dddd")
                 </div>
             }
         </div>
