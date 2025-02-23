@@ -1,60 +1,51 @@
-﻿.timetable-wrapper *{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-.timetable-wrapper {
+﻿.timetable-wrapper {
     font-family: Arial, sans-serif;
-    font-size: 16px;
     width: 100%;
     max-width: 1200px;
+    margin: 0 auto;
+    font-size: 16px;
+    color: #333;
 }
 
 .timetable {
-    display: grid;
-    grid-template-columns: 100px repeat(7, 1fr);
-    gap: 1px;
-    background-color: #ddd;
-    border: 1px solid #ccc;
-    width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .timetable-head {
-    display: contents;
-}
-
-.timetable-head > * {
-    background-color: #3174ad;
+    display: flex;
+    align-items: center;
+    padding: 1em 0;
+    border-bottom: 1px solid #a0a0a0;
 }
 
 .timetable-head-cell {
-    color: white;
-    font-size: 0.9em;
+    flex: 1;
     text-align: center;
-    padding: 10px;
-    font-weight: bold;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
-.timetable-body {
-    display: contents;
+.timetable-row {
+    display: flex;
+    height: 2em;
+    border-bottom: 1px solid #a0a0a0;
 }
 
-.timetable-body-column {
-    background-color: #f5f5f5;
-    color: #333;
-    text-align: center;
-    font-size: 0.9em;
-    font-weight: bold;
+.timetable-time-column {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 10em;
+    border-right: 1px solid #a0a0a0;
 }
 
 .timetable-body-cell {
-    background-color: white;
-    border: 1px solid #e0e0e0;
     position: relative;
-    height: 2rem;
     display: flex;
+    align-items: start;
+    justify-content: center;
+    width: 100%;
+}
+
+.timetable-body-row > div:last-of-type {
+    border: 0;
 }

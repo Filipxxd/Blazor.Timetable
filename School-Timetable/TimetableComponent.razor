@@ -1,46 +1,51 @@
-﻿@typeparam TEvent where TEvent : class
+﻿@using System.Globalization
+@typeparam TEvent where TEvent : class
 @attribute [type: RenderModeInteractiveServer]
 
 <div class="timetable-wrapper">
-    <TimetableOptions 
+    <TimetableOptions
         SelectedDisplayType=TimetableConfig.DefaultDisplayType
         SelectedDisplayTypeChanged=OnDisplayTypeChanged
         CurrentDate=CurrentDate
-        SupportedDisplayTypes=TimetableConfig.SupportedDisplayTypes
+        SupportedDisplayTypes=TimetableConfig.SelectedDisplayTypes
         OnNextClicked=OnNextClicked
         OnPreviousClicked=OnPreviousClicked
     />
-
     <div class="timetable">
         <div class="timetable-head">
-            <div></div>
-            @foreach (var day in Enumerable.Range(0, 7))
+            <div class="timetable-time-column"></div>
+            @{
+            var startOfWeek = DateHelper.GetStartOfWeekDate(CurrentDate, TimetableConfig.SelectedDays.First());
+            }
+            @foreach (var dayOfWeek in TimetableConfig.SelectedDays)
             {
-                <div class="timetable-head-cell">
-                    @DateHelper.GetStartOfWeekDate(CurrentDate, TimetableConfig.FirstDayOfWeek).AddDays(day).ToString("dddd").Capitalize()
-                </div>
+            var dayOffset = ((int)dayOfWeek - (int)startOfWeek.DayOfWeek + 7) % 7;
+            var dateForDay = startOfWeek.AddDays(dayOffset);
+            <div class="timetable-head-cell">
+                @dateForDay.ToString("dddd", CultureInfo.CurrentCulture).Capitalize()
+            </div>
             }
         </div>
 
-        <div class="timetable-body">
-            @foreach (var row in _rows)
+        @foreach (var row in _rows)
+        {
+        <div class="timetable-row">
+            <div class="timetable-time-column">@row.RowStartTime.ToString("H:00")</div>
+            @foreach (var cell in row.Cells)
             {
-                <div class="timetable-body-column">@row.RowStartTime.ToString("H:00")</div>
-
-                @foreach (var cell in row.Cells)
+            <div class="timetable-body-cell" data-slot-id="@cell.Id" @key=@cell.Id>
+                @foreach (var cellEvent in cell.Events)
                 {
-                    <div class="timetable-body-cell" data-slot-id="@cell.Id" @key=@cell.Id>
-                        @foreach (var cellEvent in cell.Events)
-                        {
-                            <TimetableEvent EventId=@cellEvent.Id
-                                            Title=@(_getTitle(cellEvent.EventDetail))
-                                            DetailTemplate=@(builder => DetailTemplate(cellEvent.EventDetail)(builder))
-                                            Span=@cellEvent.Span>
-                            </TimetableEvent>
-                        }
-                    </div>
+                <TimetableEvent
+                    EventId=@cellEvent.Id
+                    Title=@(_getTitle(cellEvent.Event))
+                    DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
+                    Span=@cellEvent.Span>
+                </TimetableEvent>
                 }
+            </div>
             }
         </div>
+        }
     </div>
 </div>

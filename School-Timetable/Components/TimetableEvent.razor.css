@@ -1,36 +1,25 @@
 ﻿.timetable-event {
     background-color: #67b6ff;
-    color: #004085;
     position: relative;
     z-index: 10;
-    font-size: 0.8em;
-    border-radius: 4px;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-    height: 100%;
     -ms-touch-action: none;
     touch-action: none;
     flex: 1 1 auto;
+    height: 100%;
+    border-radius: 10px;
 }
 
 .timetable-event-pill {
-    color: white;
-    border-radius: 10px;
-    font-size: 0.8em;
     cursor: pointer;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 100%;
-    height: 100%;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    padding-top: 0.2rem;
+    padding-left: 0.2rem;
 }
 
+/* Detail */
 .popover {
     position: absolute;
     background-color: white;
