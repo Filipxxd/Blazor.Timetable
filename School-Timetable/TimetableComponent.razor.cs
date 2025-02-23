@@ -6,6 +6,7 @@ using School_Timetable.Utilities;
 using Microsoft.Extensions.Localization;
 using School_Timetable.Configuration;
 using School_Timetable.Enums;
+using School_Timetable.Services.DisplayTypeServices;
 
 namespace School_Timetable;
 
@@ -13,9 +14,10 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
 {
     [Inject] public IJSRuntime JsRuntime { get; set; } = default!;
     [Inject] public IStringLocalizer<TimetableComponent<TEvent>> Localizer { get; set; } = default!;
+    [Inject] public IDisplayTypeService DisplayTypeService { get; set; } = default!;
 
     #region Event Parameters
-    [Parameter, EditorRequired] public IEnumerable<TEvent> Events { get; set; } = [];
+    [Parameter, EditorRequired] public IList<TEvent> Events { get; set; } = [];
     [Parameter, EditorRequired] public Expression<Func<TEvent, string>> GroupIdentifier { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateFrom { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateTo { get; set; } = default!;
@@ -44,7 +46,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
 
     #region Private Fields
     private DotNetObjectReference<TimetableComponent<TEvent>> _objectReference = default!;
-    private readonly List<GridRow<TEvent>> _rows = [];
+    private IList<GridRow<TEvent>> _rows = [];
     private Dictionary<(DateTime Date, int Hour), List<TEvent>> _eventCache = new();
 
     private Func<TEvent, DateTime> _getDateFrom = default!;
@@ -71,7 +73,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
 
         _eventCache = Events.GroupBy(e => (Date: _getDateFrom(e).Date, Hour: _getDateFrom(e).Hour))
                             .ToDictionary(g => g.Key, g => g.ToList());
-        InitializeTimetable();
+        UpdateTimetable();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -79,28 +81,28 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
         await JsRuntime.InvokeVoidAsync("dragDrop.init", _objectReference);
     }
     
-    private void InitializeTimetable()
+    private void UpdateTimetable()
     {
         _rows.Clear();
-        var hours = Enumerable.Range(TimetableConfig.HourFrom, TimetableConfig.HourTo - TimetableConfig.HourFrom + 1);
+        var hours = Enumerable.Range(TimetableConfig.TimeFrom.Hour, TimetableConfig.TimeTo.Hour - TimetableConfig.TimeFrom.Hour + 1);
 
         switch (TimetableConfig.DefaultDisplayType)
         {
             case DisplayType.Day:
-                InitializeDailyView(hours);
+                CreateDailyView(hours);
                 break;
             case DisplayType.Week:
-                InitializeWeeklyView(hours);
+                _rows = DisplayTypeService.CreateGrid(Events, TimetableConfig, _getDateFrom, _getDateTo);
                 break;
             case DisplayType.Month:
-                InitializeMonthlyView(hours);
+                CreateWeeklyView(hours);
                 break;
             default:
                 throw new NotImplementedException();
         }
     }
 
-    private void InitializeDailyView(IEnumerable<int> hours)
+    private void CreateDailyView(IEnumerable<int> hours)
     {
         foreach (var hour in hours)
         {
@@ -112,7 +114,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
             var items = eventsAtSlot?.Select(e => new GridItem<TEvent>
             {
                 Id = Guid.NewGuid(),
-                EventDetail = e
+                Event = e
             }).ToList() ?? [];
 
             var gridCell = new GridCell<TEvent>
@@ -126,10 +128,10 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
         }
     }
     
-    private void InitializeWeeklyView(IEnumerable<int> hours)
+    private void CreateMonthlyView(IEnumerable<int> hours)
     {
         _rows.Clear();
-        var startOfWeek = DateHelper.GetStartOfWeekDate(CurrentDate, TimetableConfig.SupportedDays.First());
+        var startOfWeek = DateHelper.GetStartOfWeekDate(CurrentDate, TimetableConfig.SelectedDays.First());
 
         foreach (var hour in hours)
         {
@@ -147,7 +149,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
                     var eventStart = _getDateFrom(e);
                     var eventEnd = _getDateTo(e);
                     
-                    if (eventEnd.Hour >= TimetableConfig.HourTo && eventStart.Hour <= TimetableConfig.HourFrom)
+                    if (eventEnd.Hour >= TimetableConfig.TimeTo.Hour && eventStart.Hour <= TimetableConfig.TimeFrom.Hour)
                         return null;
                     
                     var span = (int)(eventEnd - eventStart).TotalHours;
@@ -155,8 +157,8 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
                     return new GridItem<TEvent>
                     {
                         Id = Guid.NewGuid(),
-                        EventDetail = e,
-                        IsWholeDay = eventEnd.Hour >= TimetableConfig.HourTo && eventStart.Hour <= TimetableConfig.HourFrom,
+                        Event = e,
+                        IsWholeDay = eventEnd.Hour >= TimetableConfig.TimeTo.Hour && eventStart.Hour <= TimetableConfig.TimeFrom.Hour,
                         Span = span
                     };
                 }).ToList() ?? [];
@@ -165,7 +167,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
                 {
                     Id = Guid.NewGuid(),
                     CellTime = cellDate.AddHours(hour),
-                    Events = items
+                    Events =  items
                 };
 
                 gridRow.Cells.Add(gridCell);
@@ -175,7 +177,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
         }
     }
 
-    private void InitializeMonthlyView(IEnumerable<int> hours)
+    private void CreateWeeklyView(IEnumerable<int> hours)
     {
         var startOfMonth = new DateTime(CurrentDate.Year, CurrentDate.Month, 1);
         var daysInMonth = DateTime.DaysInMonth(CurrentDate.Year, CurrentDate.Month);
@@ -192,7 +194,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
                 var items = eventsAtSlot?.Select(e => new GridItem<TEvent>
                 {
                     Id = Guid.NewGuid(),
-                    EventDetail = e
+                    Event = e
                 }).ToList() ?? [];
 
                 var gridCell = new GridCell<TEvent>
@@ -217,7 +219,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
         var currentCell = FindCellByItemId(gridItem.Id);
         if (currentCell is null) return;
         MoveGridItem(currentCell, targetCell, gridItem);
-        OnEventChanged.Invoke(gridItem.EventDetail);
+        OnEventChanged.Invoke(gridItem.Event);
         StateHasChanged();
     }
 
@@ -236,12 +238,12 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
 
     private void UpdateEventTiming(GridItem<TEvent> gridItem, DateTime newStartDate)
     {
-        var oldDateFrom = _getDateFrom(gridItem.EventDetail);
-        var oldDateTo = _getDateTo(gridItem.EventDetail);
+        var oldDateFrom = _getDateFrom(gridItem.Event);
+        var oldDateTo = _getDateTo(gridItem.Event);
         var duration = oldDateTo - oldDateFrom;
         var newEndDate = newStartDate.Add(duration);
-        _setDateFrom(gridItem.EventDetail, newStartDate);
-        _setDateTo(gridItem.EventDetail, newEndDate);
+        _setDateFrom(gridItem.Event, newStartDate);
+        _setDateTo(gridItem.Event, newEndDate);
     }
 
     private GridCell<TEvent>? FindCellByItemId(Guid itemId)
