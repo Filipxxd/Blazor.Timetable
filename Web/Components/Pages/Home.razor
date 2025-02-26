@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using Bogus
 @using School_Timetable
 @using School_Timetable.Enums
 @rendermode InteractiveServer
@@ -6,7 +7,7 @@
 <PageTitle>Home</PageTitle>
 
 <TimetableComponent TEvent=TimetableEvent 
-                    Events=TestEvents
+                    Events=CurrentEvents
                     
                     Title="e => e.Title"
                     DateFrom="e => e.StartTime"
@@ -17,6 +18,12 @@
                         SelectedDays=[DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday],
                         TimeFrom=new(8, 0),
                         TimeTo=new(16, 0),
+                        CurrentDate = DateTime.Today.AddDays(_index switch
+                        {
+                            0 => -7,
+                            1 => 0,
+                            _ => 7
+                        })
                     }"
                     
                     OnEventChanged=HandleEventMoved
@@ -34,121 +41,116 @@
 
 @code{
     static readonly DateTime TodayMidnight = DateTime.Today;
+    int _index = 1;
 
-    public List<TimetableEvent> TestEvents =
-    [
-        new TimetableEvent
-        {
-            Id = 1,
-            Title = "Math Class",
-            StartTime = TodayMidnight.AddDays(1).AddHours(9),
-            EndTime = TodayMidnight.AddDays(1).AddHours(15),
-            Description = "Algebra and Geometry"
-        },
-        new TimetableEvent
-        {
-            Id = 2,
-            Title = "A very long text to test out wrapping",
-            StartTime = TodayMidnight.AddDays(1).AddHours(11),
-            EndTime = TodayMidnight.AddDays(1).AddHours(12),
-            Description = "Physics and Chemistry"
-        },
-        new TimetableEvent
-        {
-            Id = 3,
-            Title = "A very long text to test out wrapping",
-            StartTime = TodayMidnight.AddDays(0).AddHours(13), 
-            EndTime = TodayMidnight.AddDays(0).AddHours(14), 
-            Description = "World War II"
-        },
-        new TimetableEvent
-        {
-            Id = 4,
-            Title = "Art Class",
-            StartTime = TodayMidnight.AddDays(2).AddHours(9), 
-            EndTime = TodayMidnight.AddDays(2).AddHours(10), 
-            Description = "Painting and Sculpture"
-        },
-        new TimetableEvent
-        {
-            Id = 5,
-            Title = "English Class",
-            StartTime = TodayMidnight.AddDays(3).AddHours(8.5),
-            EndTime = TodayMidnight.AddDays(3).AddHours(9.5),
-            Description = "Literature"
-        }
-    ];
+    public List<TimetableEvent> CurrentEvents { get; set; } = [];
 
-    public void HandleNextClicked()
+    protected override void OnInitialized()
     {
-        TestEvents =
-        [
+        CurrentEvents = Events[_index];
+    }
+    
+    static readonly List<List<TimetableEvent>> Events =
+    [
+        new()
+        {
             new TimetableEvent
             {
                 Id = 1,
                 Title = "Math Class",
-                StartTime = TodayMidnight.AddHours(9),
-                EndTime = TodayMidnight.AddHours(11),
+                StartTime = TodayMidnight.AddDays(-7).AddHours(9),
+                EndTime = TodayMidnight.AddDays(-7).AddHours(11),
                 Description = "Algebra and Geometry"
             },
             new TimetableEvent
             {
                 Id = 2,
                 Title = "Science Class",
-                StartTime = TodayMidnight.AddHours(11),
-                EndTime = TodayMidnight.AddHours(12),
+                StartTime = TodayMidnight.AddDays(-6).AddHours(11),
+                EndTime = TodayMidnight.AddDays(-6).AddHours(12),
                 Description = "Physics and Chemistry"
             },
             new TimetableEvent
             {
                 Id = 3,
-                Title = "A very long text to test out wrapping",
-                StartTime = TodayMidnight.AddDays(1).AddHours(13),
-                EndTime = TodayMidnight.AddDays(1).AddHours(14),
+                Title = "History Class",
+                StartTime = TodayMidnight.AddDays(-5).AddHours(13),
+                EndTime = TodayMidnight.AddDays(-5).AddHours(14),
                 Description = "World War II"
-            },
+            }
+        },
+
+        new()
+        {
             new TimetableEvent
             {
                 Id = 4,
                 Title = "Art Class",
-                StartTime = TodayMidnight.AddDays(2).AddHours(9),
-                EndTime = TodayMidnight.AddDays(2).AddHours(10),
+                StartTime = TodayMidnight.AddDays(0).AddHours(9),
+                EndTime = TodayMidnight.AddDays(0).AddHours(10),
                 Description = "Painting and Sculpture"
             },
             new TimetableEvent
             {
                 Id = 5,
                 Title = "English Class",
-                StartTime = TodayMidnight.AddDays(3).AddHours(8.5),
-                EndTime = TodayMidnight.AddDays(3).AddHours(9.5),
+                StartTime = TodayMidnight.AddDays(0).AddHours(10),
+                EndTime = TodayMidnight.AddDays(0).AddHours(11),
                 Description = "Literature"
+            },
+            new TimetableEvent
+            {
+                Id = 6,
+                Title = "Biology Class",
+                StartTime = TodayMidnight.AddDays(0).AddHours(12),
+                EndTime = TodayMidnight.AddDays(0).AddHours(13),
+                Description = "Plant Biology"
             }
-        ];
+        },
+
+        new()
+        {
+            new TimetableEvent
+            {
+                Id = 7,
+                Title = "Chemistry Class",
+                StartTime = TodayMidnight.AddDays(7).AddHours(10),
+                EndTime = TodayMidnight.AddDays(7).AddHours(11),
+                Description = "Organic Chemistry"
+            },
+            new TimetableEvent
+            {
+                Id = 8,
+                Title = "Music Class",
+                StartTime = TodayMidnight.AddDays(8).AddHours(14),
+                EndTime = TodayMidnight.AddDays(8).AddHours(15),
+                Description = "Classical Composers"
+            },
+            new TimetableEvent
+            {
+                Id = 9,
+                Title = "Physical Education",
+                StartTime = TodayMidnight.AddDays(9).AddHours(11),
+                EndTime = TodayMidnight.AddDays(9).AddHours(12),
+                Description = "Team Sports"
+            }
+        }
+    ];
+    
+    public void HandleNextClicked()
+    {
+        if (_index >= Events.Count - 1) return;
+        _index++;
+        CurrentEvents = Events[_index];
     }
 
     public void HandlePreviousClicked()
     {
-        TestEvents =
-        [
-            new TimetableEvent
-            {
-                Id = 100,
-                Title = "Math Class",
-                StartTime = TodayMidnight.AddDays(-3).AddHours(9),
-                EndTime = TodayMidnight.AddDays(-3).AddHours(11),
-                Description = "Algebra and Geometry"
-            },
-            new TimetableEvent
-            {
-                Id = 200,
-                Title = "Science Class",
-                StartTime = TodayMidnight.AddDays(-2).AddHours(11),
-                EndTime = TodayMidnight.AddDays(-2).AddHours(12),
-                Description = "Physics and Chemistry"
-            }
-        ];
+        if (_index <= 0) return;
+        _index--;
+        CurrentEvents = Events[_index];
     }
-
+    
     public void HandleEventMoved(TimetableEvent timetableEvent){
         // TODO: Update the event in the database
     }
