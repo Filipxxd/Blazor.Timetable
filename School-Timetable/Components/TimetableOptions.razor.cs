@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using Microsoft.AspNetCore.Components;
+using School_Timetable.Enums;
 
 namespace School_Timetable.Components;
 
