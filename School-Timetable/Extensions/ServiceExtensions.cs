@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using School_Timetable.Services.DisplayTypeServices;
 
-namespace School_Timetable;
+namespace School_Timetable.Extensions;
 
 public static class ServiceExtensions
 {
