@@ -45,7 +45,6 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
     #region Private Fields
     private DotNetObjectReference<TimetableComponent<TEvent>> _objectReference = default!;
     private IList<GridRow<TEvent>> _rows = [];
-    private Dictionary<(DateTime Date, int Hour), List<TEvent>> _eventCache = new();
 
     private Func<TEvent, DateTime> _getDateFrom = default!;
     private Func<TEvent, DateTime> _getDateTo = default!;
@@ -68,9 +67,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
     protected override void OnParametersSet()
     {
         TimetableConfig.Validate();
-
-        _eventCache = Events.GroupBy(e => (Date: _getDateFrom(e).Date, Hour: _getDateFrom(e).Hour))
-                            .ToDictionary(g => g.Key, g => g.ToList());
+        
         UpdateTimetable();
     }
 
