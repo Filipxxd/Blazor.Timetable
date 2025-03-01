@@ -28,7 +28,11 @@
         @foreach (var row in _rows)
         {
         <div class="timetable-row">
-            <div class="timetable-time-column">@row.RowStartTime.ToString("H:00")</div>
+            <div class="timetable-time-column">
+                @(TimetableConfig.Is24HourFormat
+                         ? row.RowStartTime.ToString("HH:mm")
+                         : row.RowStartTime.ToString("h tt"))
+            </div>
             @foreach (var cell in row.Cells)
             {
             <div class="timetable-body-cell" data-slot-id="@cell.Id" @key=@cell.Id>
