@@ -3,7 +3,7 @@ using School_Timetable.Structure.Entity;
 
 namespace School_Timetable.Services.DisplayTypeServices;
 
-public interface IDisplayTypeService
+internal interface IDisplayTypeService
 {
     IList<GridRow<TEvent>> CreateGrid<TEvent>(
         IList<TEvent> events,

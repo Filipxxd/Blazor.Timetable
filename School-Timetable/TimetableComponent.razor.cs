@@ -12,7 +12,7 @@ namespace School_Timetable;
 public partial class TimetableComponent<TEvent> : IDisposable where TEvent : class
 {
     [Inject] public IJSRuntime JsRuntime { get; set; } = default!;
-    [Inject] public IDisplayTypeService DisplayTypeService { get; set; } = default!;
+    [Inject] internal IDisplayTypeService DisplayTypeService { get; set; } = default!;
 
     #region Event Parameters
     [Parameter, EditorRequired] public IList<TEvent> Events { get; set; } = [];
