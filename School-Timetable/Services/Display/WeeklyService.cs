@@ -18,14 +18,14 @@ internal sealed class WeeklyService : IDisplayService
     {
         var rows = new List<GridRow<TEvent>>();
 
-        var startOfWeek = DateHelper.GetStartOfWeekDate(config.CurrentDate, config.SelectedDays.First()); // todo: use CurentDate via config
+        var startOfWeek = DateHelper.GetStartOfWeekDate(config.CurrentDate, config.Days.First()); // todo: use CurentDate via config
 
         foreach (var hour in config.Hours)
         {
             var rowStartTime = startOfWeek.AddHours(hour);
             var gridRow = new GridRow<TEvent> { RowStartTime = rowStartTime };
 
-            foreach (var dayOfWeek in config.SelectedDays)
+            foreach (var dayOfWeek in config.Days)
             {
                 var dayOffset = (dayOfWeek - startOfWeek.DayOfWeek + 7) % 7;
                 var cellDate = startOfWeek.AddDays(dayOffset).Date;

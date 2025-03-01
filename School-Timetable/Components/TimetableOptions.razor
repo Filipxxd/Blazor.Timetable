@@ -3,10 +3,10 @@
     <div class="center-column">
         <h3>@GetHeaderTitle()</h3>
         <div class="date-types">
-            @foreach(var displayType in SupportedDisplayTypes.Where(x => x != SelectedDisplayType))
+            @foreach(var displayType in Config.DisplayTypes.Where(x => x != Config.DisplayType))
             {
-                <button @onclick="() => SelectedDisplayTypeChanged.InvokeAsync(displayType)"
-                        class="@(displayType == SelectedDisplayType ? "active" : "")"> @* Implement active UI diff *@
+                <button @onclick="() => HandleDisplayTypeChanged(displayType)"
+                        class="@(displayType == Config.DisplayType ? "active" : "")"> @* Implement active UI diff *@
                     @displayType
                 </button>
             }

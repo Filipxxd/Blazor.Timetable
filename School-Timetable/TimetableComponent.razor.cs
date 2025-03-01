@@ -78,7 +78,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
     
     private void UpdateTimetable()
     {
-        _rows = DisplayServices.FirstOrDefault(x => x.DisplayType == TimetableConfig.DefaultDisplayType)
+        _rows = DisplayServices.FirstOrDefault(x => x.DisplayType == TimetableConfig.DisplayType)
                                   ?.CreateGrid(Events, TimetableConfig, _getDateFrom, _getDateTo)
                 ?? throw new NotImplementedException();
     }
