@@ -11,7 +11,7 @@ namespace School_Timetable;
 
 public partial class TimetableComponent<TEvent> : IDisposable where TEvent : class
 {
-    [Inject] public IJSRuntime JsRuntime { get; set; } = default!;
+    [Inject] internal IJSRuntime JsRuntime { get; set; } = default!;
     [Inject] internal IEnumerable<IDisplayService> DisplayServices { get; set; } = default!;
 
     [Parameter] public TimetableConfig TimetableConfig { get; set; } = new();
@@ -42,6 +42,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
     #endregion
 
     #region Private Fields
+    private bool _disposed = false;
     private DotNetObjectReference<TimetableComponent<TEvent>> _objectReference = default!;
     private IList<GridRow<TEvent>> _rows = [];
 
@@ -134,11 +135,16 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
 
     public void Dispose()
     {
-        if (_objectReference != null)
-        {
-            _objectReference.Dispose();
-            _objectReference = null;
-        }
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+    
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed) return;
+        if (disposing) _objectReference.Dispose();
+
+        _disposed = true;
     }
 }
     
