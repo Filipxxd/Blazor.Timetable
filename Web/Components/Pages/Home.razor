@@ -14,8 +14,8 @@
                     GroupIdentifier="e => e.GroupId"
 
                     TimetableConfig="new(){
-                        DefaultDisplayType = DisplayType.Week,
-                        SelectedDays=[DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday],
+                        DisplayType = DisplayType.Week,
+                        Days=[DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday],
                         TimeFrom=new(8, 0),
                         TimeTo=new(16, 0),
                         CurrentDate = DateTime.Today.AddDays(_index switch
