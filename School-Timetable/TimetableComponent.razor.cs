@@ -55,11 +55,12 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
 
     protected override void OnInitialized()
     {
-        _getDateFrom = PropertyHelper.Get(DateFrom);
-        _getDateTo = PropertyHelper.Get(DateTo);
-        _getTitle = PropertyHelper.Get(Title);
-        _setDateFrom = PropertyHelper.Set(DateFrom);
-        _setDateTo = PropertyHelper.Set(DateTo);
+        _getDateFrom = PropertyHelper.CreateGetter(DateFrom);
+        _getDateTo = PropertyHelper.CreateGetter(DateTo);
+        _getTitle = PropertyHelper.CreateGetter(Title);
+        _getGroupIdentifier = PropertyHelper.CreateGetter(GroupIdentifier);
+        _setDateFrom = PropertyHelper.CreateSetter(DateFrom);
+        _setDateTo = PropertyHelper.CreateSetter(DateTo);
         _objectReference = DotNetObjectReference.Create(this);
     }
 
