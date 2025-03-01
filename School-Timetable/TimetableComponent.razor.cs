@@ -16,10 +16,10 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
 
     #region Event Parameters
     [Parameter, EditorRequired] public IList<TEvent> Events { get; set; } = [];
-    [Parameter, EditorRequired] public Expression<Func<TEvent, string>> GroupIdentifier { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateFrom { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateTo { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, string>> Title { get; set; } = default!;
+    [Parameter] public Expression<Func<TEvent, object?>> GroupIdentifier { get; set; } = default!;
     #endregion
 
     #region State Change
