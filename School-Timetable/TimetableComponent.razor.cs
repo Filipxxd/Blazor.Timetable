@@ -5,14 +5,14 @@ using School_Timetable.Structure.Entity;
 using School_Timetable.Utilities;
 using School_Timetable.Configuration;
 using School_Timetable.Enums;
-using School_Timetable.Services.DisplayTypeServices;
+using School_Timetable.Services.Display;
 
 namespace School_Timetable;
 
 public partial class TimetableComponent<TEvent> : IDisposable where TEvent : class
 {
     [Inject] public IJSRuntime JsRuntime { get; set; } = default!;
-    [Inject] internal IDisplayTypeService DisplayTypeService { get; set; } = default!;
+    [Inject] internal IEnumerable<IDisplayService> DisplayServices { get; set; } = default!;
 
     #region Event Parameters
     [Parameter, EditorRequired] public IList<TEvent> Events { get; set; } = [];
@@ -78,22 +78,9 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
     
     private void UpdateTimetable()
     {
-        _rows.Clear();
-        
-        switch (TimetableConfig.DefaultDisplayType)
-        {
-            case DisplayType.Day:
-                _rows = DisplayTypeService.CreateGrid(Events, TimetableConfig, _getDateFrom, _getDateTo);
-                break;
-            case DisplayType.Week:
-                _rows = DisplayTypeService.CreateGrid(Events, TimetableConfig, _getDateFrom, _getDateTo);
-                break;
-            case DisplayType.Month:
-                _rows = DisplayTypeService.CreateGrid(Events, TimetableConfig, _getDateFrom, _getDateTo);
-                break;
-            default:
-                throw new NotImplementedException();
-        }
+        _rows = DisplayServices.FirstOrDefault(x => x.DisplayType == TimetableConfig.DefaultDisplayType)
+                                  ?.CreateGrid(Events, TimetableConfig, _getDateFrom, _getDateTo)
+                ?? throw new NotImplementedException();
     }
     
     [JSInvokable]

@@ -1,33 +1,37 @@
 ﻿using School_Timetable.Configuration;
 using School_Timetable.Structure.Entity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using School_Timetable.Enums;
 
-namespace School_Timetable.Services.DisplayTypeServices
+namespace School_Timetable.Services.Display;
+
+internal sealed class MonthlyService : IDisplayService
 {
-    internal sealed class DailyService : IDisplayTypeService
+    public DisplayType DisplayType => DisplayType.Month;
+    
+    public IList<GridRow<TEvent>> CreateGrid<TEvent>(
+        IList<TEvent> events,
+        TimetableConfig config,
+        Func<TEvent, DateTime> getDateFrom,
+        Func<TEvent, DateTime> getDateTo
+    ) where TEvent : class
     {
-        public IList<GridRow<TEvent>> CreateGrid<TEvent>(
-            IList<TEvent> events,
-            TimetableConfig config,
-            Func<TEvent, DateTime> getDateFrom,
-            Func<TEvent, DateTime> getDateTo
-        ) where TEvent : class
+        var rows = new List<GridRow<TEvent>>();
+        var startOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+        var daysInMonth = DateTime.DaysInMonth(startOfMonth.Year, startOfMonth.Month);
+
+        foreach (var dayOfMonth in Enumerable.Range(1, daysInMonth))
         {
-            var rows = new List<GridRow<TEvent>>();
-            var currentDay = DateTime.Now; // todo: config
+            var currentDay = startOfMonth.AddDays(dayOfMonth - 1);
 
             foreach (var hour in config.Hours)
             {
-                var rowStartTime = currentDay.Date.AddHours(hour);
+                var rowStartTime = currentDay.AddHours(hour);
                 var gridRow = new GridRow<TEvent> { RowStartTime = rowStartTime };
-                
+
                 var eventsAtSlot = events.Where(e =>
                 {
                     var eventStart = getDateFrom(e);
                     var eventEnd = getDateTo(e);
-                    
                     return eventStart.Date == currentDay.Date && eventStart.Hour <= hour && eventEnd.Hour > hour;
                 });
 
@@ -36,12 +40,12 @@ namespace School_Timetable.Services.DisplayTypeServices
                     {
                         var eventStart = getDateFrom(e);
                         var eventEnd = getDateTo(e);
-                        
+
                         return new GridItem<TEvent>
                         {
                             Id = Guid.NewGuid(),
                             Event = e,
-                            IsWholeDay = eventEnd.Hour >= config.TimeTo.Hour && eventStart.Hour <= config.TimeFrom.Hour, // todo: add prop for whole day
+                            IsWholeDay = eventEnd.Hour >= config.TimeTo.Hour && eventStart.Hour <= config.TimeFrom.Hour,
                             Span = (int)(eventEnd - eventStart).TotalHours
                         };
                     })
@@ -57,8 +61,8 @@ namespace School_Timetable.Services.DisplayTypeServices
                 gridRow.Cells.Add(gridCell);
                 rows.Add(gridRow);
             }
-
-            return rows;
         }
+
+        return rows;
     }
 }

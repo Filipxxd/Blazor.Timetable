@@ -1,11 +1,14 @@
 ﻿using School_Timetable.Configuration;
+using School_Timetable.Enums;
 using School_Timetable.Structure.Entity;
 using School_Timetable.Utilities;
 
-namespace School_Timetable.Services.DisplayTypeServices;
+namespace School_Timetable.Services.Display;
 
-internal sealed class WeeklyService : IDisplayTypeService
+internal sealed class WeeklyService : IDisplayService
 {
+    public DisplayType DisplayType => DisplayType.Week;
+    
     public IList<GridRow<TEvent>> CreateGrid<TEvent>(
         IList<TEvent> events,
         TimetableConfig config,

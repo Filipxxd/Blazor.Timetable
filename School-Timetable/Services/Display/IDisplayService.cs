@@ -1,10 +1,13 @@
 ﻿using School_Timetable.Configuration;
+using School_Timetable.Enums;
 using School_Timetable.Structure.Entity;
 
-namespace School_Timetable.Services.DisplayTypeServices;
+namespace School_Timetable.Services.Display;
 
-internal interface IDisplayTypeService
+internal interface IDisplayService
 {
+    DisplayType DisplayType { get; }
+    
     IList<GridRow<TEvent>> CreateGrid<TEvent>(
         IList<TEvent> events,
         TimetableConfig config,
