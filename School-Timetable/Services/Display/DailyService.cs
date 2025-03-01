@@ -16,11 +16,10 @@ internal sealed class DailyService : IDisplayService
     ) where TEvent : class
     {
         var rows = new List<GridRow<TEvent>>();
-        var currentDay = DateTime.Now; // todo: config
 
         foreach (var hour in config.Hours)
         {
-            var rowStartTime = currentDay.Date.AddHours(hour);
+            var rowStartTime = config.CurrentDate.Date.AddHours(hour);
             var gridRow = new GridRow<TEvent> { RowStartTime = rowStartTime };
             
             var eventsAtSlot = events.Where(e =>
@@ -28,7 +27,7 @@ internal sealed class DailyService : IDisplayService
                 var eventStart = getDateFrom(e);
                 var eventEnd = getDateTo(e);
                 
-                return eventStart.Date == currentDay.Date && eventStart.Hour <= hour && eventEnd.Hour > hour;
+                return eventStart.Date == config.CurrentDate.Date && eventStart.Hour <= hour && eventEnd.Hour > hour;
             });
 
             var items = eventsAtSlot

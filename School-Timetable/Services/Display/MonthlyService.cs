@@ -16,7 +16,7 @@ internal sealed class MonthlyService : IDisplayService
     ) where TEvent : class
     {
         var rows = new List<GridRow<TEvent>>();
-        var startOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+        var startOfMonth = new DateTime(config.CurrentDate.Year, config.CurrentDate.Month, 1, 0, 0, 0, DateTimeKind.Unspecified);
         var daysInMonth = DateTime.DaysInMonth(startOfMonth.Year, startOfMonth.Month);
 
         foreach (var dayOfMonth in Enumerable.Range(1, daysInMonth))

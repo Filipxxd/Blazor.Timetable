@@ -18,7 +18,7 @@ internal sealed class WeeklyService : IDisplayService
     {
         var rows = new List<GridRow<TEvent>>();
 
-        var startOfWeek = DateHelper.GetStartOfWeekDate(config.CurrentDate, config.Days.First()); // todo: use CurentDate via config
+        var startOfWeek = DateHelper.GetStartOfWeekDate(config.CurrentDate, config.Days.First());
 
         foreach (var hour in config.Hours)
         {
