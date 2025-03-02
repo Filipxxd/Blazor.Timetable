@@ -6,7 +6,7 @@ namespace Timetable.Configuration;
 public sealed class TimetableConfig
 {
     /// <summary>
-    /// Months shown in the timetable. Order has no impact.
+    /// Months shown in the timetable. Order has no impact. Defaults to all months of the year.
     /// </summary>
     public IEnumerable<Month> Months { get; init; } =     [
         Month.January, Month.February, Month.March, Month.April, Month.May, Month.June, 
@@ -14,7 +14,7 @@ public sealed class TimetableConfig
     ];
     
     /// <summary>
-    /// Days shown in the timetable. Order has no impact.
+    /// Days shown in the timetable. Order has no impact. Defaults to all days of the week.
     /// </summary>
     public IEnumerable<DayOfWeek> Days { get; init; } =     [
         DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday,
@@ -22,7 +22,7 @@ public sealed class TimetableConfig
     ];
     
     /// <summary>
-    /// Allowed display modes for the timetable.
+    /// Allowed display modes for the timetable. Defaults to <see cref="DisplayType.Day"/>, <see cref="DisplayType.Week"/>, <see cref="DisplayType.Month"/>.
     /// </summary>
     public IEnumerable<DisplayType> DisplayTypes { get; init; } = [DisplayType.Day, DisplayType.Week, DisplayType.Month]; 
    
