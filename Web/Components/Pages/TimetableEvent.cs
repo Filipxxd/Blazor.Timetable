@@ -5,7 +5,7 @@ public class TimetableEvent
     public string Title { get; set; } = string.Empty;
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
-    public int? GroupId { get; set; }
+    public string? GroupId { get; set; }
     
     public int Id { get; set; }
     public string Description { get; set; } = string.Empty;

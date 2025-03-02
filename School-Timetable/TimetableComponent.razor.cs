@@ -48,10 +48,12 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
 
     private Func<TEvent, DateTime> _getDateFrom = default!;
     private Func<TEvent, DateTime> _getDateTo = default!;
-    private Func<TEvent, string> _getTitle = default!;
+    private Func<TEvent, string?> _getTitle = default!;
+    private Func<TEvent, object?> _getGroupIdentifier  = default!;
 
     private Action<TEvent, DateTime> _setDateFrom = default!;
     private Action<TEvent, DateTime> _setDateTo = default!;
+    private Action<TEvent, object?> _setGroupIdentifier = default!;
     #endregion
 
     protected override void OnInitialized()
@@ -62,6 +64,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
         _getGroupIdentifier = PropertyHelper.CreateGetter(GroupIdentifier);
         _setDateFrom = PropertyHelper.CreateSetter(DateFrom);
         _setDateTo = PropertyHelper.CreateSetter(DateTo);
+        _setGroupIdentifier = PropertyHelper.CreateSetter(GroupIdentifier);
         _objectReference = DotNetObjectReference.Create(this);
     }
 
@@ -80,7 +83,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
     private void UpdateTimetable()
     {
         _rows = DisplayServices.FirstOrDefault(x => x.DisplayType == TimetableConfig.DisplayType)
-                                  ?.CreateGrid(Events, TimetableConfig, _getDateFrom, _getDateTo)
+                    ?.CreateGrid(Events, TimetableConfig, _getDateFrom, _getDateTo)
                 ?? throw new NotImplementedException();
     }
     
