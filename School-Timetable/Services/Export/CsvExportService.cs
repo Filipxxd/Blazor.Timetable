@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Text;
 
-namespace School_Timetable.Services;
+namespace School_Timetable.Services.Export;
 
 internal sealed class CsvExportService : IExportService
 {
@@ -12,12 +12,12 @@ internal sealed class CsvExportService : IExportService
         using var writer = new StreamWriter(memoryStream, Encoding.UTF8, 1024, true);
         var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
         
-        var headerLine = string.Join(",", properties.Select(p => p.Name));
+        var headerLine = string.Join(',', properties.Select(p => p.Name));
         writer.WriteLine(headerLine);
         
         foreach (var record in records)
         {
-            var line = string.Join(",", properties.Select(p => EscapeCsvValue(p.GetValue(record, null)?.ToString())));
+            var line = string.Join(',', properties.Select(p => EscapeCsvValue(p.GetValue(record, null)?.ToString())));
             writer.WriteLine(line);
         }
 

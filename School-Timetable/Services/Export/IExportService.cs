@@ -1,4 +1,4 @@
-﻿namespace School_Timetable.Services;
+﻿namespace School_Timetable.Services.Export;
 
 public interface IExportService
 {
