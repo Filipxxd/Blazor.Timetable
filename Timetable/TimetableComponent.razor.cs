@@ -82,7 +82,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
     {
         _rows = DisplayServices.FirstOrDefault(x => x.DisplayType == TimetableConfig.DisplayType)
                     ?.CreateGrid(Events, TimetableConfig, _getDateFrom, _getDateTo)
-                ?? throw new NotImplementedException();
+                ?? throw new NotSupportedException($"Implementation of {nameof(IDisplayService)} for {nameof(DisplayType)} '{TimetableConfig.DisplayType.ToString()}' not found.");
     }
     
     [JSInvokable]
