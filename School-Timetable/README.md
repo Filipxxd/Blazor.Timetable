@@ -62,15 +62,3 @@ This README provides the necessary steps to use the `School-Timetable` library i
 
    </html>
    ```
-
-## Usage
-
-After completing the above steps, you can start using the `School-Timetable` library in your Blazor project. Ensure that your components and pages are correctly set up to utilize the features provided by the library.
-
-## Additional Configuration
-
-If you need to customize the library further, you can modify the `ServiceExtensions.cs` file or other parts of the library as needed.
-
-## Support
-
-For any issues or questions, please refer to the documentation or contact the library maintainers.
