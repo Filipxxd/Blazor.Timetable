@@ -16,7 +16,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\School-Timetable\School-Timetable.csproj" />
+      <ProjectReference Include="..\Timetable\Timetable.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Components" Version="8.0.8" />
     </ItemGroup>
 
 </Project>

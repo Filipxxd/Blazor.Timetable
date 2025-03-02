@@ -1,4 +1,4 @@
-using School_Timetable.Extensions;
+using Timetable.Extensions;
 using Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);

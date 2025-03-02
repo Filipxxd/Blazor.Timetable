@@ -1,6 +1,6 @@
 ﻿@page "/"
-@using School_Timetable
-@using School_Timetable.Enums
+@using Timetable
+@using Timetable.Enums
 @rendermode InteractiveServer
 
 <PageTitle>Example page</PageTitle>
@@ -16,7 +16,7 @@
                     TimetableConfig="new(){
                         DisplayType = DisplayType.Week,
                         FirstDayOfWeek = DayOfWeek.Monday,
-                        Days=[DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday],
+                        Days=[DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday],
                         TimeFrom=new(8, 0),
                         TimeTo=new(16, 0),
                         Is24HourFormat=false,

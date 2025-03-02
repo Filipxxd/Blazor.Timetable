@@ -1,0 +1,13 @@
+﻿namespace Timetable.Extensions;
+
+internal static class StringExtensions
+{
+    internal static string Capitalize(this string input) =>
+        input switch
+        {
+            "" => string.Empty,
+            _ => input.Length == 1
+                ? input.ToUpper()
+                : input[0].ToString().ToUpper() + input[1..]
+        };
+}
