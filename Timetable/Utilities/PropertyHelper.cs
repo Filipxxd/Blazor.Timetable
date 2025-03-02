@@ -18,26 +18,22 @@ internal static class PropertyHelper
 
     public static Action<TObject, TProperty?> CreateSetter<TObject, TProperty>(Expression<Func<TObject, TProperty?>> expression) where TObject : class
     {
-        if (expression.Body is MemberExpression memberExpression && memberExpression.Member is PropertyInfo property)
+        if (expression.Body is not MemberExpression { Member: PropertyInfo property } memberExpression)
+            throw new ArgumentException("Expression must point to a property", nameof(expression));
+        
+        var targetExpression = expression.Parameters[0];
+        var valueExpression = Expression.Parameter(typeof(TProperty), "value");
+            
+        Expression convertedValueExpression = valueExpression;
+            
+        if (property.PropertyType != typeof(TProperty))
         {
-            var targetExpression = expression.Parameters[0]; // The parameter representing the object type
-            var valueExpression = Expression.Parameter(typeof(TProperty), "value");
-
-            // Ensure that the value is of the same type as the property
-            Expression convertedValueExpression = valueExpression;
-
-            // If property requires boxing/unboxing, perform a conversion
-            if (property.PropertyType != typeof(TProperty))
-            {
-                convertedValueExpression = Expression.Convert(valueExpression, property.PropertyType);
-            }
-
-            var assignExpression = Expression.Assign(memberExpression, convertedValueExpression);
-            var lambda = Expression.Lambda<Action<TObject, TProperty?>>(assignExpression, targetExpression, valueExpression);
-
-            return lambda.Compile();
+            convertedValueExpression = Expression.Convert(valueExpression, property.PropertyType);
         }
 
-        throw new ArgumentException("Expression must point to a property", nameof(expression));
+        var assignExpression = Expression.Assign(memberExpression, convertedValueExpression);
+        var lambda = Expression.Lambda<Action<TObject, TProperty?>>(assignExpression, targetExpression, valueExpression);
+
+        return lambda.Compile();
     }
 }
