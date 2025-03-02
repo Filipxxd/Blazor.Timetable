@@ -31,6 +31,7 @@
     align-items: center;
     padding: 1em 0;
     border-bottom: 1px solid #a0a0a0;
+    font-size: 0.8rem
 }
 
 .timetable-head-cell {
@@ -50,6 +51,7 @@
     justify-content: center;
     min-width: 10em;
     border-right: 1px solid #a0a0a0;
+    font-size: 0.8rem
 }
 
 .timetable-body-cell {
