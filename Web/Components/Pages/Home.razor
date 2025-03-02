@@ -3,7 +3,7 @@
 @using School_Timetable.Enums
 @rendermode InteractiveServer
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Example page</PageTitle>
 
 <TimetableComponent TEvent=TimetableEvent 
                     Events=CurrentEvents
@@ -15,9 +15,11 @@
 
                     TimetableConfig="new(){
                         DisplayType = DisplayType.Week,
+                        FirstDayOfWeek = DayOfWeek.Monday,
                         Days=[DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday],
                         TimeFrom=new(8, 0),
                         TimeTo=new(16, 0),
+                        Is24HourFormat=false,
                         CurrentDate = DateTime.Today.AddDays(_index switch
                         {
                             0 => -7,
@@ -25,8 +27,8 @@
                             _ => 7
                         })
                     }"
-                    
-                    OnEventChanged=HandleEventMoved
+
+                    OnEventUpdated=HandleEventMoved
                     OnPreviousClicked=HandlePreviousClicked 
                     OnNextClicked=HandleNextClicked>
     <DetailTemplate Context="timetableEvent">
@@ -125,7 +127,8 @@
                 Title = "Music Class",
                 StartTime = TodayMidnight.AddDays(8).AddHours(14),
                 EndTime = TodayMidnight.AddDays(8).AddHours(15),
-                Description = "Classical Composers"
+                Description = "Classical Composers",
+                GroupId = "alfabetagammadelta"
             },
             new TimetableEvent
             {

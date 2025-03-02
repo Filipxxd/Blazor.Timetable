@@ -1,5 +1,4 @@
-﻿@using System.Globalization
-@typeparam TEvent where TEvent : class
+﻿@typeparam TEvent where TEvent : class
 @attribute [type: RenderModeInteractiveServer]
 
 <div class="timetable-wrapper">
@@ -13,14 +12,14 @@
         <div class="timetable-head">
             <div class="timetable-time-column"></div>
             @{
-            var startOfWeek = DateHelper.GetStartOfWeekDate(CurrentDate, TimetableConfig.SelectedDays.First());
+            var startOfWeek = DateHelper.GetStartOfWeekDate(TimetableConfig.CurrentDate, TimetableConfig.Days.First());
             }
-            @foreach (var dayOfWeek in TimetableConfig.SelectedDays)
+            @foreach (var dayOfWeek in TimetableConfig.Days)
             {
             var dayOffset = ((int)dayOfWeek - (int)startOfWeek.DayOfWeek + 7) % 7;
             var dateForDay = startOfWeek.AddDays(dayOffset);
             <div class="timetable-head-cell">
-                @dateForDay.ToString("dddd", CultureInfo.CurrentCulture).Capitalize()
+                @dateForDay.ToString("dddd").Capitalize()
             </div>
             }
         </div>

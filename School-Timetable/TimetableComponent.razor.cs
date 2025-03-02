@@ -22,16 +22,14 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
     [Parameter] public Expression<Func<TEvent, object?>> GroupIdentifier { get; set; } = default!;
 
     #region State Change
-    [Parameter, EditorRequired] public bool IsBusy { get; set; }
-    [Parameter, EditorRequired] public Action OnPreviousClicked { get; set; } = default!;
-    [Parameter, EditorRequired] public Action OnNextClicked { get; set; } = default!;
-    [Parameter, EditorRequired] public EventCallback<DisplayType> OnDisplayTypeChanged { get; set; }
-    [Parameter, EditorRequired] public Action<TEvent> OnEventChanged { get; set; } = default!;
-    #endregion
-
-    #region Setup
-    [Parameter] public DateTime CurrentDate { get; set; } = DateTime.Today;
-    [Parameter] public TimetableConfig TimetableConfig { get; set; } = new();
+    [Parameter] public Action OnPreviousClicked { get; set; } = default!;
+    [Parameter] public Action OnNextClicked { get; set; } = default!;
+    [Parameter] public Action<TEvent> OnTitleClicked { get; set; } = default!;
+    [Parameter] public EventCallback<DisplayType> OnDisplayTypeChanged { get; set; }
+    [Parameter] public Action<TEvent> OnEventUpdated { get; set; } = default!;
+    [Parameter] public Action<TEvent> OnEventCreated { get; set; } = default!;
+    [Parameter] public Action<TEvent> OnEventDeleted { get; set; } = default!;
+    [Parameter] public Action<IList<TEvent>> OnGroupEventsChanged { get; set; } = default!;
     #endregion
 
     #region Templates
@@ -90,6 +88,8 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
     [JSInvokable]
     public void MoveEvent(Guid eventId, Guid targetCellId)
     {
+        // TODO: Add group event logic (modal to confirm either group update or single update)
+        
         var targetCell = FindCellById(targetCellId);
         var gridItem = FindItemById(eventId);
         if (targetCell is null || gridItem is null) return;
@@ -97,7 +97,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
         var currentCell = FindCellByItemId(gridItem.Id);
         if (currentCell is null) return;
         MoveGridItem(currentCell, targetCell, gridItem);
-        OnEventChanged.Invoke(gridItem.Event);
+        OnEventUpdated.Invoke(gridItem.Event);
         StateHasChanged();
     }
 
