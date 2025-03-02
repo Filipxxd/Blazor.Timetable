@@ -1,4 +1,4 @@
-const timetableSelector = '.timetable-body';
+const timetableSelector = '.timetable-content';
 const slotSelector = '.timetable-body-cell';
 const eventSelector = '.timetable-event';
 

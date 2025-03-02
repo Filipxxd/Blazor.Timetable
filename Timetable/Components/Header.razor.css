@@ -1,0 +1,14 @@
+﻿.timetable-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.center-column {
+    text-align: center;
+}
+
+.nav-arrow {
+    cursor: pointer;
+    font-size: 2rem;
+}

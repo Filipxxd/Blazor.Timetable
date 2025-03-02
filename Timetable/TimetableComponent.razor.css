@@ -17,6 +17,11 @@
 }
 
 .timetable {
+    background-color: #fff;
+    border-radius: .5rem;
+}
+
+.timetable-content {
     display: flex;
     flex-direction: column;
 }

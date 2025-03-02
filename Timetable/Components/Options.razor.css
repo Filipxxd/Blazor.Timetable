@@ -1,6 +1,8 @@
 ﻿.display-type-options {
     display: flex;
     justify-content: end;
+    background-color: transparent;
+    margin-bottom: 0.2rem;
 }
 
 .display-type-options > * {
@@ -25,19 +27,4 @@
 
 .display-type-button:active {
     background-color: #eae5e5;
-}
-
-.timetable-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.center-column {
-    text-align: center;
-}
-
-.nav-arrow {
-    cursor: pointer;
-    font-size: 2rem;
 }

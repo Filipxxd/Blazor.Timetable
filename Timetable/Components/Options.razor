@@ -1,0 +1,8 @@
+﻿<div class="display-type-options">
+    @foreach(var displayType in Config.DisplayTypes.Where(x => x != Config.DisplayType))
+    {
+    <span @onclick="() => HandleDisplayTypeChanged(displayType)" class="display-type-button">
+                @displayType
+            </span>
+    }
+</div>

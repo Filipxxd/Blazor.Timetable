@@ -2,51 +2,57 @@
 @attribute [type: RenderModeInteractiveServer]
 
 <div class="timetable-wrapper">
-    <TimetableOptions
+    <Options
         Config=TimetableConfig
         OnDisplayTypeChanged=OnDisplayTypeChanged
-        OnNextClicked=OnNextClicked
-        OnPreviousClicked=OnPreviousClicked
     />
     <div class="timetable">
-        <div class="timetable-head">
-            <div class="timetable-time-column"></div>
-            @{
-            var startOfWeek = DateHelper.GetStartOfWeekDate(TimetableConfig.CurrentDate, TimetableConfig.Days.First());
-            }
-            @foreach (var dayOfWeek in TimetableConfig.Days)
-            {
-            var dayOffset = ((int)dayOfWeek - (int)startOfWeek.DayOfWeek + 7) % 7;
-            var dateForDay = startOfWeek.AddDays(dayOffset);
-            <div class="timetable-head-cell">
-                @dateForDay.ToString("dddd").Capitalize()
-            </div>
-            }
-        </div>
-
-        @foreach (var row in _rows)
-        {
-        <div class="timetable-row">
-            <div class="timetable-time-column">
-                @(TimetableConfig.Is24HourFormat
-                         ? row.RowStartTime.ToString("HH:mm")
-                         : row.RowStartTime.ToString("h tt"))
-            </div>
-            @foreach (var cell in row.Cells)
-            {
-            <div class="timetable-body-cell" data-slot-id="@cell.Id" @key=@cell.Id>
-                @foreach (var cellEvent in cell.Events)
+        <Header
+            Config=TimetableConfig
+            OnNextClicked=OnNextClicked
+            OnPreviousClicked=OnPreviousClicked
+        />
+        
+        <div class="timetable-content">
+            <div class="timetable-head">
+                <div class="timetable-time-column"></div>
+                @{
+                var startOfWeek = DateHelper.GetStartOfWeekDate(TimetableConfig.CurrentDate, TimetableConfig.Days.First());
+                }
+                @foreach (var dayOfWeek in TimetableConfig.Days)
                 {
-                <TimetableEvent
-                    EventId=@cellEvent.Id
-                    Title=@(_getTitle(cellEvent.Event))
-                    DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
-                    Span=@cellEvent.Span>
-                </TimetableEvent>
+                var dayOffset = ((int)dayOfWeek - (int)startOfWeek.DayOfWeek + 7) % 7;
+                var dateForDay = startOfWeek.AddDays(dayOffset);
+                <div class="timetable-head-cell">
+                    @dateForDay.ToString("dddd").Capitalize()
+                </div>
+                }
+            </div>
+
+            @foreach (var row in _rows)
+            {
+            <div class="timetable-row">
+                <div class="timetable-time-column">
+                    @(TimetableConfig.Is24HourFormat
+                             ? row.RowStartTime.ToString("HH:mm")
+                             : row.RowStartTime.ToString("h tt"))
+                </div>
+                @foreach (var cell in row.Cells)
+                {
+                <div class="timetable-body-cell" data-slot-id="@cell.Id" @key=@cell.Id>
+                    @foreach (var cellEvent in cell.Events)
+                    {
+                    <TimetableEvent
+                        EventId=@cellEvent.Id
+                        Title=@(_getTitle(cellEvent.Event))
+                        DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
+                        Span=@cellEvent.Span>
+                    </TimetableEvent>
+                    }
+                </div>
                 }
             </div>
             }
         </div>
-        }
     </div>
 </div>
