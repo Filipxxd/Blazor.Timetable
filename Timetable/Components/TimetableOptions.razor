@@ -1,16 +1,18 @@
-﻿<div class="timetable-header">
-    <div class="nav-arrow" @onclick=OnPreviousClicked>&lt;</div>
-    <div class="center-column">
-        <h3>@GetHeaderTitle()</h3>
-        <div class="date-types">
-            @foreach(var displayType in Config.DisplayTypes.Where(x => x != Config.DisplayType))
-            {
-                <button @onclick="() => HandleDisplayTypeChanged(displayType)"
-                        class="@(displayType == Config.DisplayType ? "active" : "")"> @* Implement active UI diff *@
-                    @displayType
-                </button>
-            }
-        </div>
+﻿<div>
+    <div class="display-type-options">
+        @foreach(var displayType in Config.DisplayTypes.Where(x => x != Config.DisplayType))
+        {
+            <span @onclick="() => HandleDisplayTypeChanged(displayType)" class="display-type-button">
+                @displayType
+            </span>
+        }
     </div>
-    <div class="nav-arrow" @onclick=OnNextClicked>&gt;</div>
+    
+    <div class="timetable-header">
+        <div class="nav-arrow" @onclick=OnPreviousClicked>&lt;</div>
+        <div class="center-column">
+            <h3>@GetHeaderTitle()</h3>
+        </div>
+        <div class="nav-arrow" @onclick=OnNextClicked>&gt;</div>
+    </div>
 </div>

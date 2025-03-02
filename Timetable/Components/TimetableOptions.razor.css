@@ -1,4 +1,33 @@
-﻿.timetable-header {
+﻿.display-type-options {
+    display: flex;
+    justify-content: end;
+}
+
+.display-type-options > * {
+    margin-right: .3rem;
+}
+
+.display-type-button {
+    border: 1px solid #a8a6a6;
+    border-radius: .5rem;
+    color: #333;
+    cursor: pointer;
+    padding: .1rem 0;
+    width: 4rem;
+    text-align: center;
+    font-size: .8rem;
+    font-weight: bold;
+}
+
+.display-type-button:hover {
+    background-color: #ededed;
+}
+
+.display-type-button:active {
+    background-color: #eae5e5;
+}
+
+.timetable-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -11,10 +40,4 @@
 .nav-arrow {
     cursor: pointer;
     font-size: 2rem;
-}
-
-.date-types button {
-    background-color: #e0e0e0;
-    color: #333;
-    cursor: pointer;
 }
