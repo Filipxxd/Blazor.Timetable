@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Components.Web;
 
 namespace Timetable.Utilities;
 
-internal sealed class RenderModeInteractiveServer : RenderModeAttribute
+[AttributeUsage(AttributeTargets.Class)]
+internal sealed class RenderModeInteractiveServerAttribute : RenderModeAttribute
 {
     public override IComponentRenderMode Mode => RenderMode.InteractiveServer;
 }
