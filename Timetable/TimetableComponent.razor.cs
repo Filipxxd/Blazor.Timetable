@@ -30,6 +30,8 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
     [Parameter] public Action<TEvent> OnEventCreated { get; set; } = default!;
     [Parameter] public Action<TEvent> OnEventDeleted { get; set; } = default!;
     [Parameter] public Action<IList<TEvent>> OnGroupEventsChanged { get; set; } = default!;
+    [Parameter] public Action<DayOfWeek> OnChangedToDay { get; set; } = default!;
+    
     #endregion
 
     #region Templates
@@ -136,6 +138,13 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
         toCell.Events.Add(gridItem);
     }
 
+    private async Task HandleChangedToDay(DayOfWeek dayOfWeek)
+    {
+        OnChangedToDay.Invoke(dayOfWeek);
+        TimetableConfig.CurrentDate = DateHelper.GetDateForDay(TimetableConfig.CurrentDate, dayOfWeek);
+        await OnDisplayTypeChanged.InvokeAsync(DisplayType.Day);
+    }
+    
     public void Dispose()
     {
         Dispose(true);

@@ -17,18 +17,17 @@
             <div class="timetable-head">
                 <div class="timetable-time-column"></div>
                 @{
-                var startOfWeek = DateHelper.GetStartOfWeekDate(TimetableConfig.CurrentDate, TimetableConfig.Days.First());
+                    var startOfWeek = DateHelper.GetStartOfWeekDate(TimetableConfig.CurrentDate, TimetableConfig.Days.First());
                 }
                 @foreach (var dayOfWeek in TimetableConfig.Days)
                 {
-                var dayOffset = ((int)dayOfWeek - (int)startOfWeek.DayOfWeek + 7) % 7;
-                var dateForDay = startOfWeek.AddDays(dayOffset);
-                <div class="timetable-head-cell">
-                    @dateForDay.ToString("dddd").Capitalize()
-                </div>
+                    var dateForDay = DateHelper.GetDateForDay(startOfWeek, dayOfWeek);
+                    <div class="timetable-head-cell" @onclick="() => HandleChangedToDay(dayOfWeek)">
+                        @dateForDay.ToString("dddd").Capitalize()
+                    </div>
                 }
             </div>
-
+            
             @foreach (var row in _rows)
             {
             <div class="timetable-row">
