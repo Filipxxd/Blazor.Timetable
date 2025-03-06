@@ -6,6 +6,7 @@ using Timetable.Utilities;
 using Timetable.Configuration;
 using Timetable.Enums;
 using Timetable.Services.Display;
+using Timetable.Structure;
 
 namespace Timetable;
 
@@ -44,7 +45,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
     #region Private Fields
     private bool _disposed = false;
     private DotNetObjectReference<TimetableComponent<TEvent>> _objectReference = default!;
-    private IList<GridRow<TEvent>> _rows = [];
+    private Timetable<TEvent> _timetable = default!;
 
     private Func<TEvent, DateTime> _getDateFrom = default!;
     private Func<TEvent, DateTime> _getDateTo = default!;
@@ -66,13 +67,25 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
         _setDateTo = PropertyHelper.CreateSetter(DateTo);
         _setGroupIdentifier = PropertyHelper.CreateSetter(GroupIdentifier);
         _objectReference = DotNetObjectReference.Create(this);
+
+        _timetable = new Timetable<TEvent>(
+            _getDateFrom,
+            _getDateTo,
+            _getTitle,
+            _getGroupIdentifier,
+            _setDateFrom,
+            _setDateTo,
+            _setGroupIdentifier
+        );
     }
 
     protected override void OnParametersSet()
     {
         TimetableConfig.Validate();
         
-        UpdateTimetable();
+        _timetable.Rows = DisplayServices.FirstOrDefault(x => x.DisplayType == TimetableConfig.DisplayType)
+                              ?.CreateGrid(Events, TimetableConfig, _getDateFrom, _getDateTo)
+                          ?? throw new NotSupportedException($"Implementation of {nameof(IDisplayService)} for {nameof(DisplayType)} '{TimetableConfig.DisplayType.ToString()}' not found.");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -80,62 +93,16 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
         await JsRuntime.InvokeVoidAsync("dragDrop.init", _objectReference);
     }
     
-    private void UpdateTimetable()
-    {
-        _rows = DisplayServices.FirstOrDefault(x => x.DisplayType == TimetableConfig.DisplayType)
-                    ?.CreateGrid(Events, TimetableConfig, _getDateFrom, _getDateTo)
-                ?? throw new NotSupportedException($"Implementation of {nameof(IDisplayService)} for {nameof(DisplayType)} '{TimetableConfig.DisplayType.ToString()}' not found.");
-    }
-    
     [JSInvokable]
     public void MoveEvent(Guid eventId, Guid targetCellId)
     {
-        // TODO: Add group event logic (modal to confirm either group update or single update)
+        if (!_timetable.TryMoveEvent(eventId, targetCellId, out var @event))
+        {
+            return; 
+        }
         
-        var targetCell = FindCellById(targetCellId);
-        var gridItem = FindItemById(eventId);
-        if (targetCell is null || gridItem is null) return;
-        UpdateEventTiming(gridItem, targetCell.CellTime);
-        var currentCell = FindCellByItemId(gridItem.Id);
-        if (currentCell is null) return;
-        MoveGridItem(currentCell, targetCell, gridItem);
-        OnEventUpdated.Invoke(gridItem.Event);
+        OnEventUpdated.Invoke(@event);
         StateHasChanged();
-    }
-
-    private GridCell<TEvent>? FindCellById(Guid cellId)
-    {
-        return _rows.SelectMany(row => row.Cells)
-                    .SingleOrDefault(cell => cell.Id == cellId);
-    }
-
-    private GridItem<TEvent>? FindItemById(Guid itemId)
-    {
-        return _rows.SelectMany(row => row.Cells)
-                    .SelectMany(cell => cell.Events)
-                    .SingleOrDefault(item => item.Id == itemId);
-    }
-
-    private void UpdateEventTiming(GridItem<TEvent> gridItem, DateTime newStartDate)
-    {
-        var oldDateFrom = _getDateFrom(gridItem.Event);
-        var oldDateTo = _getDateTo(gridItem.Event);
-        var duration = oldDateTo - oldDateFrom;
-        var newEndDate = newStartDate.Add(duration);
-        _setDateFrom(gridItem.Event, newStartDate);
-        _setDateTo(gridItem.Event, newEndDate);
-    }
-
-    private GridCell<TEvent>? FindCellByItemId(Guid itemId)
-    {
-        return _rows.SelectMany(row => row.Cells)
-                    .FirstOrDefault(cell => cell.Events.Select(x => x.Id).Contains(itemId));
-    }
-
-    private static void MoveGridItem(GridCell<TEvent> fromCell, GridCell<TEvent> toCell, GridItem<TEvent> gridItem)
-    {
-        fromCell.Events.Remove(gridItem);
-        toCell.Events.Add(gridItem);
     }
 
     private async Task HandleChangedToDay(DayOfWeek dayOfWeek)
