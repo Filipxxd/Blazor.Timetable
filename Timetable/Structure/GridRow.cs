@@ -1,4 +1,4 @@
-﻿namespace Timetable.Structure.Entity;
+﻿namespace Timetable.Structure;
 
 internal sealed class GridRow<TEvent> where TEvent : class
 {

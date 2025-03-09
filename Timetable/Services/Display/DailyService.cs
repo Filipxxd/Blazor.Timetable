@@ -1,6 +1,6 @@
 ﻿using Timetable.Configuration;
 using Timetable.Enums;
-using Timetable.Structure.Entity;
+using Timetable.Structure;
 
 namespace Timetable.Services.Display;
 
@@ -11,9 +11,7 @@ internal sealed class DailyService : IDisplayService
     public IList<GridRow<TEvent>> CreateGrid<TEvent>(
         IList<TEvent> events,
         TimetableConfig config,
-        Func<TEvent, DateTime> getDateFrom,
-        Func<TEvent, DateTime> getDateTo
-    ) where TEvent : class
+        TimetableEventProps<TEvent> props) where TEvent : class
     {
         var rows = new List<GridRow<TEvent>>();
 
@@ -24,26 +22,14 @@ internal sealed class DailyService : IDisplayService
             
             var eventsAtSlot = events.Where(e =>
             {
-                var eventStart = getDateFrom(e);
-                var eventEnd = getDateTo(e);
+                var eventStart = props.GetDateFrom(e);
+                var eventEnd = props.GetDateTo(e);
                 
                 return eventStart.Date == config.CurrentDate.Date && eventStart.Hour <= hour && eventEnd.Hour > hour;
             });
 
             var items = eventsAtSlot
-                .Select(e =>
-                {
-                    var eventStart = getDateFrom(e);
-                    var eventEnd = getDateTo(e);
-                    
-                    return new GridItem<TEvent>
-                    {
-                        Id = Guid.NewGuid(),
-                        Event = e,
-                        IsWholeDay = eventEnd.Hour >= config.TimeTo.Hour && eventStart.Hour <= config.TimeFrom.Hour, // todo: add prop for whole day
-                        Span = (int)(eventEnd - eventStart).TotalHours
-                    };
-                })
+                .Select(e => new GridEvent<TEvent>(e, props, config))
                 .ToList();
 
             var gridCell = new GridCell<TEvent>

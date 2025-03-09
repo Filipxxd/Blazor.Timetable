@@ -1,12 +1,11 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using Timetable.Structure.Entity;
+using Timetable.Structure;
 using Timetable.Utilities;
 using Timetable.Configuration;
 using Timetable.Enums;
 using Timetable.Services.Display;
-using Timetable.Structure;
 
 namespace Timetable;
 
@@ -19,7 +18,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
     [Parameter, EditorRequired] public IList<TEvent> Events { get; set; } = [];
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateFrom { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateTo { get; set; } = default!;
-    [Parameter, EditorRequired] public Expression<Func<TEvent, string>> Title { get; set; } = default!;
+    [Parameter, EditorRequired] public Expression<Func<TEvent, string?>> Title { get; set; } = default!;
     [Parameter] public Expression<Func<TEvent, object?>> GroupIdentifier { get; set; } = default!;
 
     #region State Change
@@ -46,37 +45,15 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
     private bool _disposed = false;
     private DotNetObjectReference<TimetableComponent<TEvent>> _objectReference = default!;
     private Timetable<TEvent> _timetable = default!;
-
-    private Func<TEvent, DateTime> _getDateFrom = default!;
-    private Func<TEvent, DateTime> _getDateTo = default!;
-    private Func<TEvent, string?> _getTitle = default!;
-    private Func<TEvent, object?> _getGroupIdentifier  = default!;
-
-    private Action<TEvent, DateTime> _setDateFrom = default!;
-    private Action<TEvent, DateTime> _setDateTo = default!;
-    private Action<TEvent, object?> _setGroupIdentifier = default!;
+    private TimetableEventProps<TEvent> _eventProps = default!;
     #endregion
 
     protected override void OnInitialized()
     {
-        _getDateFrom = PropertyHelper.CreateGetter(DateFrom);
-        _getDateTo = PropertyHelper.CreateGetter(DateTo);
-        _getTitle = PropertyHelper.CreateGetter(Title);
-        _getGroupIdentifier = PropertyHelper.CreateGetter(GroupIdentifier);
-        _setDateFrom = PropertyHelper.CreateSetter(DateFrom);
-        _setDateTo = PropertyHelper.CreateSetter(DateTo);
-        _setGroupIdentifier = PropertyHelper.CreateSetter(GroupIdentifier);
         _objectReference = DotNetObjectReference.Create(this);
-
-        _timetable = new Timetable<TEvent>(
-            _getDateFrom,
-            _getDateTo,
-            _getTitle,
-            _getGroupIdentifier,
-            _setDateFrom,
-            _setDateTo,
-            _setGroupIdentifier
-        );
+        
+        _timetable = new Timetable<TEvent>();
+        _eventProps = new TimetableEventProps<TEvent>(DateFrom, DateTo, Title, GroupIdentifier);
     }
 
     protected override void OnParametersSet()
@@ -84,7 +61,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
         TimetableConfig.Validate();
         
         _timetable.Rows = DisplayServices.FirstOrDefault(x => x.DisplayType == TimetableConfig.DisplayType)
-                              ?.CreateGrid(Events, TimetableConfig, _getDateFrom, _getDateTo)
+                              ?.CreateGrid(Events, TimetableConfig, _eventProps)
                           ?? throw new NotSupportedException($"Implementation of {nameof(IDisplayService)} for {nameof(DisplayType)} '{TimetableConfig.DisplayType.ToString()}' not found.");
     }
 

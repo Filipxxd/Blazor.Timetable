@@ -43,7 +43,7 @@
                     {
                     <TimetableEvent
                         EventId=@cellEvent.Id
-                        Title=@(_getTitle(cellEvent.Event))
+                        Title=@(cellEvent.Title)
                         DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
                         Span=@cellEvent.Span>
                     </TimetableEvent>
