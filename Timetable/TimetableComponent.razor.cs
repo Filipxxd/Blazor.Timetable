@@ -19,7 +19,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateFrom { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateTo { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, string?>> Title { get; set; } = default!;
-    [Parameter] public Expression<Func<TEvent, object?>> GroupIdentifier { get; set; } = default!;
+    [Parameter] public Expression<Func<TEvent, object?>>? GroupIdentifier { get; set; }
 
     #region State Change
     [Parameter] public Action OnPreviousClicked { get; set; } = default!;
@@ -67,7 +67,8 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await JsRuntime.InvokeVoidAsync("dragDrop.init", _objectReference);
+        if (firstRender)
+            await JsRuntime.InvokeVoidAsync("dragDrop.init", _objectReference);
     }
     
     [JSInvokable]
