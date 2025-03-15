@@ -5,6 +5,7 @@ using Timetable.Structure;
 using Timetable.Utilities;
 using Timetable.Configuration;
 using Timetable.Enums;
+using Timetable.Services.DataExchange.Export;
 using Timetable.Services.Display;
 
 namespace Timetable;
@@ -15,6 +16,7 @@ public partial class TimetableComponent<TEvent> : IAsyncDisposable where TEvent 
     [Inject] internal IEnumerable<IDisplayService> DisplayServices { get; set; } = default!;
 
     [Parameter] public TimetableConfig TimetableConfig { get; set; } = new();
+    [Parameter] public ExportConfig<TEvent> ExportConfig { get; set; } = default!;
     [Parameter, EditorRequired] public IList<TEvent> Events { get; set; } = [];
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateFrom { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateTo { get; set; } = default!;
@@ -55,12 +57,23 @@ public partial class TimetableComponent<TEvent> : IAsyncDisposable where TEvent 
         
         _timetable = new Timetable<TEvent>();
         _eventProps = new TimetableEventProps<TEvent>(DateFrom, DateTo, Title, GroupIdentifier);
+
+        ExportConfig = new ExportConfig<TEvent>
+        {
+            FileName = "EventExport",
+            Transformer = new CsvTransformer(),
+            Properties = [
+                new NamePropertySelector<TEvent, DateTime>("DateFrom", DateFrom), 
+                new NamePropertySelector<TEvent, DateTime>("DateTo", DateTo), 
+                new NamePropertySelector<TEvent, string?>("Title", Title)
+            ]
+        };
     }
 
     protected override void OnParametersSet()
     {
         TimetableConfig.Validate();
-        
+        ExportConfig.Validate();
         _timetable.Rows = DisplayServices.FirstOrDefault(x => x.DisplayType == TimetableConfig.DisplayType)
                               ?.CreateGrid(Events, TimetableConfig, _eventProps)
                           ?? throw new NotSupportedException($"Implementation of {nameof(IDisplayService)} for {nameof(DisplayType)} '{TimetableConfig.DisplayType.ToString()}' not found.");
@@ -70,8 +83,7 @@ public partial class TimetableComponent<TEvent> : IAsyncDisposable where TEvent 
     {
         if (firstRender)
         {
-            await JsRuntime.InvokeAsync<IJSObjectReference>("import",
-                "./_content/Timetable/interact.min.js");
+            await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Timetable/interact.min.js");
             _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import",
                 "./_content/Timetable/TimetableComponent.razor.js");
             await _jsModule.InvokeVoidAsync("dragDrop.init", _objectReference);
@@ -96,7 +108,6 @@ public partial class TimetableComponent<TEvent> : IAsyncDisposable where TEvent 
         TimetableConfig.CurrentDate = DateHelper.GetDateForDay(TimetableConfig.CurrentDate, dayOfWeek);
         await OnDisplayTypeChanged.InvokeAsync(DisplayType.Day);
     }
-    
     
     async ValueTask IAsyncDisposable.DisposeAsync()
     {

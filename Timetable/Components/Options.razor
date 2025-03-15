@@ -1,8 +1,13 @@
-﻿<div class="display-type-options">
-    @foreach(var displayType in Config.DisplayTypes.Where(x => x != Config.DisplayType))
+﻿@typeparam TEvent where TEvent : class
+
+<div class="display-type-options">
+    <span @onclick="Export" class="display-type-button">
+        Export
+    </span>
+    @foreach (var displayType in TimetableConfig.DisplayTypes.Where(x => x != TimetableConfig.DisplayType))
     {
-    <span @onclick="() => HandleDisplayTypeChanged(displayType)" class="display-type-button">
-                @displayType
-            </span>
+        <span @onclick="() => HandleDisplayTypeChanged(displayType)" class="display-type-button">
+            @displayType
+        </span>
     }
 </div>
