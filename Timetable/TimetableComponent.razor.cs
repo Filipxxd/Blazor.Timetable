@@ -9,7 +9,7 @@ using Timetable.Services.Display;
 
 namespace Timetable;
 
-public partial class TimetableComponent<TEvent> : IDisposable where TEvent : class
+public partial class TimetableComponent<TEvent> : IAsyncDisposable where TEvent : class
 {
     [Inject] internal IJSRuntime JsRuntime { get; set; } = default!;
     [Inject] internal IEnumerable<IDisplayService> DisplayServices { get; set; } = default!;
@@ -97,18 +97,16 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
         await OnDisplayTypeChanged.InvokeAsync(DisplayType.Day);
     }
     
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
     
-    protected virtual void Dispose(bool disposing)
+    async ValueTask IAsyncDisposable.DisposeAsync()
     {
-        if (_disposed) return;
-        if (disposing) _objectReference.Dispose();
-
-        _disposed = true;
+        if (_jsModule is null) return;
+        
+        try
+        {
+            await _jsModule.DisposeAsync();
+        }
+        catch (JSDisconnectedException) { }
     }
 }
     
