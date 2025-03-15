@@ -1,8 +1,8 @@
-const timetableSelector = '.timetable-content';
+﻿const timetableSelector = '.timetable-content';
 const slotSelector = '.timetable-body-cell';
 const eventSelector = '.timetable-event';
 
-window.dragDrop = {
+export const dragDrop = {
     init: function(objRef) {
         interact(eventSelector).draggable({
             inertia: false,
@@ -45,11 +45,11 @@ window.dragDrop = {
                         resetPosition(target);
                         return;
                     }
-                        
+
                     const eventId = target.getAttribute('data-event-id');
                     const targetSlotId = closestSlot.getAttribute('data-slot-id');
                     const originalSlotId = target.getAttribute('data-original-slot-id');
-                    
+
                     if (targetSlotId !== originalSlotId)
                         objRef.invokeMethodAsync('MoveEvent', eventId, targetSlotId).catch(error => {
                             console.error("Error moving event: ", error);
@@ -69,7 +69,7 @@ window.dragDrop = {
         function findClosestSlot(draggedElement) {
             const slots = document.querySelectorAll(slotSelector);
             const draggedRect = draggedElement.getBoundingClientRect();
-            
+
             const draggedCenterX = draggedRect.left + draggedRect.width / 2;
             const draggedCenterY = draggedRect.top;
 
@@ -78,15 +78,15 @@ window.dragDrop = {
 
             slots.forEach(slot => {
                 const slotRect = slot.getBoundingClientRect();
-                
+
                 const slotCenterX = slotRect.left + slotRect.width / 2;
                 const slotCenterY = slotRect.top;
-                
+
                 const distance = Math.sqrt(
                     Math.pow(draggedCenterX - slotCenterX, 2) +
                     Math.pow(draggedCenterY - slotCenterY, 2)
                 );
-                
+
                 if (distance < closestDistance) {
                     closestDistance = distance;
                     closestSlot = slot;

@@ -46,6 +46,7 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
     private DotNetObjectReference<TimetableComponent<TEvent>> _objectReference = default!;
     private Timetable<TEvent> _timetable = default!;
     private TimetableEventProps<TEvent> _eventProps = default!;
+    private IJSObjectReference? _jsModule = default!;
     #endregion
 
     protected override void OnInitialized()
@@ -68,7 +69,13 @@ public partial class TimetableComponent<TEvent> : IDisposable where TEvent : cla
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-            await JsRuntime.InvokeVoidAsync("dragDrop.init", _objectReference);
+        {
+            await JsRuntime.InvokeAsync<IJSObjectReference>("import",
+                "./_content/Timetable/interact.min.js");
+            _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import",
+                "./_content/Timetable/TimetableComponent.razor.js");
+            await _jsModule.InvokeVoidAsync("dragDrop.init", _objectReference);
+        }
     }
     
     [JSInvokable]
