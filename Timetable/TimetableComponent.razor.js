@@ -1,6 +1,6 @@
 ﻿const timetableSelector = '.timetable-content';
 const slotSelector = '.timetable-body-cell';
-const eventSelector = '.timetable-event';
+const eventSelector = '.timetable-movable-event';
 
 export const dragDrop = {
     init: function(objRef) {

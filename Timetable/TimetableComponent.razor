@@ -3,18 +3,17 @@
 
 <div class="timetable-wrapper">
     <Options
-        Events=Events
-        ExportConfig=ExportConfig
-        TimetableConfig=TimetableConfig
-        OnDisplayTypeChanged=OnDisplayTypeChanged
-    />
+        Events="Events"
+        ExportConfig="ExportConfig"
+        TimetableConfig="TimetableConfig"
+        OnDisplayTypeChanged="OnDisplayTypeChanged" />
+
     <div class="timetable">
         <Header
-            Config=TimetableConfig
-            OnNextClicked=OnNextClicked
-            OnPreviousClicked=OnPreviousClicked
-        />
-        
+            Config="TimetableConfig"
+            OnNextClicked="OnNextClicked"
+            OnPreviousClicked="OnPreviousClicked" />
+
         <div class="timetable-content">
             <div class="timetable-head">
                 <div class="timetable-time-column"></div>
@@ -30,29 +29,51 @@
                 }
             </div>
             
-            @foreach (var row in _timetable.Rows)
+            @if (_timetable.Rows.Any(row => row.IsWholeDayRow))
             {
-            <div class="timetable-row">
-                <div class="timetable-time-column">
-                    @(TimetableConfig.Is24HourFormat
-                             ? row.RowStartTime.ToString("HH:mm")
-                             : row.RowStartTime.ToString("h tt"))
-                </div>
-                @foreach (var cell in row.Cells)
-                {
-                <div class="timetable-body-cell" data-slot-id="@cell.Id" @key=@cell.Id>
-                    @foreach (var cellEvent in cell.Events)
+                var wholeDayRow = _timetable.Rows.First(row => row.IsWholeDayRow);
+                <div class="timetable-whole-day-row">
+                    <div class="timetable-time-column"></div>
+                    @foreach (var cell in wholeDayRow.Cells)
                     {
-                    <TimetableEvent
-                        EventId=@cellEvent.Id
-                        Title=@cellEvent.Title
-                        DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
-                        Span=@cellEvent.Span>
-                    </TimetableEvent>
+                        <div class="timetable-whole-day-cell" data-slot-id="@cell.Id" @key="cell.Id">
+                            @foreach (var cellEvent in cell.Events)
+                            {
+                                <TimetableEvent
+                                    EventId=@cellEvent.Id
+                                    Title=@cellEvent.Title
+                                    IsWholeDay=@cellEvent.IsWholeDay
+                                    Span=@cellEvent.Span
+                                    DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder)) />
+                            }
+                        </div>
                     }
                 </div>
-                }
-            </div>
+            }
+            
+            @foreach (var row in _timetable.Rows.Where(r => !r.IsWholeDayRow))
+            {
+                <div class="timetable-row">
+                    <div class="timetable-time-column">
+                        @(TimetableConfig.Is24HourFormat
+                            ? row.RowStartTime.ToString("HH:mm")
+                            : row.RowStartTime.ToString("h tt"))
+                    </div>
+                    @foreach (var cell in row.Cells)
+                    {
+                        <div class="timetable-body-cell" data-slot-id="@cell.Id" @key="@cell.Id">
+                            @foreach (var cellEvent in cell.Events)
+                            {
+                                <TimetableEvent
+                                    EventId="@cellEvent.Id"
+                                    Title="@cellEvent.Title"
+                                    DetailTemplate="@(builder => DetailTemplate(cellEvent.Event)(builder))"
+                                    Span="@cellEvent.Span">
+                                </TimetableEvent>
+                            }
+                        </div>
+                    }
+                </div>
             }
         </div>
     </div>

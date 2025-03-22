@@ -1,12 +1,12 @@
 ﻿.timetable-event {
     background-color: #67b6ff;
     position: relative;
-    z-index: 10;
     -ms-touch-action: none;
     touch-action: none;
     flex: 1 1 auto;
     height: 100%;
     border-radius: 10px;
+    z-index: auto;
 }
 
 .timetable-event-pill {

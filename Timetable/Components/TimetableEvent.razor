@@ -1,5 +1,8 @@
-﻿<div class="timetable-event" data-event-id="@EventId" @key="@EventId" style="height: calc(@Span * 2rem);">
-    <div class="timetable-event-pill" @onclick=TogglePopover>
+﻿<div class="timetable-event @(IsWholeDay ? "" : "timetable-movable-event")"
+     data-event-id="@EventId"
+     @key="EventId"
+     style='height: @(IsWholeDay ? "2rem" : $"{Span * 2}rem")'>
+    <div class="timetable-event-pill" @onmousedown=TogglePopover>
         @Title
     </div>
 

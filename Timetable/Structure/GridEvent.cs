@@ -39,6 +39,7 @@ internal sealed class GridEvent<TEvent> where TEvent : class
     
     public TEvent Event { get; }
     public Guid Id { get; }
-    public bool IsWholeDay => DateTo.Hour >= _config.TimeTo.Hour && DateFrom.Hour <= _config.TimeFrom.Hour;
+    public bool IsWholeDay 
+        => (DateTo.Hour >= _config.TimeTo.Hour && DateFrom.Hour <= _config.TimeFrom.Hour) || DateTo.Hour > 23;
     public int Span => (int)(DateTo - DateFrom).TotalHours;
 }

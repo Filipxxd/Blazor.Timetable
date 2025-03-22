@@ -39,6 +39,22 @@
     text-align: center;
 }
 
+.timetable-whole-day-row {
+    display: flex;
+    align-items: center;
+    background-color: #f0f8ff;
+    border-bottom: 1px solid #a0a0a0;
+    padding: 0.5em 0;
+}
+
+.timetable-whole-day-cell {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .timetable-row {
     display: flex;
     height: 2em;
