@@ -1,21 +1,27 @@
 ﻿<div class="timetable-event @(IsWholeDay ? "" : "timetable-movable-event")"
-     data-event-id="@EventId"
-     @key="EventId"
+     data-event-id=@EventId
+     @key=EventId
      style='height: @(IsWholeDay ? "2rem" : $"{Span * 2}rem")'>
-    <div class="timetable-event-pill" @onmousedown=TogglePopover>
+    <div class="timetable-event-pill" 
+         @onmousedown=OnMouseDown
+         @onmouseup=OnMouseUp>
         @Title
     </div>
+</div>
 
-    @if (_popoverVisible)
-    {
-        <div class="popover">
-            <div class="popover-header">
-                <h4>@Title</h4>
+@if (_popoverVisible)
+{
+    <div class="popover">
+        <div class="popover-header">
+            <span>@Title</span>
+            <div class="header-buttons">
+                <button class="action-btn" @onclick=EditEvent>&#9998;</button>
+                <button class="action-btn" @onclick=DeleteEvent>&#128465;</button>
                 <button class="close-btn" @onclick=TogglePopover>&#10006;</button>
             </div>
-            <div class="popover-body">
-                @DetailTemplate
-            </div>
         </div>
-    }
-</div>
+        <div class="popover-body">
+            @DetailTemplate
+        </div>
+    </div>
+}
