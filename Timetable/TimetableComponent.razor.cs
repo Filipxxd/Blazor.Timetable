@@ -13,7 +13,7 @@ namespace Timetable;
 public partial class TimetableComponent<TEvent> : IAsyncDisposable where TEvent : class
 {
     [Inject] internal IJSRuntime JsRuntime { get; set; } = default!;
-    [Inject] internal IEnumerable<IDisplayService> DisplayServices { get; set; } = default!;
+    [Inject] internal WeeklyService WeeklyService { get; set; } = default!;
 
     [Parameter] public TimetableConfig TimetableConfig { get; set; } = new();
     [Parameter] public ExportConfig<TEvent> ExportConfig { get; set; } = default!;
@@ -74,9 +74,7 @@ public partial class TimetableComponent<TEvent> : IAsyncDisposable where TEvent 
     {
         TimetableConfig.Validate();
         ExportConfig.Validate();
-        _timetable.Rows = DisplayServices.FirstOrDefault(x => x.DisplayType == TimetableConfig.DisplayType)
-                              ?.CreateGrid(Events, TimetableConfig, _eventProps)
-                          ?? throw new NotSupportedException($"Implementation of {nameof(IDisplayService)} for {nameof(DisplayType)} '{TimetableConfig.DisplayType.ToString()}' not found.");
+        _timetable.Rows = CreateRows();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -102,6 +100,21 @@ public partial class TimetableComponent<TEvent> : IAsyncDisposable where TEvent 
         StateHasChanged();
     }
 
+    private IList<GridRow<TEvent>> CreateRows()
+    {
+        switch (TimetableConfig.DisplayType)
+        {
+            case DisplayType.Day:
+                throw new NotImplementedException();
+            case DisplayType.Week:
+                return WeeklyService.CreateGrid(Events, TimetableConfig, _eventProps);
+            case DisplayType.Month:
+                throw new NotImplementedException();
+            default:
+                throw new NotSupportedException($"Implementation for {nameof(DisplayType)} '{TimetableConfig.DisplayType.ToString()}' not found.");
+        }
+    }
+    
     private async Task HandleChangedToDay(DayOfWeek dayOfWeek)
     {
         OnChangedToDay.Invoke(dayOfWeek);

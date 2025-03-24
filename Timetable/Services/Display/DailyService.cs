@@ -4,10 +4,8 @@ using Timetable.Structure;
 
 namespace Timetable.Services.Display;
 
-internal sealed class DailyService : IDisplayService
+internal sealed class DailyService
 {
-    public DisplayType DisplayType => DisplayType.Day;
-    
     public IList<GridRow<TEvent>> CreateGrid<TEvent>(
         IList<TEvent> events,
         TimetableConfig config,

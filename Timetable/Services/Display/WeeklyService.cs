@@ -5,10 +5,8 @@ using Timetable.Utilities;
 
 namespace Timetable.Services.Display;
 
-internal sealed class WeeklyService : IDisplayService
+internal sealed class WeeklyService
 {
-    public DisplayType DisplayType => DisplayType.Week;
-
     public IList<GridRow<TEvent>> CreateGrid<TEvent>(
         IList<TEvent> events,
         TimetableConfig config,
