@@ -1,17 +1,15 @@
-﻿<div class="timetable-event @(IsWholeDay ? "" : "timetable-movable-event")"
+﻿<div class="timetable-event-pill @(IsWholeDay ? "" : "movable-event")"
      data-event-id=@EventId
-     @key=EventId
-     style='height: @(IsWholeDay ? "2rem" : $"{Span * 2}rem")'>
-    <div class="timetable-event-pill" 
-         @onmousedown=OnMouseDown
-         @onmouseup=OnMouseUp>
-        @Title
-    </div>
+           @key=EventId
+     style="height: @(IsWholeDay ? "2rem" : $"{Span * 2}rem");"
+     @onmousedown=OnMouseDown
+     @onmouseup=OnMouseUp>
+     @Title
 </div>
 
 @if (_popoverVisible)
 {
-    <div class="popover">
+    <div class="popover" style="@(_popoverVisible ? "z-index: 2;" : "")">
         <div class="popover-header">
             <span>@Title</span>
             <div class="header-buttons">

@@ -1,20 +1,15 @@
-﻿.timetable-event {
+﻿.timetable-event-pill {
     background-color: #67b6ff;
     position: relative;
     -ms-touch-action: none;
     touch-action: none;
-    flex: 1 1 auto;
-    height: 100%;
-    border-radius: 10px;
-    z-index: auto;
-}
-
-.timetable-event-pill {
-    cursor: pointer;
     white-space: nowrap;
     overflow: hidden;
+    height: 100%;
+    border-radius: .5rem;
+    z-index: auto;
+    cursor: pointer;
     text-overflow: ellipsis;
-    display: flex;
     padding-top: 0.2rem;
     padding-left: 0.2rem;
 }
