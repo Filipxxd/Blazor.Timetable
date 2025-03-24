@@ -1,6 +1,10 @@
 ﻿const timetableSelector = '.timetable-content';
 const slotSelector = '.timetable-body-cell';
-const eventSelector = '.timetable-movable-event';
+const eventSelector = '.movable-event';
+
+const eventArgument = 'data-event-id';
+const slotArgument = 'data-slot-id';
+const originalSlotArgument = 'data-original-slot-id';
 
 export const dragDrop = {
     init: function(objRef) {
@@ -22,8 +26,11 @@ export const dragDrop = {
                     const target = event.target;
                     target.style.zIndex = '1000';
                     const originalSlot = target.closest(slotSelector);
+                    
                     if (originalSlot)
-                        target.setAttribute('data-original-slot-id', originalSlot.getAttribute('data-slot-id'));
+                    {
+                        target.setAttribute(originalSlotArgument, originalSlot.getAttribute(slotArgument));
+                    }
                 },
 
                 move(event) {
@@ -36,64 +43,68 @@ export const dragDrop = {
                     target.setAttribute('data-y', y);
                 },
 
-                end(event) {
+                async end(event) {
                     const target = event.target;
                     const closestSlot = findClosestSlot(target);
                     target.style.zIndex = '';
+                    
                     if (!closestSlot)
                     {
                         resetPosition(target);
                         return;
                     }
 
-                    const eventId = target.getAttribute('data-event-id');
-                    const targetSlotId = closestSlot.getAttribute('data-slot-id');
-                    const originalSlotId = target.getAttribute('data-original-slot-id');
+                    const eventId = target.getAttribute(eventArgument);
+                    const targetSlotId = closestSlot.getAttribute(slotArgument);
+                    const originalSlotId = target.getAttribute(originalSlotArgument);
 
-                    if (targetSlotId !== originalSlotId)
-                        objRef.invokeMethodAsync('MoveEvent', eventId, targetSlotId).catch(error => {
+                    if (targetSlotId === originalSlotId) {
+                        resetPosition(target);
+                        return;
+                    }
+
+                    await objRef.invokeMethodAsync('MoveEvent', eventId, targetSlotId)
+                        .catch(error => {
                             console.error("Error moving event: ", error);
                         });
-                    else
-                        resetPosition(target);
                 }
             }
         });
-
-        function resetPosition(element) {
-            element.style.transform = '';
-            element.setAttribute('data-x', 0);
-            element.setAttribute('data-y', 0);
-        }
-
-        function findClosestSlot(draggedElement) {
-            const slots = document.querySelectorAll(slotSelector);
-            const draggedRect = draggedElement.getBoundingClientRect();
-
-            const draggedCenterX = draggedRect.left + draggedRect.width / 2;
-            const draggedCenterY = draggedRect.top;
-
-            let closestSlot = null;
-            let closestDistance = Infinity;
-
-            slots.forEach(slot => {
-                const slotRect = slot.getBoundingClientRect();
-
-                const slotCenterX = slotRect.left + slotRect.width / 2;
-                const slotCenterY = slotRect.top;
-
-                const distance = Math.sqrt(
-                    Math.pow(draggedCenterX - slotCenterX, 2) +
-                    Math.pow(draggedCenterY - slotCenterY, 2)
-                );
-
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    closestSlot = slot;
-                }
-            });
-
-            return closestSlot;
-        }
     }
 };
+
+function resetPosition(element) {
+    element.style.transform = '';
+    element.setAttribute('data-x', 0);
+    element.setAttribute('data-y', 0);
+}
+
+function findClosestSlot(draggedElement) {
+    const slots = document.querySelectorAll(slotSelector);
+    const draggedRect = draggedElement.getBoundingClientRect();
+
+    const draggedCenterX = draggedRect.left + draggedRect.width / 2;
+    const draggedCenterY = draggedRect.top;
+
+    let closestSlot = null;
+    let closestDistance = Infinity;
+
+    slots.forEach(slot => {
+        const slotRect = slot.getBoundingClientRect();
+
+        const slotCenterX = slotRect.left + slotRect.width / 2;
+        const slotCenterY = slotRect.top;
+
+        const distance = Math.sqrt(
+            Math.pow(draggedCenterX - slotCenterX, 2) +
+            Math.pow(draggedCenterY - slotCenterY, 2)
+        );
+
+        if (distance < closestDistance) {
+            closestDistance = distance;
+            closestSlot = slot;
+        }
+    });
+
+    return closestSlot;
+}
