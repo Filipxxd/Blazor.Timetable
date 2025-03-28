@@ -25,6 +25,7 @@ export const dragDrop = {
                 start(event) {
                     const target = event.target;
                     target.style.zIndex = '1000';
+                    target.style.cursor = 'move';
                     const originalSlot = target.closest(slotSelector);
                     
                     if (originalSlot)
@@ -47,6 +48,7 @@ export const dragDrop = {
                     const target = event.target;
                     const closestSlot = findClosestSlot(target);
                     target.style.zIndex = '';
+                    target.style.cursor = 'pointer';
                     
                     if (!closestSlot)
                     {
