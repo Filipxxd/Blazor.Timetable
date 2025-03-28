@@ -10,7 +10,8 @@ builder.Services.AddSchoolTimetable();
 
 var app = builder.Build();
 
-app.UseAntiforgery(); // possible req
+app.UseAntiforgery();
+
 app.UseStaticFiles(); // req
 
 app.MapRazorComponents<App>()
