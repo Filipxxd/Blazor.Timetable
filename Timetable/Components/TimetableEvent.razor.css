@@ -2,27 +2,26 @@
     background-color: #67b6ff;
     position: relative;
     -ms-touch-action: none;
+    height: 100%;
+    padding-top: 0.2rem;
+    padding-left: 0.2rem;
+    border-radius: .5rem;
+    z-index: auto;
+    cursor: pointer !important;
+    text-overflow: ellipsis;
     touch-action: none;
     white-space: nowrap;
     overflow: hidden;
-    height: 100%;
-    border-radius: .5rem;
-    z-index: auto;
-    cursor: pointer;
-    text-overflow: ellipsis;
-    padding-top: 0.2rem;
-    padding-left: 0.2rem;
 }
 
 .popover {
-    top: 0;
     position: absolute;
     background-color: white;
     border: 1px solid #ccc;
     border-radius: .5rem;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 10px;
-    width: 200px;
+    padding: .5rem;
+    width: 12rem;
     z-index: 1;
 }
 
