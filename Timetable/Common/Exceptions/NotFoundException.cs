@@ -1,3 +1,3 @@
-﻿namespace Timetable.Exceptions;
+﻿namespace Timetable.Common.Exceptions;
 
 public sealed class NotFoundException : Exception { }

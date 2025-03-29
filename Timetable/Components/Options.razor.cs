@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Timetable.Common.Enums;
 using Timetable.Configuration;
-using Timetable.Enums;
 
 namespace Timetable.Components;
 

@@ -1,4 +1,4 @@
-﻿namespace Timetable.Enums;
+﻿namespace Timetable.Common.Enums;
 
 public enum Month
 { 

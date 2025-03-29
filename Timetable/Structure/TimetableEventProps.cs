@@ -1,5 +1,5 @@
 ﻿using System.Linq.Expressions;
-using Timetable.Utilities;
+using Timetable.Common.Utilities;
 
 namespace Timetable.Structure;
 
