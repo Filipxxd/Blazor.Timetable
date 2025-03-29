@@ -68,10 +68,10 @@
                             @foreach (var cellEvent in cell.Events)
                             {
                                 <TimetableEvent
-                                    EventId="@cellEvent.Id"
-                                    Title="@cellEvent.Title"
-                                    DetailTemplate="@(builder => DetailTemplate(cellEvent.Event)(builder))"
-                                    Span="@cellEvent.Span">
+                                    EventId=@cellEvent.Id
+                                    Title=@cellEvent.Title
+                                    DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
+                                    Span=@cellEvent.Span>
                                 </TimetableEvent>
                             }
                         </div>
