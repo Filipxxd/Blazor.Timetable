@@ -1,21 +1,20 @@
 ﻿@using Timetable.Common.Enums
-@using Timetable.Common.Enums
 @using Timetable.Common.Utilities
 @typeparam TEvent where TEvent : class
 @attribute [type: RenderModeInteractiveServer]
 
 <div class="timetable-wrapper">
     <Options
-        Events="Events"
-        ExportConfig="ExportConfig"
-        TimetableConfig="TimetableConfig"
-        OnDisplayTypeChanged="OnDisplayTypeChanged" />
+        Events=@Events
+        ExportConfig=@ExportConfig
+        TimetableConfig=@TimetableConfig
+        OnDisplayTypeChanged=@OnDisplayTypeChanged />
 
     <div class="timetable">
         <Header
-            Config="TimetableConfig"
-            OnNextClicked="OnNextClicked"
-            OnPreviousClicked="OnPreviousClicked" />
+            Config=@TimetableConfig
+            OnNextClicked=@OnNextClicked
+            OnPreviousClicked=@OnPreviousClicked />
 
         <div class="timetable-content">
             <div class="timetable-head">
@@ -25,6 +24,7 @@
                 }
                 @foreach (var dayOfWeek in TimetableConfig.Days)
                 {
+                    // TODO: Based on Config.DisplayType & Config.CurrentDate
                     var dateForDay = DateHelper.GetDateForDay(startOfWeek, dayOfWeek);
                     <div class="timetable-head-cell" @onclick="() => HandleChangedToDay(dayOfWeek)">
                         @dateForDay.ToString("dddd").Capitalize()

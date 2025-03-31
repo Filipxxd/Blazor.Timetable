@@ -1,10 +1,13 @@
-﻿using Timetable.Common.Utilities;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Timetable.Common.Utilities;
 using Timetable.Configuration;
 using Timetable.Structure;
 
 namespace Timetable.Services.Display;
 
-internal sealed class WeeklyService
+internal class WeeklyService
 {
 	public IList<GridRow<TEvent>> CreateGrid<TEvent>(
 		IList<TEvent> events,
@@ -12,13 +15,10 @@ internal sealed class WeeklyService
 		TimetableEventProps<TEvent> props) where TEvent : class
 	{
 		var rows = new List<GridRow<TEvent>>();
-
 		var startOfWeek = DateHelper.GetStartOfWeekDate(config.CurrentDate, config.Days.First());
+		var endOfWeek = startOfWeek.AddDays(7);
 
-		var wholeDayRow = new GridRow<TEvent>
-		{
-			IsWholeDayRow = true
-		};
+		var wholeDayRow = new GridRow<TEvent> { IsWholeDayRow = true };
 
 		foreach (var dayOfWeek in config.Days)
 		{
@@ -31,7 +31,7 @@ internal sealed class WeeklyService
 					var eventStart = props.GetDateFrom(e);
 					var eventEnd = props.GetDateTo(e);
 					return eventStart.Date == cellDate &&
-						   (eventStart.Hour < config.TimeFrom.Hour || eventEnd.Hour > config.TimeTo.Hour);
+					   (eventStart.Hour < config.TimeFrom.Hour || eventEnd.Hour > config.TimeTo.Hour);
 				})
 				.Select(e => new GridEvent<TEvent>(e, props, config))
 				.ToList();
@@ -48,12 +48,12 @@ internal sealed class WeeklyService
 
 		rows.Add(wholeDayRow);
 
+		// Create hourly rows for each day.
 		foreach (var hour in config.Hours)
 		{
-			var rowStartTime = startOfWeek.AddHours(hour);
 			var gridRow = new GridRow<TEvent>
 			{
-				RowStartTime = rowStartTime,
+				RowStartTime = startOfWeek.AddHours(hour),
 				IsWholeDayRow = false
 			};
 
@@ -66,7 +66,8 @@ internal sealed class WeeklyService
 					.Where(e =>
 					{
 						var eventStart = props.GetDateFrom(e);
-						return eventStart.Date == cellDate && eventStart.Hour == hour;
+						return eventStart.Date == cellDate && eventStart.Hour == hour &&
+							   eventStart >= startOfWeek && eventStart < endOfWeek;
 					})
 					.Select(e => new GridEvent<TEvent>(e, props, config))
 					.Where(item => !item.IsWholeDay)

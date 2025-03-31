@@ -3,108 +3,67 @@ using System.Collections.Generic;
 
 namespace Web.Components.Pages
 {
-    public class EventGenerator
-    {
-        // For reproducible behavior, use a constant seed.
-        private readonly Random _random = new Random(42);
-        private int _currentEventId = 10;
+	public sealed class EventGenerator
+	{
+		private int _currentEventId = 1;
 
-        private readonly List<string> _titles = new List<string>
-        {
-            "Math Class", "Science Class", "History Class", "Art Class", "English Class",
-            "Biology Class", "Chemistry Class", "Music Class", "Physical Education", "Philosophy Class"
-        };
+		public List<TimetableEvent> GenerateHardcodedEvents()
+		{
+			var now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 7, 0, 0);
+			var events = new List<TimetableEvent>
+			{
+                // Past events
+                CreateEvent("Math Class", now.AddDays(-10).AddHours(9), 1),
+				CreateEvent("Science Class", now.AddDays(-8).AddHours(14), 2),
 
-        private readonly List<string> _groupIds = [];
-        
-        private static DateTime GetWeekStart(DateTime dt)
-        {
-            int diff = dt.DayOfWeek - DayOfWeek.Monday;
-            if (diff < 0) diff += 7;
-            return dt.Date.AddDays(-diff);
-        }
+                // Present events (closer to current date)
+                CreateEvent("History Class", now.AddDays(-1).Date, 24),
+				CreateEvent("Art Class", now.AddHours(-3), 2),
 
-        private static readonly DateTime WeekStart = GetWeekStart(DateTime.Now);
+                // Future events
+                CreateEvent("English Class", now.AddDays(1).AddHours(11), 1),
+				CreateEvent("Biology Class", now.AddDays(5).Date, 24),
+				CreateEvent("Chemistry Class", now.AddDays(8).AddHours(15), 2),
 
-        public List<TimetableEvent> GenerateEvents(int numberOfEvents)
-        {
-            var events = new List<TimetableEvent>();
-            
-            while (numberOfEvents > 0)
-            {
-                var eventsInSet = Math.Min(numberOfEvents, _random.Next(1, 4));
+                // Mixed durations, some spanning today
+                CreateEvent("Music Class", now.AddDays(3).AddHours(10), 3),
+				CreateEvent("Physical Education", now.AddDays(-2).AddHours(17), 1),
+				CreateEvent("Philosophy Class", now.AddDays(7).Date, 24),
+				CreateEvent("Drama Rehearsal", now.AddHours(-5), 1),
+				CreateEvent("Football Practice", now.AddDays(4).AddHours(16), 2),
+				CreateEvent("Guitar Lesson", now.AddDays(3).AddHours(19), 1),
+				CreateEvent("Yoga Session", now.AddDays(-3).AddHours(7), 1),
+				CreateEvent("Cooking Class", now.AddDays(6).AddHours(11), 2),
+				CreateEvent("Photography Workshop", now.AddDays(10).AddHours(9), 3),
+				CreateEvent("Dance Class", now.AddDays(12).AddHours(18), 2),
 
-                for (var i = 0; i < eventsInSet; i++)
-                {
-                    var dayOffset = _random.Next(0, 7);
+                // Events spanning multiple days
+               // CreateEvent("Creative Writing", now.AddDays(-4).AddHours(14), 48),
+				//CreateEvent("Computer Science", now.AddDays(15).AddHours(20), 27),
+				//CreateEvent("Economics Lecture", now.AddDays(9).AddHours(15), 28)
+			};
 
-                    DateTime start;
-                    int durationHours;
-                    
-                    var typeIndicator = _currentEventId % 5;
-                    switch (typeIndicator)
-                    {
-                        case 0:
-                            start = WeekStart.AddDays(dayOffset).Date;
-                            durationHours = 24;
-                            break;
-                        case 1:
-                            durationHours = 1;
-                            start = WeekStart.AddDays(dayOffset).Date.AddHours(8 + _random.Next(0, 4));
-                            break;
-                        case 2:
-                            durationHours = 2;
-                            start = WeekStart.AddDays(dayOffset).Date.AddHours(9 + _random.Next(0, 4));
-                            break;
-                        case 3:
-                            durationHours = 3;
-                            start = WeekStart.AddDays(dayOffset).Date.AddHours(10 + _random.Next(0, 4));
-                            break;
-                        case 4:
-                            durationHours = 3;
-                            start = WeekStart.AddDays(dayOffset).Date.AddHours(23);
-                            break;
-                        default:
-                            durationHours = 1;
-                            start = WeekStart.AddDays(dayOffset).Date.AddHours(8);
-                            break;
-                    }
-                    
-                    var ev = new TimetableEvent
-                    {
-                        Id = _currentEventId++,
-                        Title = _titles[_random.Next(_titles.Count)],
-                        StartTime = start,
-                        EndTime = start.AddHours(durationHours),
-                        Description = "Randomly generated event",
-                        GroupId = GenerateOrGetGroupId()
-                    };
+			return events;
+		}
 
-                    if (durationHours % 24 == 0)
-                        ev.EndTime = ev.EndTime.AddMinutes(-1);
-                    
-                    events.Add(ev);
-                }
+		private TimetableEvent CreateEvent(string title, DateTime start, int durationHours)
+		{
+			var ev = new TimetableEvent
+			{
+				Id = _currentEventId++,
+				Title = title,
+				StartTime = start,
+				EndTime = start.AddHours(durationHours),
+				Description = "Hardcoded event"
+			};
 
-                numberOfEvents -= eventsInSet;
-            }
+			// Adjust end time for full day events by subtracting a minute
+			if (durationHours % 24 == 0)
+			{
+				ev.EndTime = ev.EndTime.AddMinutes(-1);
+			}
 
-            return events;
-        }
-
-        private string? GenerateOrGetGroupId()
-        {
-            if (_random.Next(0, 10) >= 3)
-                return null;
-            
-            if (_groupIds.Count > 0 && _random.Next(0, 10) < 5)
-            {
-                return _groupIds[_random.Next(_groupIds.Count)];
-            }
-            
-            var newGroupId = Guid.NewGuid().ToString();
-            _groupIds.Add(newGroupId);
-            return newGroupId;
-        }
-    }
+			return ev;
+		}
+	}
 }

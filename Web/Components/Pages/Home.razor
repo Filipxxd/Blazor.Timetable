@@ -45,7 +45,7 @@
     protected override void OnInitialized()
     {
         var generator = new EventGenerator();
-        CurrentEvents = generator.GenerateEvents(10);
+        CurrentEvents = generator.GenerateHardcodedEvents();
     }
     
     public void HandleNextClicked()
