@@ -1,4 +1,7 @@
-﻿@typeparam TEvent where TEvent : class
+﻿@using Timetable.Common.Enums
+@using Timetable.Common.Enums
+@using Timetable.Common.Utilities
+@typeparam TEvent where TEvent : class
 @attribute [type: RenderModeInteractiveServer]
 
 <div class="timetable-wrapper">
@@ -65,10 +68,10 @@
                             @foreach (var cellEvent in cell.Events)
                             {
                                 <TimetableEvent
-                                    EventId="@cellEvent.Id"
-                                    Title="@cellEvent.Title"
-                                    DetailTemplate="@(builder => DetailTemplate(cellEvent.Event)(builder))"
-                                    Span="@cellEvent.Span">
+                                    EventId=@cellEvent.Id
+                                    Title=@cellEvent.Title
+                                    DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
+                                    Span=@cellEvent.Span>
                                 </TimetableEvent>
                             }
                         </div>

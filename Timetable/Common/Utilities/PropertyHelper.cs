@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Timetable.Utilities;
+namespace Timetable.Common.Utilities;
 
 internal static class PropertyHelper
 {

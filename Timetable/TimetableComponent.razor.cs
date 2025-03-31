@@ -2,11 +2,11 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Timetable.Structure;
-using Timetable.Utilities;
 using Timetable.Configuration;
-using Timetable.Enums;
 using Timetable.Services.DataExchange.Export;
 using Timetable.Services.Display;
+using Timetable.Common.Utilities;
+using Timetable.Common.Enums;
 
 namespace Timetable;
 

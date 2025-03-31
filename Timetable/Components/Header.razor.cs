@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using Microsoft.AspNetCore.Components;
+using Timetable.Common.Enums;
 using Timetable.Configuration;
-using Timetable.Enums;
 
 namespace Timetable.Components;
 

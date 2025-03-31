@@ -1,4 +1,4 @@
-﻿namespace Timetable.Utilities;
+﻿namespace Timetable.Common.Utilities;
 
 internal static class DateHelper
 {
@@ -17,6 +17,6 @@ internal static class DateHelper
         var startDayInt = (int)startOfWeek.DayOfWeek;
         var targetDayInt = (int)targetDay;
 
-        return startOfWeek.AddDays(((targetDayInt - startDayInt) + 7) % 7);
+        return startOfWeek.AddDays((targetDayInt - startDayInt + 7) % 7);
     }
 }
