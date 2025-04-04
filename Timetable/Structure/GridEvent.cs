@@ -33,8 +33,14 @@ internal sealed class GridEvent<TEvent> where TEvent : class
     }
     public object? GroupIdentifier
     {
-        get => _props.GetGroupId(Event);
-        set => _props.SetGroupId(Event, value);
+        get => _props?.GetGroupId != null ? _props.GetGroupId(Event) : null;
+        set
+        {
+            if (_props?.SetGroupId != null)
+            {
+                _props.SetGroupId(Event, value);
+    }
+        }
     }
     
     public TEvent Event { get; }
