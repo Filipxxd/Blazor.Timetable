@@ -1,21 +1,21 @@
 ﻿@using Timetable.Common.Enums
-@using Timetable.Common.Enums
 @using Timetable.Common.Utilities
+@using Timetable.Extensions
 @typeparam TEvent where TEvent : class
 @attribute [type: RenderModeInteractiveServer]
 
 <div class="timetable-wrapper">
     <Options
-        Events="Events"
-        ExportConfig="ExportConfig"
-        TimetableConfig="TimetableConfig"
-        OnDisplayTypeChanged="OnDisplayTypeChanged" />
+        Events=@Events
+        ExportConfig=@ExportConfig
+        TimetableConfig=@TimetableConfig
+        OnDisplayTypeChanged=@OnDisplayTypeChanged />
 
     <div class="timetable">
         <Header
-            Config="TimetableConfig"
-            OnNextClicked="OnNextClicked"
-            OnPreviousClicked="OnPreviousClicked" />
+            Config=@TimetableConfig
+            OnNextClicked=@OnNextClicked
+            OnPreviousClicked=@OnPreviousClicked />
 
         <div class="timetable-content">
             <div class="timetable-head">
@@ -25,6 +25,7 @@
                 }
                 @foreach (var dayOfWeek in TimetableConfig.Days)
                 {
+                    // TODO: Based on Config.DisplayType & Config.CurrentDate
                     var dateForDay = DateHelper.GetDateForDay(startOfWeek, dayOfWeek);
                     <div class="timetable-head-cell" @onclick="() => HandleChangedToDay(dayOfWeek)">
                         @dateForDay.ToString("dddd").Capitalize()
@@ -32,9 +33,9 @@
                 }
             </div>
             
-            @if (_timetable.Rows.Any(row => row.IsWholeDayRow))
+            @if (_timetable.Rows.Any(row => row.IsHeaderRow))
             {
-                var wholeDayRow = _timetable.Rows.First(row => row.IsWholeDayRow);
+                var wholeDayRow = _timetable.Rows.First(row => row.IsHeaderRow);
                 <div class="timetable-whole-day-row">
                     <div class="timetable-time-column"></div>
                     @foreach (var cell in wholeDayRow.Cells)
@@ -45,7 +46,7 @@
                                 <TimetableEvent
                                     EventId=@cellEvent.Id
                                     Title=@cellEvent.Title
-                                    IsWholeDay=@cellEvent.IsWholeDay
+                                    IsWholeDay=@cellEvent.IsHeaderEvent
                                     Span=@cellEvent.Span
                                     DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder)) />
                             }
@@ -54,7 +55,7 @@
                 </div>
             }
             
-            @foreach (var row in _timetable.Rows.Where(r => !r.IsWholeDayRow))
+            @foreach (var row in _timetable.Rows.Where(r => !r.IsHeaderRow))
             {
                 <div class="timetable-row">
                     <div class="timetable-time-column">

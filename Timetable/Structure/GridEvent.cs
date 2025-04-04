@@ -18,7 +18,9 @@ internal sealed class GridEvent<TEvent> where TEvent : class
 
     public string? Title
     {
-        get => string.IsNullOrWhiteSpace(_props.GetTitle(Event)?.Trim()) ? "Event" : _props.GetTitle(Event);
+        get => string.IsNullOrWhiteSpace(_props.GetTitle(Event)?.Trim())
+            ? "Unknown Event"
+            : _props.GetTitle(Event);
         set => _props.SetTitle(Event, value);
     }
     public DateTime DateFrom
@@ -33,13 +35,27 @@ internal sealed class GridEvent<TEvent> where TEvent : class
     }
     public object? GroupIdentifier
     {
-        get => _props.GetGroupId(Event);
-        set => _props.SetGroupId(Event, value);
+        get => _props?.GetGroupId != null ? _props.GetGroupId(Event) : null;
+        set
+        {
+            if (_props?.SetGroupId != null)
+            {
+                _props.SetGroupId(Event, value);
+            }
+        }
     }
-    
+
     public TEvent Event { get; }
     public Guid Id { get; }
-    public bool IsWholeDay 
-        => (DateTo.Hour >= _config.TimeTo.Hour && DateFrom.Hour <= _config.TimeFrom.Hour) || DateTo.Hour > 23;
-    public int Span => (int)(DateTo - DateFrom).TotalHours;
+    public bool IsHeaderEvent
+        => (DateTo.Hour >= _config.TimeTo.Hour && DateFrom.Hour <= _config.TimeFrom.Hour) || DateFrom.Date != DateTo.Date;
+    public int Span
+    {
+        get
+        {
+            var hours = (int)(DateTo - DateFrom).TotalHours;
+
+            return IsHeaderEvent ? hours - 1 : hours;
+        }
+    }
 }
