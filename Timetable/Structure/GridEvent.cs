@@ -41,13 +41,21 @@ internal sealed class GridEvent<TEvent> where TEvent : class
             if (_props?.SetGroupId != null)
             {
                 _props.SetGroupId(Event, value);
-    }
+            }
         }
     }
-    
+
     public TEvent Event { get; }
     public Guid Id { get; }
-    public bool IsWholeDay 
-        => (DateTo.Hour >= _config.TimeTo.Hour && DateFrom.Hour <= _config.TimeFrom.Hour) || DateTo.Hour > 23;
-    public int Span => (int)(DateTo - DateFrom).TotalHours;
+    public bool IsHeaderEvent
+        => (DateTo.Hour >= _config.TimeTo.Hour && DateFrom.Hour <= _config.TimeFrom.Hour) || DateFrom.Date != DateTo.Date;
+    public int Span
+    {
+        get
+        {
+            var hours = (int)(DateTo - DateFrom).TotalHours;
+
+            return IsHeaderEvent ? hours - 1 : hours;
+        }
+    }
 }
