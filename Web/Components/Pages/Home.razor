@@ -6,7 +6,7 @@
 <PageTitle>Example page</PageTitle>
 
 <TimetableComponent TEvent=TimetableEvent 
-                    Events=CurrentEvents
+                    Events=Events
                     
                     Title="e => e.Title"
                     DateFrom="e => e.StartTime"
@@ -47,14 +47,7 @@
 </TimetableComponent>
 
 @code{
-    static readonly DateTime TodayMidnight = DateTime.Today;
-
-    public List<TimetableEvent> CurrentEvents { get; set; } = [];
-
-    protected override void OnInitialized()
-    {
-        CurrentEvents = new EventGenerator().GenerateHardcodedEvents();
-    }
+    public List<TimetableEvent> Events { get; set; } = new EventGenerator().GenerateHardcodedEvents();
     
     public void HandleNextClicked()
     {
@@ -69,5 +62,4 @@
     public void HandleEventUpdated(TimetableEvent timetableEvent){
         // TODO: Update the event in the database
     }
-
 }
