@@ -30,35 +30,31 @@
                 }
             </div>
             
-            @if (_timetableManager.Rows.Any(row => row.IsHeaderRow))
-            {
-                var wholeDayRow = _timetableManager.Rows.First(row => row.IsHeaderRow);
-                <div class="timetable-whole-day-row">
-                    <div class="timetable-time-column"></div>
-                    @foreach (var cell in wholeDayRow.Cells)
-                    {
-                        <div class="timetable-whole-day-cell" data-slot-id="@cell.Id" @key="cell.Id">
-                            @foreach (var cellEvent in cell.Events)
-                            {
-                                <TimetableEvent
-                                    EventId=@cellEvent.Id
-                                    Title=@cellEvent.Title
-                                    IsWholeDay=@cellEvent.IsHeaderEvent
-                                    Span=@cellEvent.Span
-                                    DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder)) />
-                            }
-                        </div>
-                    }
-                </div>
-            }
+            <div class="timetable-whole-day-row">
+                <div class="timetable-time-column"></div>
+                @foreach (var cell in _timetableGrid.HeaderRow.Cells)
+                {
+                    <div class="timetable-whole-day-cell" data-slot-id="@cell.Id" @key="cell.Id">
+                        @foreach (var cellEvent in cell.Events)
+                        {
+                            <TimetableEvent
+                                EventId=@cellEvent.Id
+                                Title=@cellEvent.Title
+                                IsWholeDay=@cellEvent.IsHeaderEvent
+                                Span=@cellEvent.Span
+                                DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder)) />
+                        }
+                    </div>
+                }
+            </div>
             
-            @foreach (var row in _timetableManager.Rows.Where(r => !r.IsHeaderRow))
+            @foreach (var row in _timetableGrid.Rows)
             {
                 <div class="timetable-row">
                     <div class="timetable-time-column">
                         @(TimetableConfig.Is24HourFormat
-                            ? row.RowStartTime.ToString("HH:mm")
-                            : row.RowStartTime.ToString("h tt"))
+                            ? row.StartTime.ToString("HH:mm")
+                            : row.StartTime.ToString("h tt"))
                     </div>
                     @foreach (var cell in row.Cells)
                     {

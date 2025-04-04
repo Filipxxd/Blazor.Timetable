@@ -15,8 +15,22 @@ public sealed class WeeklyServiceTests
         public string Title { get; init; } = default!;
     }
 
-    private readonly TimetableEventProps<TestEvent> _props =
+    private readonly EventProps<TestEvent> _props =
         new(e => e.StartTime, e => e.EndTime, e => e.Title);
+
+    [Fact]
+    public void CreateGrid_ShouldReturnGridWithCorrectHeaderRowCount()
+    {
+        var mockConfig = new TimetableConfig
+        {
+            CurrentDate = new DateTime(2023, 10, 30),
+            Days = [DayOfWeek.Monday, DayOfWeek.Tuesday]
+        };
+
+        var result = _weeklyService.CreateGrid([], mockConfig, _props);
+
+        Assert.Equal(mockConfig.Days.Count(), result.HeaderRow.Cells.Count);
+    }
 
     [Fact]
     public void CreateGrid_ShouldReturnGridWithCorrectRowCount()
@@ -24,32 +38,33 @@ public sealed class WeeklyServiceTests
         var mockConfig = new TimetableConfig
         {
             CurrentDate = new DateTime(2023, 10, 30),
-            Days = new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Tuesday },
+            Days = [DayOfWeek.Monday, DayOfWeek.Tuesday],
             TimeFrom = new TimeOnly(9, 0),
             TimeTo = new TimeOnly(17, 0)
         };
 
         var result = _weeklyService.CreateGrid([], mockConfig, _props);
 
-        Assert.Equal(mockConfig.TimeTo.Hour - mockConfig.TimeFrom.Hour + 2, result.Count);
+        Assert.Equal(mockConfig.TimeTo.Hour - mockConfig.TimeFrom.Hour + 1, result.Rows.Count);
     }
 
     [Fact]
-    public void CreateGrid_ShouldReturnGridWithCorrectCellCount()
+    public void CreateGrid_ShouldReturnGridWithCorrectCellCountInRows()
     {
         var mockConfig = new TimetableConfig
         {
             CurrentDate = new DateTime(2023, 10, 30),
-            Days = new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Tuesday },
+            Days = [DayOfWeek.Monday, DayOfWeek.Tuesday],
             TimeFrom = new TimeOnly(9, 0),
             TimeTo = new TimeOnly(17, 0)
         };
 
         var result = _weeklyService.CreateGrid([], mockConfig, _props);
 
-        var expectedCellCount = (mockConfig.TimeTo.Hour - mockConfig.TimeFrom.Hour + 2) * mockConfig.Days.Count();
-
-        Assert.Equal(expectedCellCount, result.SelectMany(x => x.Cells).Count());
+        foreach (var row in result.Rows)
+        {
+            Assert.Equal(mockConfig.Days.Count(), row.Cells.Count);
+        }
     }
 
     [Fact]
@@ -65,15 +80,13 @@ public sealed class WeeklyServiceTests
 
         var events = new List<TestEvent>
         {
-            new TestEvent
-                { StartTime = new DateTime(2023, 10, 30, 10, 0, 0), EndTime = new DateTime(2023, 10, 30, 11, 0, 0) },
-            new TestEvent
-                { StartTime = new DateTime(2023, 11, 1, 10, 0, 0), EndTime = new DateTime(2023, 11, 1, 11, 0, 0) }
+            new() { StartTime = new DateTime(2023, 10, 30, 10, 0, 0), EndTime = new DateTime(2023, 10, 30, 11, 0, 0) },
+            new() { StartTime = new DateTime(2023, 11, 1, 10, 0, 0), EndTime = new DateTime(2023, 11, 1, 11, 0, 0) }
         };
 
         var result = _weeklyService.CreateGrid(events, mockConfig, _props);
 
-        var includedEvents = result.SelectMany(row => row.Cells.SelectMany(cell => cell.Events)).ToList();
+        var includedEvents = result.Rows.SelectMany(row => row.Cells.SelectMany(cell => cell.Events)).ToList();
         Assert.Single(includedEvents);
         Assert.Equal(events[0], includedEvents[0].Event);
     }
@@ -84,7 +97,7 @@ public sealed class WeeklyServiceTests
         var mockConfig = new TimetableConfig
         {
             CurrentDate = DateTime.Now,
-            Days = new List<DayOfWeek>(),
+            Days = [],
             TimeFrom = new TimeOnly(0, 0),
             TimeTo = new TimeOnly(0, 0)
         };
@@ -114,7 +127,32 @@ public sealed class WeeklyServiceTests
         };
 
         var result = _weeklyService.CreateGrid(events, mockConfig, _props);
-        var header = result.First(x => x.IsHeaderRow);
+        var header = result.HeaderRow;
+        var actual = header.Cells.SelectMany(x => x.Events.Select(x => x.Event));
+
+        Assert.Equal(events, actual);
+    }
+
+    [Fact]
+    public void CreateGrid_WithWholeDayEvents_ShouldBeInHeaderRow()
+    {
+        var mockConfig = new TimetableConfig
+        {
+            CurrentDate = new DateTime(2023, 10, 30),
+            Days = [DayOfWeek.Monday, DayOfWeek.Tuesday],
+            TimeFrom = new TimeOnly(9, 0),
+            TimeTo = new TimeOnly(17, 0)
+        };
+
+        var events = new List<TestEvent>
+        {
+            new() {
+                StartTime = new DateTime(2023, 10, 30, 0, 0, 0), EndTime = new DateTime(2023, 10, 30, 23, 59, 59)
+            }
+        };
+
+        var result = _weeklyService.CreateGrid(events, mockConfig, _props);
+        var header = result.HeaderRow;
         var actual = header.Cells.SelectMany(x => x.Events.Select(x => x.Event));
 
         Assert.Equal(events, actual);
@@ -141,7 +179,7 @@ public sealed class WeeklyServiceTests
 
         var result = _weeklyService.CreateGrid(events, mockConfig, _props);
 
-        var includedEvents = result.SelectMany(row => row.Cells.SelectMany(x => x.Events)).Select(x => x.Event);
+        var includedEvents = result.Rows.SelectMany(row => row.Cells.SelectMany(x => x.Events)).Select(x => x.Event);
         Assert.Equal(events.Count, includedEvents.Count());
     }
 
@@ -151,7 +189,7 @@ public sealed class WeeklyServiceTests
         var mockConfig = new TimetableConfig
         {
             CurrentDate = new DateTime(2023, 10, 30),
-            Days = new List<DayOfWeek> { DayOfWeek.Monday },
+            Days = [DayOfWeek.Monday],
             TimeFrom = new TimeOnly(9, 0),
             TimeTo = new TimeOnly(17, 0)
         };
@@ -166,7 +204,7 @@ public sealed class WeeklyServiceTests
 
         var result = _weeklyService.CreateGrid(events, mockConfig, _props);
 
-        var includedEvents = result.SelectMany(row => row.Cells.SelectMany(x => x.Events)).Select(x => x.Event);
+        var includedEvents = result.Rows.SelectMany(row => row.Cells.SelectMany(x => x.Events)).Select(x => x.Event);
         Assert.Equal(events.Count, includedEvents.Count());
     }
 }

@@ -5,17 +5,17 @@ namespace Timetable.Services.Display;
 
 internal sealed class DailyService
 {
-	public IList<GridRow<TEvent>> CreateGrid<TEvent>(
+	public IList<Row<TEvent>> CreateGrid<TEvent>(
 		IList<TEvent> events,
 		TimetableConfig config,
-		TimetableEventProps<TEvent> props) where TEvent : class
+		EventProps<TEvent> props) where TEvent : class
 	{
-		var rows = new List<GridRow<TEvent>>();
+		var rows = new List<Row<TEvent>>();
 
 		foreach (var hour in config.Hours)
 		{
 			var rowStartTime = config.CurrentDate.Date.AddHours(hour);
-			var gridRow = new GridRow<TEvent> { RowStartTime = rowStartTime };
+			var gridRow = new Row<TEvent> { StartTime = rowStartTime };
 
 			var eventsAtSlot = events.Where(e =>
 			{
@@ -26,13 +26,13 @@ internal sealed class DailyService
 			});
 
 			var items = eventsAtSlot
-				.Select(e => new GridEvent<TEvent>(e, props, config))
+				.Select(e => new EventWrapper<TEvent>(e, props, config))
 				.ToList();
 
-			var gridCell = new GridCell<TEvent>
+			var gridCell = new Cell<TEvent>
 			{
 				Id = Guid.NewGuid(),
-				CellTime = rowStartTime,
+				Time = rowStartTime,
 				Events = items
 			};
 

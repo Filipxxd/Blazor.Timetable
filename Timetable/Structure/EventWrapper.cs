@@ -2,14 +2,14 @@
 
 namespace Timetable.Structure;
 
-internal sealed class GridEvent<TEvent> where TEvent : class
+internal sealed class EventWrapper<TEvent> where TEvent : class
 {
-    private readonly TimetableEventProps<TEvent> _props;
+    private readonly EventProps<TEvent> _props;
     private readonly TimetableConfig _config;
 
-    public GridEvent(TEvent @event, TimetableEventProps<TEvent> props, TimetableConfig config)
+    public EventWrapper(TEvent timetableEvent, EventProps<TEvent> props, TimetableConfig config)
     {
-        Event = @event;
+        Event = timetableEvent;
         _props = props;
         _config = config;
 

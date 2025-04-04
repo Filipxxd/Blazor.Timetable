@@ -44,8 +44,8 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
     #region Private Fields
     private DotNetObjectReference<Timetable<TEvent>> _objectReference = default!;
-    private TimetableManager<TEvent> _timetableManager = default!;
-    private TimetableEventProps<TEvent> _eventProps = default!;
+    private TimetableGrid<TEvent> _timetableGrid = default!;
+    private EventProps<TEvent> _eventProps = default!;
     private IJSObjectReference? _jsModule = default!;
     #endregion
 
@@ -53,8 +53,8 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     {
         _objectReference = DotNetObjectReference.Create(this);
 
-        _timetableManager = new TimetableManager<TEvent>();
-        _eventProps = new TimetableEventProps<TEvent>(DateFrom, DateTo, Title, GroupIdentifier);
+        _timetableGrid = new TimetableGrid<TEvent>();
+        _eventProps = new EventProps<TEvent>(DateFrom, DateTo, Title, GroupIdentifier);
 
         ExportConfig = new ExportConfig<TEvent>
         {
@@ -72,7 +72,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     {
         TimetableConfig.Validate();
         ExportConfig.Validate();
-        _timetableManager.Rows = CreateRows();
+        _timetableGrid = CreateGrid();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -89,7 +89,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     [JSInvokable]
     public void MoveEvent(Guid eventId, Guid targetCellId)
     {
-        if (!_timetableManager.TryMoveEvent(eventId, targetCellId, out var timetableEvent) || timetableEvent is null)
+        if (!_timetableGrid.TryMoveEvent(eventId, targetCellId, out var timetableEvent) || timetableEvent is null)
         {
             return;
         }
@@ -98,7 +98,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         StateHasChanged();
     }
 
-    private IList<GridRow<TEvent>> CreateRows()
+    private TimetableGrid<TEvent> CreateGrid()
     {
         return TimetableConfig.DisplayType switch
         {

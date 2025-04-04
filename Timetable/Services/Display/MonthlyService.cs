@@ -5,10 +5,10 @@ namespace Timetable.Services.Display;
 
 internal sealed class MonthlyService
 {
-	public IList<GridRow<TEvent>> CreateGrid<TEvent>(
+	public IList<Row<TEvent>> CreateGrid<TEvent>(
 		IList<TEvent> events,
 		TimetableConfig config,
-		TimetableEventProps<TEvent> props) where TEvent : class
+		EventProps<TEvent> props) where TEvent : class
 	{
 		// var rows = new List<GridRow<TEvent>>();
 		// var startOfMonth = new DateTime(config.CurrentDate.Year, config.CurrentDate.Month, 1, 0, 0, 0, DateTimeKind.Unspecified);

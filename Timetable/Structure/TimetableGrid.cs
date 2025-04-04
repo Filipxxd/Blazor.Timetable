@@ -1,8 +1,9 @@
 ﻿namespace Timetable.Structure;
 
-internal sealed class TimetableManager<TEvent> where TEvent : class
+internal sealed class TimetableGrid<TEvent> where TEvent : class
 {
-    public IList<GridRow<TEvent>> Rows { get; set; } = [];
+    public Row<TEvent> HeaderRow { get; set; } = new();
+    public IList<Row<TEvent>> Rows { get; set; } = [];
     // TODO: Prop for additional row/col (daily/weekly/monthly)
 
     public bool TryMoveEvent(Guid eventId, Guid targetCellId, out TEvent? movedEvent)
@@ -16,9 +17,9 @@ internal sealed class TimetableManager<TEvent> where TEvent : class
         if (targetCell is null || timetableEvent is null) return false;
 
         var duration = timetableEvent.DateTo - timetableEvent.DateFrom;
-        var newEndDate = targetCell.CellTime.Add(duration);
+        var newEndDate = targetCell.Time.Add(duration);
 
-        timetableEvent.DateFrom = targetCell.CellTime;
+        timetableEvent.DateFrom = targetCell.Time;
         timetableEvent.DateTo = newEndDate;
 
         var currentCell = FindCellByEventId(timetableEvent.Id);
@@ -30,15 +31,15 @@ internal sealed class TimetableManager<TEvent> where TEvent : class
         return true;
     }
 
-    private GridCell<TEvent>? FindCellById(Guid cellId) =>
+    private Cell<TEvent>? FindCellById(Guid cellId) =>
         Rows.SelectMany(row => row.Cells).SingleOrDefault(cell => cell.Id == cellId);
 
-    private GridEvent<TEvent>? FindEventById(Guid itemId) =>
+    private EventWrapper<TEvent>? FindEventById(Guid itemId) =>
         Rows.SelectMany(row => row.Cells)
             .SelectMany(cell => cell.Events)
             .SingleOrDefault(item => item.Id == itemId);
 
-    private GridCell<TEvent>? FindCellByEventId(Guid itemId) =>
+    private Cell<TEvent>? FindCellByEventId(Guid itemId) =>
         Rows.SelectMany(row => row.Cells)
             .FirstOrDefault(cell => cell.Events.Any(x => x.Id == itemId));
 }
