@@ -18,7 +18,9 @@ internal sealed class GridEvent<TEvent> where TEvent : class
 
     public string? Title
     {
-        get => string.IsNullOrWhiteSpace(_props.GetTitle(Event)?.Trim()) ? "Event" : _props.GetTitle(Event);
+        get => string.IsNullOrWhiteSpace(_props.GetTitle(Event)?.Trim())
+            ? "Unknown Event"
+            : _props.GetTitle(Event);
         set => _props.SetTitle(Event, value);
     }
     public DateTime DateFrom
