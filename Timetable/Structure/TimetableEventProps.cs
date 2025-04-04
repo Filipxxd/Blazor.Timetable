@@ -14,8 +14,8 @@ internal sealed class TimetableEventProps<TEvent> where TEvent : class
     public Action<TEvent, string?> SetTitle { get; }
     public Action<TEvent, object?>? SetGroupId { get; }
 
-    public TimetableEventProps(Expression<Func<TEvent, DateTime>> dateFromSelector, 
-        Expression<Func<TEvent, DateTime>> dateToSelector, Expression<Func<TEvent, string?>> titleSelector, 
+    public TimetableEventProps(Expression<Func<TEvent, DateTime>> dateFromSelector,
+        Expression<Func<TEvent, DateTime>> dateToSelector, Expression<Func<TEvent, string?>> titleSelector,
         Expression<Func<TEvent, object?>>? groupIdSelector = null)
     {
         GetTitle = PropertyHelper.CreateGetter(titleSelector);
@@ -26,7 +26,7 @@ internal sealed class TimetableEventProps<TEvent> where TEvent : class
         SetDateTo = PropertyHelper.CreateSetter(dateToSelector);
 
         if (groupIdSelector is null) return;
-        
+
         GetGroupId = PropertyHelper.CreateGetter(groupIdSelector);
         SetGroupId = PropertyHelper.CreateSetter(groupIdSelector);
     }
