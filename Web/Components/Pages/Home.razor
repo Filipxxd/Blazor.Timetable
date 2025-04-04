@@ -16,14 +16,14 @@
                     TimetableConfig="new(){
                         DisplayType = DisplayType.Week,
                         FirstDayOfWeek = DayOfWeek.Monday,
-                        Days=[DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday],
+                        Days=[ DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday],
                         TimeFrom=new(8, 0),
                         TimeTo=new(16, 0),
                         Is24HourFormat=true,
                         CurrentDate = DateTime.Today
                     }"
 
-                    OnEventUpdated=HandleEventMoved
+                    OnEventUpdated=HandleEventUpdated
                     OnPreviousClicked=HandlePreviousClicked 
                     OnNextClicked=HandleNextClicked>
     <DetailTemplate Context="timetableEvent">
@@ -35,6 +35,15 @@
             <p>@timetableEvent.GroupId</p>
         </div>
     </DetailTemplate>
+    <CreateTemplate>
+        @* TODO *@
+    </CreateTemplate>
+    <EditTemplate>
+        @* TODO *@
+    </EditTemplate>
+    <DeleteTemplate>
+        @* TODO *@
+    </DeleteTemplate>
 </TimetableComponent>
 
 @code{
@@ -44,8 +53,7 @@
 
     protected override void OnInitialized()
     {
-        var generator = new EventGenerator();
-        CurrentEvents = generator.GenerateHardcodedEvents();
+        CurrentEvents = new EventGenerator().GenerateHardcodedEvents();
     }
     
     public void HandleNextClicked()
@@ -58,7 +66,7 @@
         // TODO: Custom behaviour
     }
     
-    public void HandleEventMoved(TimetableEvent timetableEvent){
+    public void HandleEventUpdated(TimetableEvent timetableEvent){
         // TODO: Update the event in the database
     }
 
