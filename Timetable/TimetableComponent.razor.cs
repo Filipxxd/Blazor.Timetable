@@ -12,118 +12,118 @@ namespace Timetable;
 
 public partial class TimetableComponent<TEvent> : IAsyncDisposable where TEvent : class
 {
-	[Inject] internal IJSRuntime JsRuntime { get; set; } = default!;
-	[Inject] internal WeeklyService WeeklyService { get; set; } = default!;
+    [Inject] internal IJSRuntime JsRuntime { get; set; } = default!;
+    [Inject] internal WeeklyService WeeklyService { get; set; } = default!;
 
-	[Parameter, EditorRequired] public IList<TEvent> Events { get; set; } = [];
-	[Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateFrom { get; set; } = default!;
-	[Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateTo { get; set; } = default!;
-	[Parameter, EditorRequired] public Expression<Func<TEvent, string?>> Title { get; set; } = default!;
-	[Parameter] public Expression<Func<TEvent, object?>>? GroupIdentifier { get; set; }
-	[Parameter] public TimetableConfig TimetableConfig { get; set; } = new();
-	[Parameter] public ExportConfig<TEvent> ExportConfig { get; set; } = default!;
+    [Parameter, EditorRequired] public IList<TEvent> Events { get; set; } = [];
+    [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateFrom { get; set; } = default!;
+    [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateTo { get; set; } = default!;
+    [Parameter, EditorRequired] public Expression<Func<TEvent, string?>> Title { get; set; } = default!;
+    [Parameter] public Expression<Func<TEvent, object?>>? GroupIdentifier { get; set; }
+    [Parameter] public TimetableConfig TimetableConfig { get; set; } = new();
+    [Parameter] public ExportConfig<TEvent> ExportConfig { get; set; } = default!;
 
-	#region State Change
-	[Parameter] public Action OnPreviousClicked { get; set; } = default!;
-	[Parameter] public Action OnNextClicked { get; set; } = default!;
-	[Parameter] public Action<TEvent> OnTitleClicked { get; set; } = default!;
-	[Parameter] public EventCallback<DisplayType> OnDisplayTypeChanged { get; set; }
-	[Parameter] public Action<TEvent> OnEventUpdated { get; set; } = default!;
-	[Parameter] public Action<TEvent> OnEventCreated { get; set; } = default!;
-	[Parameter] public Action<TEvent> OnEventDeleted { get; set; } = default!;
-	[Parameter] public Action<IList<TEvent>> OnGroupEventsChanged { get; set; } = default!;
-	[Parameter] public Action<DayOfWeek> OnChangedToDay { get; set; } = default!;
-	#endregion
+    #region State Change
+    [Parameter] public EventCallback OnPreviousClicked { get; set; } = default!;
+    [Parameter] public EventCallback OnNextClicked { get; set; } = default!;
+    [Parameter] public EventCallback<TEvent> OnTitleClicked { get; set; } = default!;
+    [Parameter] public EventCallback<DisplayType> OnDisplayTypeChanged { get; set; }
+    [Parameter] public EventCallback<TEvent> OnEventUpdated { get; set; } = default!;
+    [Parameter] public EventCallback<TEvent> OnEventCreated { get; set; } = default!;
+    [Parameter] public EventCallback<TEvent> OnEventDeleted { get; set; } = default!;
+    [Parameter] public EventCallback<IList<TEvent>> OnGroupEventsChanged { get; set; } = default!;
+    [Parameter] public EventCallback<DayOfWeek> OnChangedToDay { get; set; } = default!;
+    #endregion
 
-	#region Templates
-	[Parameter, EditorRequired] public RenderFragment<TEvent> CreateTemplate { get; set; } = default!;
-	[Parameter, EditorRequired] public RenderFragment<TEvent> EditTemplate { get; set; } = default!;
-	[Parameter, EditorRequired] public RenderFragment<TEvent> DeleteTemplate { get; set; } = default!;
-	[Parameter, EditorRequired] public RenderFragment<TEvent> DetailTemplate { get; set; } = default!;
-	#endregion
+    #region Templates
+    [Parameter, EditorRequired] public RenderFragment<TEvent> CreateTemplate { get; set; } = default!;
+    [Parameter, EditorRequired] public RenderFragment<TEvent> EditTemplate { get; set; } = default!;
+    [Parameter, EditorRequired] public RenderFragment<TEvent> DeleteTemplate { get; set; } = default!;
+    [Parameter, EditorRequired] public RenderFragment<TEvent> DetailTemplate { get; set; } = default!;
+    #endregion
 
-	#region Private Fields
-	private DotNetObjectReference<TimetableComponent<TEvent>> _objectReference = default!;
-	private Timetable<TEvent> _timetable = default!;
-	private TimetableEventProps<TEvent> _eventProps = default!;
-	private IJSObjectReference? _jsModule = default!;
-	#endregion
+    #region Private Fields
+    private DotNetObjectReference<TimetableComponent<TEvent>> _objectReference = default!;
+    private Timetable<TEvent> _timetable = default!;
+    private TimetableEventProps<TEvent> _eventProps = default!;
+    private IJSObjectReference? _jsModule = default!;
+    #endregion
 
-	protected override void OnInitialized()
-	{
-		_objectReference = DotNetObjectReference.Create(this);
+    protected override void OnInitialized()
+    {
+        _objectReference = DotNetObjectReference.Create(this);
 
-		_timetable = new Timetable<TEvent>();
-		_eventProps = new TimetableEventProps<TEvent>(DateFrom, DateTo, Title, GroupIdentifier);
+        _timetable = new Timetable<TEvent>();
+        _eventProps = new TimetableEventProps<TEvent>(DateFrom, DateTo, Title, GroupIdentifier);
 
-		ExportConfig = new ExportConfig<TEvent>
-		{
-			FileName = "EventExport",
-			Transformer = new CsvTransformer(),
-			Properties = [
-				new NamePropertySelector<TEvent, DateTime>("DateFrom", DateFrom),
-				new NamePropertySelector<TEvent, DateTime>("DateTo", DateTo),
-				new NamePropertySelector<TEvent, string?>("Title", Title)
-			]
-		};
-	}
+        ExportConfig = new ExportConfig<TEvent>
+        {
+            FileName = "EventExport",
+            Transformer = new CsvTransformer(),
+            Properties = [
+                new NamePropertySelector<TEvent, DateTime>("DateFrom", DateFrom),
+                new NamePropertySelector<TEvent, DateTime>("DateTo", DateTo),
+                new NamePropertySelector<TEvent, string?>("Title", Title)
+            ]
+        };
+    }
 
-	protected override void OnParametersSet()
-	{
-		TimetableConfig.Validate();
-		ExportConfig.Validate();
-		_timetable.Rows = CreateRows();
-	}
+    protected override void OnParametersSet()
+    {
+        TimetableConfig.Validate();
+        ExportConfig.Validate();
+        _timetable.Rows = CreateRows();
+    }
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (firstRender)
-		{
-			await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Timetable/interact.min.js");
-			_jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import",
-				"./_content/Timetable/TimetableComponent.razor.js");
-			await _jsModule.InvokeVoidAsync("dragDrop.init", _objectReference);
-		}
-	}
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Timetable/interact.min.js");
+            _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import",
+                "./_content/Timetable/TimetableComponent.razor.js");
+            await _jsModule.InvokeVoidAsync("dragDrop.init", _objectReference);
+        }
+    }
 
-	[JSInvokable]
-	public void MoveEvent(Guid eventId, Guid targetCellId)
-	{
-		if (!_timetable.TryMoveEvent(eventId, targetCellId, out var @event))
-		{
-			return;
-		}
+    [JSInvokable]
+    public void MoveEvent(Guid eventId, Guid targetCellId)
+    {
+        if (!_timetable.TryMoveEvent(eventId, targetCellId, out var timetableEvent) || timetableEvent is null)
+        {
+            return;
+        }
 
-		OnEventUpdated.Invoke(@event);
-		StateHasChanged();
-	}
+        OnEventUpdated.InvokeAsync(timetableEvent).ConfigureAwait(false);
+        StateHasChanged();
+    }
 
-	private IList<GridRow<TEvent>> CreateRows()
-	{
-		return TimetableConfig.DisplayType switch
-		{
-			DisplayType.Day => throw new NotImplementedException(),
-			DisplayType.Week => WeeklyService.CreateGrid(Events, TimetableConfig, _eventProps),
-			DisplayType.Month => throw new NotImplementedException(),
-			_ => throw new NotSupportedException($"Implementation for {nameof(DisplayType)} '{TimetableConfig.DisplayType}' not found."),
-		};
-	}
+    private IList<GridRow<TEvent>> CreateRows()
+    {
+        return TimetableConfig.DisplayType switch
+        {
+            DisplayType.Day => throw new NotImplementedException(),
+            DisplayType.Week => WeeklyService.CreateGrid(Events, TimetableConfig, _eventProps),
+            DisplayType.Month => throw new NotImplementedException(),
+            _ => throw new NotSupportedException($"Implementation for {nameof(DisplayType)} '{TimetableConfig.DisplayType}' not found."),
+        };
+    }
 
-	private async Task HandleChangedToDay(DayOfWeek dayOfWeek)
-	{
-		OnChangedToDay.Invoke(dayOfWeek);
-		TimetableConfig.CurrentDate = DateHelper.GetDateForDay(TimetableConfig.CurrentDate, dayOfWeek);
-		await OnDisplayTypeChanged.InvokeAsync(DisplayType.Day);
-	}
+    private async Task HandleChangedToDay(DayOfWeek dayOfWeek)
+    {
+        await OnChangedToDay.InvokeAsync(dayOfWeek);
+        TimetableConfig.CurrentDate = DateHelper.GetDateForDay(TimetableConfig.CurrentDate, dayOfWeek);
+        await OnDisplayTypeChanged.InvokeAsync(DisplayType.Day);
+    }
 
-	async ValueTask IAsyncDisposable.DisposeAsync()
-	{
-		if (_jsModule is null) return;
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (_jsModule is null) return;
 
-		try
-		{
-			await _jsModule.DisposeAsync();
-		}
-		catch (JSDisconnectedException) { }
-	}
+        try
+        {
+            await _jsModule.DisposeAsync();
+        }
+        catch (JSDisconnectedException) { }
+    }
 }
