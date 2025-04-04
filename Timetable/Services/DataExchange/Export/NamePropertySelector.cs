@@ -19,12 +19,12 @@ public class NamePropertySelector<TEvent, TProperty> : INamePropertySelector<TEv
         Name = name;
         Selector = selector;
     }
-    
+
     public string GetStringValue(TEvent entity)
     {
         var compiledSelector = Selector.Compile();
         var value = compiledSelector(entity);
-            
-        return value?.ToString() ?? "null";
+
+        return value?.ToString() ?? string.Empty;
     }
 }

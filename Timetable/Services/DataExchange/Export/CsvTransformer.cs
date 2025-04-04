@@ -1,5 +1,5 @@
-﻿using System.Text;
-using Microsoft.JSInterop;
+﻿using Microsoft.JSInterop;
+using System.Text;
 
 namespace Timetable.Services.DataExchange.Export;
 
@@ -7,28 +7,28 @@ internal sealed class CsvTransformer : ITransformer
 {
     private const char Separator = ';';
 
-    public ExportInfo Transform<TEvent>(IEnumerable<TEvent> records, IList<INamePropertySelector<TEvent>> properties) 
+    public ExportInfo Transform<TEvent>(IEnumerable<TEvent> records, IList<INamePropertySelector<TEvent>> properties)
         where TEvent : class
     {
         var memoryStream = new MemoryStream();
         using var writer = new StreamWriter(memoryStream, Encoding.UTF8, 1024, true);
-        
+
         var headerLine = string.Join(Separator, properties.Select(p =>
         {
             if (p.Name.Contains(Separator))
                 throw new ArgumentException($"Property name '{p.Name}' cannot contain the separator character '{Separator}'.");
-                
+
             return p.Name.Trim();
         }));
 
         writer.WriteLine(headerLine);
-        
+
         foreach (var record in records)
         {
             var line = string.Join(Separator, properties.Select(s =>
             {
 
-                var value =                 s.GetStringValue(record);
+                var value = s.GetStringValue(record);
                 var escapedValue = EscapeCsvValue(value).Trim();
 
                 if (escapedValue.Contains(Separator))
