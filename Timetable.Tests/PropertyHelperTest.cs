@@ -13,7 +13,7 @@ public sealed class PropertyHelperTests
         public string? ReferenceTypeNull { get; init; }
         public NestedObject ComplexObject { get; init; } = new();
         public NestedObject? ComplexObjectNull { get; init; }
-        public List<string> ListOfReferenceType { get; init; } = new();
+        public List<string> ListOfReferenceType { get; init; } = [];
         public List<string>? ListOfReferenceTypeNullable { get; init; }
     }
 
@@ -37,7 +37,7 @@ public sealed class PropertyHelperTests
     {
         Assert.Throws<ArgumentException>(() => PropertyHelper.CreateSetter<TestObject, int>(x => x.ValueTypeGetOnly));
     }
-    
+
     [Fact]
     public void CreateGetter_Int_ValueType()
     {
@@ -204,6 +204,41 @@ public sealed class PropertyHelperTests
     public void CreateGetter_String_ReferenceType_NullObject()
     {
         var getter = PropertyHelper.CreateGetter<TestObject, string>(x => x.ReferenceType);
+        var value = getter(null!);
+        Assert.Null(value);
+    }
+
+    [Fact]
+    public void CreateSetter_NullableInt_ValueTypeNullable_SetToNull()
+    {
+        var obj = new TestObject { ValueTypeNullable = 42 };
+        var setter = PropertyHelper.CreateSetter<TestObject, int?>(x => x.ValueTypeNullable);
+        setter(obj, null);
+        Assert.Null(obj.ValueTypeNullable);
+    }
+
+    [Fact]
+    public void CreateGetter_DefaultValue_Int_ValueType()
+    {
+        var obj = new TestObject();
+        var getter = PropertyHelper.CreateGetter<TestObject, int>(x => x.ValueType);
+        var value = getter(obj);
+        Assert.Equal(1, value);
+    }
+
+    [Fact]
+    public void CreateSetter_DefaultValue_Int_ValueType()
+    {
+        var obj = new TestObject { ValueType = 42 };
+        var setter = PropertyHelper.CreateSetter<TestObject, int>(x => x.ValueType);
+        setter(obj, default);
+        Assert.Equal(0, obj.ValueType);
+    }
+
+    [Fact]
+    public void CreateGetter_NullableNestedObject_ComplexObjectNull_NullObject()
+    {
+        var getter = PropertyHelper.CreateGetter<TestObject, NestedObject?>(x => x.ComplexObjectNull);
         var value = getter(null!);
         Assert.Null(value);
     }
