@@ -37,7 +37,7 @@ public sealed class TimetableConfig
     public TimeOnly TimeTo { get; init; } = new(23, 0);
 
     /// <summary>
-    /// Use 24-hour format for display times. Defaults to true.
+    /// Use 24-hour format for display times. Defaults to <see cref="true"/>.
     /// </summary>
     public bool Is24HourFormat { get; init; } = true;
 
