@@ -8,9 +8,9 @@ using Timetable.Services.DataExchange.Export;
 using Timetable.Services.Display;
 using Timetable.Structure;
 
-namespace Timetable;
+namespace Timetable.Components;
 
-public partial class TimetableComponent<TEvent> : IAsyncDisposable where TEvent : class
+public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 {
     [Inject] internal IJSRuntime JsRuntime { get; set; } = default!;
     [Inject] internal WeeklyService WeeklyService { get; set; } = default!;
@@ -43,8 +43,8 @@ public partial class TimetableComponent<TEvent> : IAsyncDisposable where TEvent 
     #endregion
 
     #region Private Fields
-    private DotNetObjectReference<TimetableComponent<TEvent>> _objectReference = default!;
-    private Timetable<TEvent> _timetable = default!;
+    private DotNetObjectReference<Timetable<TEvent>> _objectReference = default!;
+    private TimetableManager<TEvent> _timetableManager = default!;
     private TimetableEventProps<TEvent> _eventProps = default!;
     private IJSObjectReference? _jsModule = default!;
     #endregion
@@ -53,7 +53,7 @@ public partial class TimetableComponent<TEvent> : IAsyncDisposable where TEvent 
     {
         _objectReference = DotNetObjectReference.Create(this);
 
-        _timetable = new Timetable<TEvent>();
+        _timetableManager = new TimetableManager<TEvent>();
         _eventProps = new TimetableEventProps<TEvent>(DateFrom, DateTo, Title, GroupIdentifier);
 
         ExportConfig = new ExportConfig<TEvent>
@@ -72,7 +72,7 @@ public partial class TimetableComponent<TEvent> : IAsyncDisposable where TEvent 
     {
         TimetableConfig.Validate();
         ExportConfig.Validate();
-        _timetable.Rows = CreateRows();
+        _timetableManager.Rows = CreateRows();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -81,7 +81,7 @@ public partial class TimetableComponent<TEvent> : IAsyncDisposable where TEvent 
         {
             await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Timetable/interact.min.js");
             _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import",
-                "./_content/Timetable/TimetableComponent.razor.js");
+                "./_content/Timetable/Components/Timetable.razor.js");
             await _jsModule.InvokeVoidAsync("dragDrop.init", _objectReference);
         }
     }
@@ -89,7 +89,7 @@ public partial class TimetableComponent<TEvent> : IAsyncDisposable where TEvent 
     [JSInvokable]
     public void MoveEvent(Guid eventId, Guid targetCellId)
     {
-        if (!_timetable.TryMoveEvent(eventId, targetCellId, out var timetableEvent) || timetableEvent is null)
+        if (!_timetableManager.TryMoveEvent(eventId, targetCellId, out var timetableEvent) || timetableEvent is null)
         {
             return;
         }

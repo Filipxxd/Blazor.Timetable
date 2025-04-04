@@ -1,11 +1,11 @@
 ﻿@page "/"
-@using Timetable
+@using Timetable.Components
 @using Timetable.Common.Enums
 @rendermode InteractiveServer
 
 <PageTitle>Example page</PageTitle>
 
-<TimetableComponent TEvent=TimetableEvent 
+<Timetable TEvent=TimetableEvent 
                     Events=Events
                     
                     Title="e => e.Title"
@@ -44,7 +44,7 @@
     <DeleteTemplate>
         @* TODO *@
     </DeleteTemplate>
-</TimetableComponent>
+</Timetable>
 
 @code{
     public List<TimetableEvent> Events { get; set; } = new EventGenerator().GenerateHardcodedEvents();

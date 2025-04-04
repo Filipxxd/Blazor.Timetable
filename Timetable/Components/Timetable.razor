@@ -1,7 +1,4 @@
-﻿@using Timetable.Common.Enums
-@using Timetable.Common.Utilities
-@using Timetable.Extensions
-@typeparam TEvent where TEvent : class
+﻿@typeparam TEvent where TEvent : class
 @attribute [type: RenderModeInteractiveServer]
 
 <div class="timetable-wrapper">
@@ -33,9 +30,9 @@
                 }
             </div>
             
-            @if (_timetable.Rows.Any(row => row.IsHeaderRow))
+            @if (_timetableManager.Rows.Any(row => row.IsHeaderRow))
             {
-                var wholeDayRow = _timetable.Rows.First(row => row.IsHeaderRow);
+                var wholeDayRow = _timetableManager.Rows.First(row => row.IsHeaderRow);
                 <div class="timetable-whole-day-row">
                     <div class="timetable-time-column"></div>
                     @foreach (var cell in wholeDayRow.Cells)
@@ -55,7 +52,7 @@
                 </div>
             }
             
-            @foreach (var row in _timetable.Rows.Where(r => !r.IsHeaderRow))
+            @foreach (var row in _timetableManager.Rows.Where(r => !r.IsHeaderRow))
             {
                 <div class="timetable-row">
                     <div class="timetable-time-column">

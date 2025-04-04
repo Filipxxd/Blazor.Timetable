@@ -1,10 +1,10 @@
 ﻿namespace Timetable.Structure;
 
-internal sealed class Timetable<TEvent> where TEvent : class
+internal sealed class TimetableManager<TEvent> where TEvent : class
 {
     public IList<GridRow<TEvent>> Rows { get; set; } = [];
     // TODO: Prop for additional row/col (daily/weekly/monthly)
-    
+
     public bool TryMoveEvent(Guid eventId, Guid targetCellId, out TEvent? movedEvent)
     {
         // TODO: Add group event logic (modal to confirm either group update or single update)
@@ -14,7 +14,7 @@ internal sealed class Timetable<TEvent> where TEvent : class
         var targetCell = FindCellById(targetCellId);
 
         if (targetCell is null || timetableEvent is null) return false;
-        
+
         var duration = timetableEvent.DateTo - timetableEvent.DateFrom;
         var newEndDate = targetCell.CellTime.Add(duration);
 
