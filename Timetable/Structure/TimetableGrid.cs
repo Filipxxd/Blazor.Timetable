@@ -6,7 +6,6 @@ internal sealed class TimetableGrid<TEvent> where TEvent : class
     public IList<TEvent> SourceEvents { get; init; } = [];
     public Row<TEvent> HeaderRow { get; set; } = new();
     public IList<Row<TEvent>> Rows { get; set; } = [];
-    // TODO: Prop for additional row/col (daily/weekly/monthly)
 
     public bool TryMoveEvent(Guid eventId, Guid targetCellId, out TEvent? movedEvent)
     {
