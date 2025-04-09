@@ -1,8 +1,10 @@
 ﻿namespace Timetable.Structure;
 
-internal sealed class Cell<TEvent> where TEvent : class
+internal sealed class Cell<TEvent> where
+    TEvent : class
 {
-    public Guid Id { get; init; }
-    public DateTime Time { get; init; }
-    public IList<EventWrapper<TEvent>> Events { get; set; } = [];
+    public required Guid Id { get; init; }
+    public required DateTime DateTime { get; init; }
+    public string? Title { get; set; }
+    public IList<EventWrapper<TEvent>> Events { get; init; } = [];
 }

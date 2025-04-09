@@ -8,12 +8,12 @@
 }
 
 .timetable-wrapper * {
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-    -khtml-user-select: none; /* Konqueror HTML */
-    -moz-user-select: none; /* Old Firefox */
-    -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none; /* Latest Chrome, Edge, Opera and Firefox */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .timetable {
@@ -31,7 +31,7 @@
     align-items: center;
     padding: 1em 0;
     border-bottom: 1px solid #a0a0a0;
-    font-size: 0.8rem
+    font-size: 0.8rem;
 }
 
 .timetable-head-cell {
@@ -39,44 +39,29 @@
     text-align: center;
 }
 
-.timetable-whole-day-row {
-    display: flex;
-    align-items: center;
-    background-color: #f0f8ff;
-    border-bottom: 1px solid #a0a0a0;
-    padding: 0.5em 0;
-}
-
-.timetable-whole-day-cell {
-    flex: 1;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.timetable-grid {
+    display: block;
 }
 
 .timetable-row {
     display: flex;
-    height: 2em;
+    align-items: center;
     border-bottom: 1px solid #a0a0a0;
 }
 
-.timetable-time-column {
+.timetable-whole-day-cell, .timetable-body-cell {
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.timetable-time-column {
     min-width: 10em;
     border-right: 1px solid #a0a0a0;
-    font-size: 0.8rem
-}
-
-.timetable-body-cell {
+    font-size: 0.8rem;
     display: flex;
-    align-items: start;
+    align-items: center;
     justify-content: center;
-    width: 100%;
-}
-
-.timetable-body-row > div:last-of-type {
-    border: 0;
+    padding: 1rem 0;
 }

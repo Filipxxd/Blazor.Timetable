@@ -1,18 +1,18 @@
 ﻿@typeparam TEvent where TEvent : class
+
 @attribute [type: RenderModeInteractiveServer]
 
 <div class="timetable-wrapper">
-    <Options
-        Events=@Events
-        ExportConfig=@ExportConfig
-        TimetableConfig=@TimetableConfig
-        OnDisplayTypeChanged=@OnDisplayTypeChanged />
+    <Options Events=@Events
+             ExportConfig=@ExportConfig
+             TimetableConfig=@TimetableConfig
+             OnDisplayTypeChanged=@OnDisplayTypeChanged />
 
     <div class="timetable">
-        <Header
-            Config=@TimetableConfig
-            OnNextClicked=@OnNextClicked
-            OnPreviousClicked=@OnPreviousClicked />
+        <Header Config=@TimetableConfig
+                Title=@_timetableContainer.Grid.Title
+                OnNextClicked=@OnNextClicked
+                OnPreviousClicked=@OnPreviousClicked />
 
         <div class="timetable-content">
             <div class="timetable-head">
@@ -20,58 +20,55 @@
                 @{
                     var startOfWeek = DateHelper.GetStartOfWeekDate(TimetableConfig.CurrentDate, TimetableConfig.Days.First());
                 }
-                @foreach (var dayOfWeek in TimetableConfig.Days)
+                @foreach (var column in _timetableContainer.Grid.Columns)
                 {
-                    // TODO: Based on Config.DisplayType & Config.CurrentDate
-                    var dateForDay = DateHelper.GetDateForDay(startOfWeek, dayOfWeek);
-                    <div class="timetable-head-cell" @onclick="() => HandleChangedToDay(dayOfWeek)">
+                    var dateForDay = DateHelper.GetDateForDay(startOfWeek, column.DayOfWeek);
+                    <div class="timetable-head-cell" @onclick="() => HandleChangedToDay(column.DayOfWeek)">
                         @dateForDay.ToString("dddd").Capitalize()
                     </div>
                 }
             </div>
-            
-            <div class="timetable-whole-day-row">
-                <div class="timetable-time-column"></div>
-                @foreach (var cell in _timetableGrid.HeaderRow.Cells)
-                {
-                    <div class="timetable-whole-day-cell" data-slot-id="@cell.Id" @key="cell.Id">
-                        @foreach (var cellEvent in cell.Events)
-                        {
-                            <TimetableEvent
-                                EventId=@cellEvent.Id
-                                Title=@cellEvent.Title
-                                IsWholeDay=@cellEvent.IsHeaderEvent
-                                Span=@cellEvent.Span
-                                DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder)) />
-                        }
-                    </div>
-                }
-            </div>
-            
-            @foreach (var row in _timetableGrid.Rows)
-            {
+
+            <div class="timetable-grid">
                 <div class="timetable-row">
-                    <div class="timetable-time-column">
-                        @(TimetableConfig.Is24HourFormat
-                            ? row.StartTime.ToString("HH:mm")
-                            : row.StartTime.ToString("h tt"))
-                    </div>
-                    @foreach (var cell in row.Cells)
+                    <div class="timetable-time-column"></div>
+                    @foreach (var column in _timetableContainer.Grid.Columns)
                     {
-                        <div class="timetable-body-cell" data-slot-id="@cell.Id" @key="@cell.Id">
-                            @foreach (var cellEvent in cell.Events)
+                        <div class="timetable-whole-day-cell" data-slot-id="@column.HeaderCell.Id" @key="@column.HeaderCell.Id">
+                            @foreach (var headerEvent in column.HeaderCell.Events)
                             {
-                                <TimetableEvent
-                                    EventId=@cellEvent.Id
-                                    Title=@cellEvent.Title
-                                    DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
-                                    Span=@cellEvent.Span>
-                                </TimetableEvent>
+                                <TimetableEvent EventId=@headerEvent.Id
+                                                Title=@headerEvent.Title
+                                                IsWholeDay=true
+                                                Span=@headerEvent.Span
+                                                DetailTemplate=@(builder => DetailTemplate(headerEvent.Event)(builder)) />
                             }
                         </div>
                     }
                 </div>
-            }
+
+                @for (int i = 0; i < _timetableContainer.Grid.RowPrepend.Count; i++)
+                {
+                    <div class="timetable-row">
+                        <div class="timetable-time-column">
+                            @_timetableContainer.Grid.RowPrepend[i]
+                        </div>
+                        @foreach (var column in _timetableContainer.Grid.Columns)
+                        {
+                            var cell = column.Cells[i];
+                            <div class="timetable-body-cell" data-slot-id="@cell.Id" @key="@cell.Id">
+                                @foreach (var cellEvent in cell.Events)
+                                {
+                                    <TimetableEvent EventId=@cellEvent.Id
+                                                    Title=@cellEvent.Title
+                                                    DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
+                                                    Span=@cellEvent.Span />
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
         </div>
     </div>
 </div>

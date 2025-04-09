@@ -4,81 +4,102 @@ using Timetable.Structure;
 
 namespace Timetable.Services.Display;
 
+
 internal sealed class WeeklyService
 {
-    public TimetableGrid<TEvent> CreateGrid<TEvent>(
+    public Grid<TEvent> CreateGrid<TEvent>(
         IList<TEvent> events,
         TimetableConfig config,
-        EventProps<TEvent> props) where TEvent : class
+        CompiledProps<TEvent> props) where TEvent : class
     {
         var cellDates = CalculateGridDates(config.CurrentDate, config.Days);
-
         var endOfGrid = cellDates.Last().AddDays(1);
-
         var weeklyEvents = events
             .Where(e =>
             {
                 var eventStart = props.GetDateFrom(e);
                 return eventStart >= cellDates.First() && eventStart < endOfGrid;
-            })
-            .Select(e => new EventWrapper<TEvent>(e, props, config))
-            .ToList();
+            }).ToList();
 
-        var timetableGrid = new TimetableGrid<TEvent>
+        var grid = new Grid<TEvent>
         {
-            SourceEvents = events,
-            EventProps = props,
+            Title = "test 123"
         };
+
+        foreach (var hour in config.Hours)
+        {
+            var formattedTime = config.Is24HourFormat
+                ? TimeSpan.FromHours(hour).ToString(@"hh\:mm")
+                : DateTime.Today.AddHours(hour).ToString("h tt");
+
+            grid.RowPrepend.Add(formattedTime);
+        }
 
         foreach (var cellDate in cellDates)
         {
             var wholeDayEvents = weeklyEvents
                 .Where(e =>
                 {
-                    return e.DateFrom.Date == cellDate &&
-                           (e.DateFrom.Hour < config.TimeFrom.Hour || e.DateTo.Hour > config.TimeTo.Hour);
+                    var dateFrom = props.GetDateFrom(e);
+                    var dateTo = props.GetDateTo(e);
+                    return dateFrom.Date == cellDate &&
+                           (dateFrom.Hour < config.TimeFrom.Hour || dateTo.Hour > config.TimeTo.Hour);
                 }).ToList();
 
-            var cell = new Cell<TEvent>
+            var newColumn = new Column<TEvent>
             {
-                Id = Guid.NewGuid(),
-                Time = cellDate,
-                Events = wholeDayEvents
-                // TODO SPAN VIA DATE THIS x DATE TO
+                DayOfWeek = cellDate.DayOfWeek,
+                HeaderCell = new Cell<TEvent>
+                {
+                    Id = Guid.NewGuid(),
+                    DateTime = cellDate,
+                    Events = [.. wholeDayEvents
+                        .Select(e => new EventWrapper<TEvent>
+                        {
+                            Props = props,
+                            Event = e,
+                            Id = Guid.NewGuid(),
+                            Index = 0, // TODO: Calculate the appropriate index
+                            Span = 1 // TODO: Calculate the appropriate span
+                        })]
+                }
             };
-            timetableGrid.HeaderRow.Cells.Add(cell);
-        }
 
-        foreach (var hour in config.Hours)
-        {
-            var row = new Row<TEvent>
-            {
-                StartTime = cellDates.First().AddHours(hour)
-            };
-
-            foreach (var cellDate in cellDates)
+            foreach (var hour in config.Hours)
             {
                 var cellStartTime = cellDate.AddHours(hour);
                 var cellEndTime = cellStartTime.AddHours(1);
 
                 var eventsAtSlot = weeklyEvents
-                    .Where(e => e.DateFrom < cellEndTime && e.DateTo > cellStartTime)
-                    .Where(item => !item.IsHeaderEvent)
-                    .ToList();
+                    .Where(e =>
+                    {
+                        var dateFrom = props.GetDateFrom(e);
+                        var dateTo = props.GetDateTo(e);
+                        return dateFrom < cellEndTime && dateTo > cellStartTime;
+                    })
+                    .Select(e => new EventWrapper<TEvent>
+                    {
+                        Props = props,
+                        Event = e,
+                        Id = Guid.NewGuid(),
+                        Index = 0, // TODO: Calculate the appropriate index
+                        Span = 1 // TODO: Calculate the appropriate span
+                    }).ToList();
 
                 var cell = new Cell<TEvent>
                 {
                     Id = Guid.NewGuid(),
-                    Time = cellStartTime,
+                    DateTime = cellStartTime,
                     Events = eventsAtSlot
                 };
-                row.Cells.Add(cell);
+
+                newColumn.Cells.Add(cell);
             }
 
-            timetableGrid.Rows.Add(row);
+            grid.Columns.Add(newColumn);
         }
 
-        return timetableGrid;
+        return grid;
     }
 
     private static IEnumerable<DateTime> CalculateGridDates(DateTime currentDate, IEnumerable<DayOfWeek> configuredDays)
@@ -86,17 +107,13 @@ internal sealed class WeeklyService
         var dates = new List<DateTime>();
         var startDate = DateHelper.GetStartOfWeekDate(currentDate, configuredDays.First());
         dates.Add(startDate);
-
         var previousDayValue = (int)configuredDays.First();
         var previousDate = startDate;
 
         foreach (var day in configuredDays.Skip(1))
         {
             var diff = (int)day - previousDayValue;
-            if (diff < 0)
-            {
-                diff += 7;
-            }
+            if (diff < 0) diff += 7;
 
             var nextDate = previousDate.AddDays(diff);
             dates.Add(nextDate);
@@ -104,6 +121,7 @@ internal sealed class WeeklyService
             previousDayValue = (int)day;
             previousDate = nextDate;
         }
-        return dates;
+
+        return dates.Distinct();
     }
 }
