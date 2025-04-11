@@ -46,7 +46,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     private DotNetObjectReference<Timetable<TEvent>> _objectReference = default!;
     private TimetableManager<TEvent> _timetableManager = default!;
     private CompiledProps<TEvent> _eventProps = default!;
-    private IJSObjectReference? _jsModule = default!;
+    private IJSObjectReference _jsModule = default!;
     #endregion
 
     protected override void OnInitialized()
