@@ -1,14 +1,34 @@
 ﻿@typeparam TEvent where TEvent : class
 
 <div class="display-type-options">
-    <div @onclick="Export" class="display-type-button">
+    <div @onclick=Export class="icon-button">
         <FileDownloadIcon />
         <span>Export</span>
     </div>
+
     @foreach (var displayType in TimetableConfig.DisplayTypes.Where(x => x != TimetableConfig.DisplayType))
     {
-        <span @onclick="() => HandleDisplayTypeChanged(displayType)" class="display-type-button">
-            @displayType
+        <span @onclick="() => HandleDisplayTypeChanged(displayType)" class="icon-button">
+            @switch (displayType)
+            {
+                case DisplayType.Day:
+                    <CalendarDayIcon />
+                    break;
+
+                case DisplayType.Week:
+                    <CalendarWeekIcon />
+                    break;
+
+                case DisplayType.Month:
+                    <CalendarMonthIcon />
+                    break;
+
+                default:
+                    throw new NotImplementedException($"DisplayType {TimetableConfig.DisplayType} is not implemented.");
+            }
+            <span>
+                @displayType
+            </span>
         </span>
     }
 </div>
