@@ -1,4 +1,4 @@
-﻿namespace Timetable.Extensions;
+﻿namespace Timetable.Common.Extensions;
 
 internal static class StringExtensions
 {

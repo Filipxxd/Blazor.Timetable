@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Timetable.Services.Display;
 
-namespace Timetable.Extensions;
+namespace Timetable.Common.Extensions;
 
 public static class ServiceExtensions
 {
