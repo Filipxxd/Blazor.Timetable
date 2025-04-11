@@ -1,9 +1,10 @@
 ﻿@typeparam TEvent where TEvent : class
 
 <div class="display-type-options">
-    <span @onclick="Export" class="display-type-button">
-        Export
-    </span>
+    <div @onclick="Export" class="display-type-button">
+        <FileDownloadIcon />
+        <span>Export</span>
+    </div>
     @foreach (var displayType in TimetableConfig.DisplayTypes.Where(x => x != TimetableConfig.DisplayType))
     {
         <span @onclick="() => HandleDisplayTypeChanged(displayType)" class="display-type-button">

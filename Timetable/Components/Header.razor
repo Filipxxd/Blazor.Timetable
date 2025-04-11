@@ -1,7 +1,11 @@
 ﻿<div class="timetable-header">
-    <div class="nav-arrow" @onclick=OnPreviousClicked>&lt;</div>
+    <div class="nav-arrow" @onclick=OnPreviousClicked>
+        <ArrowLeftIcon />
+    </div>
     <div class="center-column">
         <h3>@Title</h3>
     </div>
-    <div class="nav-arrow" @onclick=OnNextClicked>&gt;</div>
+    <div class="nav-arrow" @onclick=OnNextClicked>
+          <ArrowRightIcon />
+    </div>
 </div>

@@ -11,14 +11,16 @@
 
 .display-type-button {
     border: 1px solid #a8a6a6;
-    border-radius: .5rem;
+    border-radius: .3rem;
     color: #333;
     cursor: pointer;
-    padding: .1rem 0;
+    padding: .1rem .2rem;
     width: 4rem;
-    text-align: center;
-    font-size: .8rem;
+    font-size: .7rem;
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    text-align: center;
 }
 
 .display-type-button:hover {
