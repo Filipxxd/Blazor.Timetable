@@ -87,7 +87,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     }
 
     [JSInvokable]
-    public void MoveEvent(Guid eventId, Guid targetCellId)
+    public async Task MoveEvent(Guid eventId, Guid targetCellId)
     {
         var timetableEvent = _timetableManager.MoveEvent(eventId, targetCellId);
         if (timetableEvent is null)
@@ -95,7 +95,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             return;
         }
 
-        OnEventUpdated.InvokeAsync(timetableEvent).ConfigureAwait(false);
+        await OnEventUpdated.InvokeAsync(timetableEvent);
         StateHasChanged();
     }
 
