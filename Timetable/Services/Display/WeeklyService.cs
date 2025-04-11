@@ -73,12 +73,12 @@ internal sealed class WeeklyService
                 var cellStartTime = cellDate.AddHours(hour);
                 var cellEndTime = cellStartTime.AddHours(1);
 
-                var eventsAtSlot = weeklyEvents
+                var cellEvents = weeklyEvents
                     .Where(e =>
                     {
                         var dateFrom = props.GetDateFrom(e);
                         var dateTo = props.GetDateTo(e);
-                        return dateFrom < cellEndTime && dateTo > cellStartTime;
+                        return dateFrom.Hour == hour && dateFrom.Hour >= config.TimeFrom.Hour && dateTo.Hour <= config.TimeTo.Hour && dateFrom.Date == cellDate.Date && dateTo.Date == cellDate.Date;
                     })
                     .Select(e => new EventWrapper<TEvent>
                     {
@@ -93,7 +93,7 @@ internal sealed class WeeklyService
                 {
                     Id = Guid.NewGuid(),
                     DateTime = cellStartTime,
-                    Events = eventsAtSlot
+                    Events = cellEvents
                 };
 
                 newColumn.Cells.Add(cell);
