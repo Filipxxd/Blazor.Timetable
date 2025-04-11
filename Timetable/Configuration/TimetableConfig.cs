@@ -61,7 +61,7 @@ public sealed class TimetableConfig
     /// </summary>
     public DateTime CurrentDate { get; set; } = DateTime.Today;
 
-    internal IEnumerable<int> Hours => Enumerable.Range(TimeFrom.Hour, TimeTo.Hour - TimeFrom.Hour + 1);
+    internal IEnumerable<int> Hours => Enumerable.Range(TimeFrom.Hour, TimeTo.Hour - TimeFrom.Hour);
 
     internal void Validate()
     {
