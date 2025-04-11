@@ -18,7 +18,7 @@ internal sealed class CompiledProps<TEvent> where TEvent : class
         Expression<Func<TEvent, DateTime>> dateToSelector, Expression<Func<TEvent, string>> titleSelector,
         Expression<Func<TEvent, object?>>? groupIdSelector = null)
     {
-        GetTitle = PropertyHelper.CreateGetter(titleSelector)!;
+        GetTitle = PropertyHelper.CreateGetter(titleSelector!)!;
         SetTitle = PropertyHelper.CreateSetter(titleSelector!);
         GetDateFrom = PropertyHelper.CreateGetter(dateFromSelector);
         SetDateFrom = PropertyHelper.CreateSetter(dateFromSelector);

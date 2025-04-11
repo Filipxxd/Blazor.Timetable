@@ -135,7 +135,7 @@ public sealed class PropertyHelperTests
     [Fact]
     public void CreateGetter_ListOfNullableString_ListOfReferenceTypeNullable()
     {
-        var obj = new TestObject { ListOfReferenceTypeNullable = new List<string> { "Item1", "Item2" } };
+        var obj = new TestObject { ListOfReferenceTypeNullable = ["Item1", "Item2"] };
         var getter = PropertyHelper.CreateGetter<TestObject, List<string>?>(x => x.ListOfReferenceTypeNullable);
         var value = getter(obj);
         Assert.NotNull(value);

@@ -5,14 +5,14 @@ namespace Timetable.Common.Utilities;
 
 internal static class PropertyHelper
 {
-    public static Func<TObject, TProperty?> CreateGetter<TObject, TProperty>(Expression<Func<TObject, TProperty>> expression)
+    public static Func<TObject, TProperty?> CreateGetter<TObject, TProperty>(Expression<Func<TObject, TProperty?>> expression)
     {
-        if (expression.Body is not MemberExpression 
+        if (expression.Body is not MemberExpression
             && expression.Body is not UnaryExpression { Operand: MemberExpression })
             throw new ArgumentException("Expression must point to a property", nameof(expression));
-        
+
         var compiledExpression = expression.Compile();
-            
+
         return obj => Equals(obj, default(TObject)) ? default : compiledExpression(obj);
     }
 
@@ -20,12 +20,12 @@ internal static class PropertyHelper
     {
         if (expression.Body is not MemberExpression { Member: PropertyInfo property } memberExpression)
             throw new ArgumentException("Expression must point to a property", nameof(expression));
-        
+
         var targetExpression = expression.Parameters[0];
         var valueExpression = Expression.Parameter(typeof(TProperty), "value");
-            
+
         Expression convertedValueExpression = valueExpression;
-            
+
         if (property.PropertyType != typeof(TProperty))
         {
             convertedValueExpression = Expression.Convert(valueExpression, property.PropertyType);
