@@ -6,7 +6,7 @@
 
         public List<TimetableEvent> GenerateHardcodedEvents()
         {
-            var now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day + 5, 7, 0, 0);
+            var now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day + 5, 6, 0, 0);
             var events = new List<TimetableEvent>
             {
                 // Past events
