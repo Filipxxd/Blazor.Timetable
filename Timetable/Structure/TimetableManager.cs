@@ -1,6 +1,6 @@
 ﻿namespace Timetable.Structure;
 
-internal sealed class TimetableContainer<TEvent> where
+internal sealed class TimetableManager<TEvent> where
     TEvent : class
 {
     public required CompiledProps<TEvent> Props { get; init; }

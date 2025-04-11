@@ -10,7 +10,7 @@
 
     <div class="timetable">
         <Header Config=@TimetableConfig
-                Title=@_timetableContainer.Grid.Title
+                Title=@_timetableManager.Grid.Title
                 OnNextClicked=@OnNextClicked
                 OnPreviousClicked=@OnPreviousClicked />
 
@@ -20,7 +20,7 @@
                 @{
                     var startOfWeek = DateHelper.GetStartOfWeekDate(TimetableConfig.CurrentDate, TimetableConfig.Days.First());
                 }
-                @foreach (var column in _timetableContainer.Grid.Columns)
+                @foreach (var column in _timetableManager.Grid.Columns)
                 {
                     var dateForDay = DateHelper.GetDateForDay(startOfWeek, column.DayOfWeek);
                     <div class="timetable-head-cell" @onclick="() => HandleChangedToDay(column.DayOfWeek)">
@@ -32,7 +32,7 @@
             <div class="timetable-grid">
                 <div class="timetable-row">
                     <div class="timetable-time-column"></div>
-                    @foreach (var column in _timetableContainer.Grid.Columns)
+                    @foreach (var column in _timetableManager.Grid.Columns)
                     {
                         <div class="timetable-whole-day-cell" data-slot-id="@column.HeaderCell.Id" @key="@column.HeaderCell.Id">
                             @foreach (var headerEvent in column.HeaderCell.Events)
@@ -47,13 +47,13 @@
                     }
                 </div>
 
-                @for (int i = 0; i < _timetableContainer.Grid.RowPrepend.Count; i++)
+                @for (int i = 0; i < _timetableManager.Grid.RowPrepend.Count; i++)
                 {
                     <div class="timetable-row">
                         <div class="timetable-time-column">
-                            @_timetableContainer.Grid.RowPrepend[i]
+                            @_timetableManager.Grid.RowPrepend[i]
                         </div>
-                        @foreach (var column in _timetableContainer.Grid.Columns)
+                        @foreach (var column in _timetableManager.Grid.Columns)
                         {
                             var cell = column.Cells[i];
                             <div class="timetable-body-cell" data-slot-id="@cell.Id" @key="@cell.Id">

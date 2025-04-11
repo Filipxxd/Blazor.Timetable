@@ -44,7 +44,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
     #region Private Fields
     private DotNetObjectReference<Timetable<TEvent>> _objectReference = default!;
-    private TimetableContainer<TEvent> _timetableContainer = default!;
+    private TimetableManager<TEvent> _timetableManager = default!;
     private CompiledProps<TEvent> _eventProps = default!;
     private IJSObjectReference? _jsModule = default!;
     #endregion
@@ -54,7 +54,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         _objectReference = DotNetObjectReference.Create(this);
 
         _eventProps = new CompiledProps<TEvent>(DateFrom, DateTo, Title, GroupIdentifier);
-        _timetableContainer = new TimetableContainer<TEvent>() { Props = _eventProps };
+        _timetableManager = new TimetableManager<TEvent>() { Props = _eventProps };
 
         ExportConfig = new ExportConfig<TEvent>
         {
@@ -72,7 +72,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     {
         TimetableConfig.Validate();
         ExportConfig.Validate();
-        _timetableContainer.Grid = CreateGrid();
+        _timetableManager.Grid = CreateGrid();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -89,7 +89,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     [JSInvokable]
     public void MoveEvent(Guid eventId, Guid targetCellId)
     {
-        var timetableEvent = _timetableContainer.MoveEvent(eventId, targetCellId);
+        var timetableEvent = _timetableManager.MoveEvent(eventId, targetCellId);
         if (timetableEvent is null)
         {
             return;
