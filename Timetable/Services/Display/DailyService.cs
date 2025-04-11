@@ -8,38 +8,101 @@ internal sealed class DailyService
     public Grid<TEvent> CreateGrid<TEvent>(
         IList<TEvent> events,
         TimetableConfig config,
+        DateTime currentDate,
         CompiledProps<TEvent> props) where TEvent : class
     {
-        //var rows = new List<Row<TEvent>>();
+        var cellDate = CalculateGridDate(currentDate, config.Days)
+            ?? throw new InvalidOperationException("No valid date found for creating the grid.");
 
-        //foreach (var hour in config.Hours)
-        //{
-        //	var rowStartTime = config.CurrentDate.Date.AddHours(hour);
-        //	var gridRow = new Row<TEvent> { StartTime = rowStartTime };
+        var dailyEvents = events
+            .Where(e =>
+            {
+                var eventStart = props.GetDateFrom(e);
+                return eventStart.Date == cellDate.Date;
+            }).ToList();
 
-        //	var eventsAtSlot = events.Where(e =>
-        //	{
-        //		var eventStart = props.GetDateFrom(e);
-        //		var eventEnd = props.GetDateTo(e);
+        var grid = new Grid<TEvent>
+        {
+            Title = $"{cellDate:dddd d, MMMM}"
+        };
 
-        //		return eventStart.Date == config.CurrentDate.Date && eventStart.Hour <= hour && eventEnd.Hour > hour;
-        //	});
+        foreach (var hour in config.Hours)
+        {
+            var formattedTime = config.Is24HourFormat
+                ? TimeSpan.FromHours(hour).ToString(@"hh\:mm")
+                : DateTime.Today.AddHours(hour).ToString("h tt");
+            grid.RowPrepend.Add(formattedTime);
+        }
 
-        //	var items = eventsAtSlot
-        //		.Select(e => new EventWrapper<TEvent>(e, props, config))
-        //		.ToList();
+        var column = new Column<TEvent>
+        {
+            DayOfWeek = cellDate.DayOfWeek,
+            HeaderCell = new Cell<TEvent>
+            {
+                Id = Guid.NewGuid(),
+                DateTime = cellDate,
+                Events = [.. dailyEvents
+                    .Where(e =>
+                    {
+                        var dateFrom = props.GetDateFrom(e);
+                        var dateTo = props.GetDateTo(e);
+                        return (dateFrom.Hour < config.TimeFrom.Hour || dateTo.Hour > config.TimeTo.Hour);
+                    })
+                    .Select(e => new EventWrapper<TEvent>
+                    {
+                        Props = props,
+                        Event = e,
+                        Id = Guid.NewGuid(),
+                        Index = 0,
+                        Span = 1
+                    })]
+            }
+        };
 
-        //	var gridCell = new Cell<TEvent>
-        //	{
-        //		Id = Guid.NewGuid(),
-        //		Time = rowStartTime,
-        //		Events = items
-        //	};
+        foreach (var hour in config.Hours)
+        {
+            var cellStartTime = cellDate.AddHours(hour);
+            var cellEndTime = cellStartTime.AddHours(1);
+            var cellEvents = dailyEvents
+                .Where(e =>
+                {
+                    var dateFrom = props.GetDateFrom(e);
+                    var dateTo = props.GetDateTo(e);
+                    return dateFrom.Hour == hour && dateFrom.Hour >= config.TimeFrom.Hour && dateTo.Hour <= config.TimeTo.Hour && dateFrom.Date == cellDate.Date && dateTo.Date == cellDate.Date;
+                })
+                .Select(e => new EventWrapper<TEvent>
+                {
+                    Props = props,
+                    Event = e,
+                    Id = Guid.NewGuid(),
+                    Index = 0,
+                    Span = 1
+                }).ToList();
 
-        //	gridRow.Cells.Add(gridCell);
-        //	rows.Add(gridRow);
-        //}
+            var cell = new Cell<TEvent>
+            {
+                Id = Guid.NewGuid(),
+                DateTime = cellStartTime,
+                Events = cellEvents
+            };
 
-        return default!;
+            column.Cells.Add(cell);
+        }
+
+        grid.Columns.Add(column);
+        return grid;
+    }
+
+    private static DateTime? CalculateGridDate(DateTime currentDate, IEnumerable<DayOfWeek> configuredDays)
+    {
+        if (configuredDays.Contains(currentDate.DayOfWeek))
+            return currentDate;
+
+        var nextDay = configuredDays.FirstOrDefault(day => (int)day > (int)currentDate.DayOfWeek);
+
+        if (nextDay != default)
+            return currentDate.Date.AddDays((int)nextDay - (int)currentDate.DayOfWeek);
+
+        return currentDate.Date.AddDays(7 + (int)configuredDays.First() - (int)currentDate.DayOfWeek);
     }
 }

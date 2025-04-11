@@ -13,6 +13,7 @@ namespace Timetable.Components;
 public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 {
     [Inject] internal IJSRuntime JsRuntime { get; set; } = default!;
+    [Inject] internal DailyService DailyService { get; set; } = default!;
     [Inject] internal WeeklyService WeeklyService { get; set; } = default!;
 
     [Parameter, EditorRequired] public IList<TEvent> Events { get; set; } = [];
@@ -113,14 +114,25 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
     private async Task HandleNextClicked()
     {
-        _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(7);
+        // todo: do in manager, calculate current date based on config.days  & months etc.
+        _timetableManager.CurrentDate = _timetableManager.DisplayType switch
+        {
+            DisplayType.Day => _timetableManager.CurrentDate.AddDays(1),
+            DisplayType.Week => _timetableManager.CurrentDate.AddDays(7),
+            _ => throw new NotImplementedException(),
+        };
         StateHasChanged();
         await OnNextClicked.InvokeAsync();
     }
 
     private async Task HandlePreviousClicked()
     {
-        _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(-7);
+        _timetableManager.CurrentDate = _timetableManager.DisplayType switch
+        {
+            DisplayType.Day => _timetableManager.CurrentDate.AddDays(-1),
+            DisplayType.Week => _timetableManager.CurrentDate.AddDays(-7),
+            _ => throw new NotImplementedException(),
+        };
         StateHasChanged();
         await OnNextClicked.InvokeAsync();
     }
@@ -136,7 +148,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     {
         return _timetableManager.DisplayType switch
         {
-            DisplayType.Day => WeeklyService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps),
+            DisplayType.Day => DailyService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps),
             DisplayType.Week => WeeklyService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps),
             DisplayType.Month => throw new NotImplementedException(),
             _ => throw new NotSupportedException($"Implementation for {nameof(DisplayType)}: '{_timetableManager.DisplayType}' not found."),
