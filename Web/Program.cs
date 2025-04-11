@@ -1,4 +1,4 @@
-using Timetable.Extensions;
+using Timetable.Common.Extensions;
 using Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddSchoolTimetable();
+builder.Services.AddSchoolTimetable(); // req
 
 var app = builder.Build();
 

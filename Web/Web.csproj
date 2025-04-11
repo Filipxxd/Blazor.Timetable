@@ -7,12 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <_ContentIncludedByDefault Remove="wwwroot\bootstrap\bootstrap.min.css" />
-      <_ContentIncludedByDefault Remove="wwwroot\bootstrap\bootstrap.min.css.map" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="wwwroot\" />
+      <Compile Remove="wwwroot\**" />
+      <Content Remove="wwwroot\**" />
+      <EmbeddedResource Remove="wwwroot\**" />
+      <None Remove="wwwroot\**" />
     </ItemGroup>
 
     <ItemGroup>
