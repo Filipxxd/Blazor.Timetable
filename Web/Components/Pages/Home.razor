@@ -14,13 +14,13 @@
                     GroupIdentifier="e => e.GroupId"
 
                     TimetableConfig="new(){
-                        DisplayType = DisplayType.Week,
+                        DefaultDisplayType=DisplayType.Week,
+                        DisplayTypes=[DisplayType.Week, DisplayType.Month, DisplayType.Day],
                         FirstDayOfWeek = DayOfWeek.Monday,
                         Days=[ DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday],
                         TimeFrom=new(8, 0),
                         TimeTo=new(16, 0),
-                        Is24HourFormat=true,
-                        CurrentDate = DateTime.Today
+                        Is24HourFormat=true
                     }"
 
                     OnEventUpdated=HandleEventUpdated

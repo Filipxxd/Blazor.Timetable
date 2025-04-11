@@ -5,15 +5,16 @@
 
 <div class="timetable-wrapper">
     <Options Events=@Events
+             CurrentDisplayType=@_timetableManager.DisplayType
              ExportConfig=@ExportConfig
              TimetableConfig=@TimetableConfig
-             OnDisplayTypeChanged=@OnDisplayTypeChanged />
+             OnDisplayTypeChanged=HandleDisplayTypeChanged />
 
     <div class="timetable">
         <Header Config=@TimetableConfig
                 Title=@_timetableManager.Grid.Title
-                OnNextClicked=@HandleNextClicked
-                OnPreviousClicked=@HandlePreviousClicked />
+                OnNextClicked=HandleNextClicked
+                OnPreviousClicked=HandlePreviousClicked />
 
         <div class="timetable-content">
             <div class="timetable-head">

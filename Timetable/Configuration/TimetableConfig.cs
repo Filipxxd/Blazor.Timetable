@@ -52,9 +52,9 @@ public sealed class TimetableConfig
     public Month FirstMonthOfYear { get; init; } = Month.January;
 
     /// <summary>
-    /// Display type of the timetable. Defaults to <see cref="DisplayType.Week"/>.
+    /// Initial display type of the timetable. Defaults to <see cref="DisplayType.Week"/>.
     /// </summary>
-    public DisplayType DisplayType { get; set; } = DisplayType.Week;
+    public DisplayType DefaultDisplayType { get; set; } = DisplayType.Week;
 
     internal IEnumerable<int> Hours => Enumerable.Range(TimeFrom.Hour, TimeTo.Hour - TimeFrom.Hour);
 
@@ -70,13 +70,13 @@ public sealed class TimetableConfig
             throw new InvalidOperationException($"{nameof(TimeTo)} must be a quarter-hour interval (0, 15, 30, 45 minutes).");
 
         if (!DisplayTypes.Any())
-            throw new InvalidSetupException($"At least one {nameof(Common.Enums.DisplayType)} in {nameof(DisplayTypes)} required.");
+            throw new InvalidSetupException($"At least one {nameof(DisplayType)} in {nameof(DisplayTypes)} required.");
 
         if (DisplayTypes.GroupBy(x => x).Any(x => x.Count() > 1))
-            throw new InvalidSetupException($"Duplicate {nameof(Common.Enums.DisplayType)} found in {nameof(DisplayTypes)}.");
+            throw new InvalidSetupException($"Duplicate {nameof(DisplayType)} found in {nameof(DisplayTypes)}.");
 
-        if (!DisplayTypes.Contains(DisplayType))
-            throw new InvalidSetupException($"{nameof(Common.Enums.DisplayType)} must be part of {nameof(DisplayTypes)}.");
+        if (!DisplayTypes.Contains(DefaultDisplayType))
+            throw new InvalidSetupException($"{nameof(DisplayType)} must be part of {nameof(DisplayTypes)}.");
 
         if (!Months.Any())
             throw new InvalidSetupException($"At least one {nameof(DayOfWeek)} in {nameof(Days)} required.");

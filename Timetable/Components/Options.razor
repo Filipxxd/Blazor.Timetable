@@ -6,9 +6,9 @@
         <span>Export</span>
     </div>
 
-    @foreach (var displayType in TimetableConfig.DisplayTypes.Where(x => x != TimetableConfig.DisplayType))
+    @foreach (var displayType in TimetableConfig.DisplayTypes.Where(x => x != CurrentDisplayType).OrderBy(x => x))
     {
-        <span @onclick="() => HandleDisplayTypeChanged(displayType)" class="icon-button">
+        <span @onclick="() => OnDisplayTypeChanged.InvokeAsync(displayType)" class="icon-button">
             @switch (displayType)
             {
                 case DisplayType.Day:
@@ -24,7 +24,7 @@
                     break;
 
                 default:
-                    throw new NotImplementedException($"DisplayType {TimetableConfig.DisplayType} is not implemented.");
+                    throw new NotImplementedException($"DisplayType {CurrentDisplayType} is not implemented.");
             }
             <span>
                 @displayType

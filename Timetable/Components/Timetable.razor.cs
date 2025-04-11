@@ -43,6 +43,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     #endregion
 
     #region Private Fields
+    private static bool _firstRender = false;
     private DotNetObjectReference<Timetable<TEvent>> _objectReference = default!;
     private TimetableManager<TEvent> _timetableManager = default!;
     private CompiledProps<TEvent> _eventProps = default!;
@@ -51,6 +52,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
     protected override void OnInitialized()
     {
+        _firstRender = true;
         _objectReference = DotNetObjectReference.Create(this);
 
         _eventProps = new CompiledProps<TEvent>(DateFrom, DateTo, Title, GroupIdentifier);
@@ -74,6 +76,11 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
     protected override void OnParametersSet()
     {
+        if (_firstRender)
+        {
+            _timetableManager.DisplayType = TimetableConfig.DefaultDisplayType;
+        }
+
         TimetableConfig.Validate();
         ExportConfig.Validate();
         _timetableManager.Grid = UpdateGrid();
@@ -87,6 +94,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import",
                 "./_content/Timetable/Components/Timetable.razor.js");
             await _jsModule.InvokeVoidAsync("dragDrop.init", _objectReference);
+            _firstRender = false;
         }
     }
 
@@ -117,14 +125,21 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         await OnNextClicked.InvokeAsync();
     }
 
+    private async Task HandleDisplayTypeChanged(DisplayType displayType)
+    {
+        _timetableManager.DisplayType = displayType;
+        StateHasChanged();
+        await OnNextClicked.InvokeAsync();
+    }
+
     private Grid<TEvent> UpdateGrid()
     {
-        return TimetableConfig.DisplayType switch
+        return _timetableManager.DisplayType switch
         {
-            DisplayType.Day => throw new NotImplementedException(),
+            DisplayType.Day => WeeklyService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps),
             DisplayType.Week => WeeklyService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps),
             DisplayType.Month => throw new NotImplementedException(),
-            _ => throw new NotSupportedException($"Implementation for {nameof(DisplayType)}: '{TimetableConfig.DisplayType}' not found."),
+            _ => throw new NotSupportedException($"Implementation for {nameof(DisplayType)}: '{_timetableManager.DisplayType}' not found."),
         };
     }
 
