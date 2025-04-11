@@ -10,9 +10,10 @@ internal sealed class WeeklyService
     public Grid<TEvent> CreateGrid<TEvent>(
         IList<TEvent> events,
         TimetableConfig config,
+        DateTime currentDate,
         CompiledProps<TEvent> props) where TEvent : class
     {
-        var cellDates = CalculateGridDates(config.CurrentDate, config.Days);
+        var cellDates = CalculateGridDates(currentDate, config.Days);
         var endOfGrid = cellDates.Last().AddDays(1);
         var weeklyEvents = events
             .Where(e =>

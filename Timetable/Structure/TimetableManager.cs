@@ -7,7 +7,7 @@ internal sealed class TimetableManager<TEvent> where
     public IList<TEvent> Events { get; init; } = [];
 
     public Grid<TEvent> Grid { get; set; } = default!;
-
+    public DateTime CurrentDate { get; set; }
     public bool HasRowTitle => Grid.RowPrepend.Count > 0;
 
     public TEvent? MoveEvent(Guid eventId, Guid targetCellId)

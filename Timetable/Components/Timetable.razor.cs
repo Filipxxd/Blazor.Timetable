@@ -54,7 +54,11 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         _objectReference = DotNetObjectReference.Create(this);
 
         _eventProps = new CompiledProps<TEvent>(DateFrom, DateTo, Title, GroupIdentifier);
-        _timetableManager = new TimetableManager<TEvent>() { Props = _eventProps };
+        _timetableManager = new TimetableManager<TEvent>()
+        {
+            Props = _eventProps,
+            CurrentDate = DateTime.Now // TODO: add option to provide custom via _firstRender prop
+        };
 
         ExportConfig = new ExportConfig<TEvent>
         {
@@ -72,7 +76,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     {
         TimetableConfig.Validate();
         ExportConfig.Validate();
-        _timetableManager.Grid = CreateGrid();
+        _timetableManager.Grid = UpdateGrid();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -99,12 +103,26 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         StateHasChanged();
     }
 
-    private Grid<TEvent> CreateGrid()
+    private async Task HandleNextClicked()
+    {
+        _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(7);
+        StateHasChanged();
+        await OnNextClicked.InvokeAsync();
+    }
+
+    private async Task HandlePreviousClicked()
+    {
+        _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(-7);
+        StateHasChanged();
+        await OnNextClicked.InvokeAsync();
+    }
+
+    private Grid<TEvent> UpdateGrid()
     {
         return TimetableConfig.DisplayType switch
         {
             DisplayType.Day => throw new NotImplementedException(),
-            DisplayType.Week => WeeklyService.CreateGrid(Events, TimetableConfig, _eventProps),
+            DisplayType.Week => WeeklyService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps),
             DisplayType.Month => throw new NotImplementedException(),
             _ => throw new NotSupportedException($"Implementation for {nameof(DisplayType)}: '{TimetableConfig.DisplayType}' not found."),
         };
@@ -113,7 +131,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     private async Task HandleChangedToDay(DayOfWeek dayOfWeek)
     {
         await OnChangedToDay.InvokeAsync(dayOfWeek);
-        TimetableConfig.CurrentDate = DateHelper.GetDateForDay(TimetableConfig.CurrentDate, dayOfWeek);
+        _timetableManager.CurrentDate = DateHelper.GetDateForDay(_timetableManager.CurrentDate, dayOfWeek);
         await OnDisplayTypeChanged.InvokeAsync(DisplayType.Day);
     }
 

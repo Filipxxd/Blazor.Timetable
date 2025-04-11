@@ -56,11 +56,6 @@ public sealed class TimetableConfig
     /// </summary>
     public DisplayType DisplayType { get; set; } = DisplayType.Week;
 
-    /// <summary>
-    /// Current date of the timetable. Defaults to <see cref="DateTime.Today"/>.
-    /// </summary>
-    public DateTime CurrentDate { get; set; } = DateTime.Today;
-
     internal IEnumerable<int> Hours => Enumerable.Range(TimeFrom.Hour, TimeTo.Hour - TimeFrom.Hour);
 
     internal void Validate()

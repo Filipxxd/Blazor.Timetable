@@ -12,14 +12,14 @@
     <div class="timetable">
         <Header Config=@TimetableConfig
                 Title=@_timetableManager.Grid.Title
-                OnNextClicked=@OnNextClicked
-                OnPreviousClicked=@OnPreviousClicked />
+                OnNextClicked=@HandleNextClicked
+                OnPreviousClicked=@HandlePreviousClicked />
 
         <div class="timetable-content">
             <div class="timetable-head">
                 <div class="timetable-time-column"></div>
                 @{
-                    var startOfWeek = DateHelper.GetStartOfWeekDate(TimetableConfig.CurrentDate, TimetableConfig.Days.First());
+                    var startOfWeek = DateHelper.GetStartOfWeekDate(_timetableManager.CurrentDate, TimetableConfig.Days.First());
                 }
                 @foreach (var column in _timetableManager.Grid.Columns)
                 {
