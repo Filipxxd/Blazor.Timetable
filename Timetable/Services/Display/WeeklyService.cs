@@ -21,9 +21,12 @@ internal sealed class WeeklyService
                 return eventStart >= cellDates.First() && eventStart < endOfGrid;
             }).ToList();
 
+        var startDate = cellDates.First();
+        var endDate = cellDates.Last();
+
         var grid = new Grid<TEvent>
         {
-            Title = "test 123"
+            Title = $"{startDate:dddd d, MMMM} - {endDate:dddd d, MMMM}"
         };
 
         foreach (var hour in config.Hours)
