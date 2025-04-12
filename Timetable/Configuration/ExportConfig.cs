@@ -27,5 +27,7 @@ public sealed class ExportConfig<TEvent> where TEvent : class
 
         if (string.IsNullOrWhiteSpace(FileName))
             throw new InvalidSetupException("FileName must be provided.");
+
+        // TODO: Validate filename
     }
 }

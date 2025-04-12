@@ -7,7 +7,7 @@ internal sealed class CsvTransformer : ITransformer
 {
     private const char Separator = ';';
 
-    public ExportInfo Transform<TEvent>(IEnumerable<TEvent> records, IList<INamePropertySelector<TEvent>> properties)
+    public IExportInfo Transform<TEvent>(IEnumerable<TEvent> records, IList<INamePropertySelector<TEvent>> properties)
         where TEvent : class
     {
         var memoryStream = new MemoryStream();
