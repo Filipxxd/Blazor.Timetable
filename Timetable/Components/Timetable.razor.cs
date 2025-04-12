@@ -59,8 +59,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         _eventProps = new CompiledProps<TEvent>(DateFrom, DateTo, Title, GroupIdentifier);
         _timetableManager = new TimetableManager<TEvent>()
         {
-            Props = _eventProps,
-            CurrentDate = DateTime.Now // TODO: add option to provide custom via _firstRender prop
+            Props = _eventProps
         };
 
         ExportConfig = new ExportConfig<TEvent>
@@ -80,11 +79,20 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         if (_firstRender)
         {
             _timetableManager.DisplayType = TimetableConfig.DefaultDisplayType;
+            _timetableManager.CurrentDate = DateHelper.GetNextAvailableDate(DateTime.Now, DateHelper.GetIncrement(_timetableManager.DisplayType), TimetableConfig.Days);
+            // TODO: add option to provide custom via _firstRender prop & fix when datetime now is not in available Days;
         }
 
         TimetableConfig.Validate();
         ExportConfig.Validate();
-        _timetableManager.Grid = UpdateGrid();
+
+        _timetableManager.Grid = _timetableManager.DisplayType switch
+        {
+            DisplayType.Day => DailyService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps),
+            DisplayType.Week => WeeklyService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps),
+            DisplayType.Month => throw new NotImplementedException(),
+            _ => throw new NotSupportedException($"Implementation for {nameof(DisplayType)}: '{_timetableManager.DisplayType}' not found."),
+        };
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -92,8 +100,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         if (firstRender)
         {
             await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Timetable/interact.min.js");
-            _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import",
-                "./_content/Timetable/Components/Timetable.razor.js");
+            _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Timetable/Components/Timetable.razor.js");
             await _jsModule.InvokeVoidAsync("dragDrop.init", _objectReference);
             _firstRender = false;
         }
@@ -127,19 +134,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     private async Task HandleDisplayTypeChanged(DisplayType displayType)
     {
         _timetableManager.DisplayType = displayType;
-        StateHasChanged();
         await OnNextClicked.InvokeAsync();
-    }
-
-    private Grid<TEvent> UpdateGrid()
-    {
-        return _timetableManager.DisplayType switch
-        {
-            DisplayType.Day => DailyService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps),
-            DisplayType.Week => WeeklyService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps),
-            DisplayType.Month => throw new NotImplementedException(),
-            _ => throw new NotSupportedException($"Implementation for {nameof(DisplayType)}: '{_timetableManager.DisplayType}' not found."),
-        };
     }
 
     private async Task HandleChangedToDay(DayOfWeek dayOfWeek)
