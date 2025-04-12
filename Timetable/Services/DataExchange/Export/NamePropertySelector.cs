@@ -12,18 +12,17 @@ public class NamePropertySelector<TEvent, TProperty> : INamePropertySelector<TEv
     where TEvent : class
 {
     public string Name { get; init; }
-    public Expression<Func<TEvent, TProperty>> Selector { get; init; }
+    internal Func<TEvent, TProperty> Getter { get; init; }
 
     public NamePropertySelector(string name, Expression<Func<TEvent, TProperty>> selector)
     {
         Name = name;
-        Selector = selector;
+        Getter = selector.Compile();
     }
 
     public string GetStringValue(TEvent entity)
     {
-        var compiledSelector = Selector.Compile();
-        var value = compiledSelector(entity);
+        var value = Getter(entity);
 
         return value?.ToString() ?? string.Empty;
     }
