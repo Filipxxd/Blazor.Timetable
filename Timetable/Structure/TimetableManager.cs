@@ -50,22 +50,21 @@ internal sealed class TimetableManager<TEvent> where
         var targetCell = FindCellById(targetCellId);
         if (targetCell is null) return null;
 
-        var updatedEvents = new List<TEvent>();
-
-        var eventsToUpdate = Events
+        var relatedEventsToUpdate = Events
             .Where(e =>
             {
                 var groupId = Props.GetGroupId(e);
                 return groupId?.Equals(groupId) == true && groupId != timetableEvent.GroupIdentifier;
-            })
-            .ToList();
+            }).ToList();
 
         if (futureOnly)
         {
-            eventsToUpdate = [.. eventsToUpdate.Where(e => Props.GetDateFrom(e) > CurrentDate)];
+            relatedEventsToUpdate = [.. relatedEventsToUpdate.Where(e => Props.GetDateFrom(e) > CurrentDate)];
         }
 
-        foreach (var evt in eventsToUpdate)
+        var updatedEvents = new List<TEvent> { timetableEvent.Event };
+
+        foreach (var evt in relatedEventsToUpdate)
         {
             var groupIdentifier = Props.GetGroupId(evt);
 
