@@ -28,6 +28,18 @@ public sealed class ExportConfig<TEvent> where TEvent : class
         if (string.IsNullOrWhiteSpace(FileName))
             throw new InvalidSetupException("FileName must be provided.");
 
-        // TODO: Validate filename
+        var invalidChars = Path.GetInvalidFileNameChars();
+        if (FileName.IndexOfAny(invalidChars) >= 0)
+            throw new InvalidSetupException("FileName contains invalid characters.");
+
+        var reservedFileNames = new List<string> { "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4",
+            "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
+        var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(FileName).ToUpperInvariant();
+        if (reservedFileNames.Contains(fileNameWithoutExtension))
+            throw new InvalidSetupException("FileName cannot be a reserved name.");
+
+        const int maxFileNameLength = 255;
+        if (FileName.Length > maxFileNameLength)
+            throw new InvalidSetupException("FileName is too long.");
     }
 }
