@@ -1,4 +1,4 @@
-﻿using Timetable.Common.Utilities;
+﻿using Timetable.Common.Helpers;
 
 namespace Timetable.Tests;
 

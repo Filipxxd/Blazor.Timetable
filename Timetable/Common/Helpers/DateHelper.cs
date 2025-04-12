@@ -1,4 +1,4 @@
-﻿namespace Timetable.Common.Utilities;
+﻿namespace Timetable.Common.Helpers;
 
 internal static class DateHelper
 {
@@ -11,7 +11,7 @@ internal static class DateHelper
 
         return currentDate.AddDays(-diff).Date;
     }
-    
+
     public static DateTime GetDateForDay(DateTime startOfWeek, DayOfWeek targetDay)
     {
         var startDayInt = (int)startOfWeek.DayOfWeek;

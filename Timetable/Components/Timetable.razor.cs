@@ -2,7 +2,7 @@
 using Microsoft.JSInterop;
 using System.Linq.Expressions;
 using Timetable.Common.Enums;
-using Timetable.Common.Utilities;
+using Timetable.Common.Helpers;
 using Timetable.Configuration;
 using Timetable.Services.DataExchange.Export;
 using Timetable.Services.Display;

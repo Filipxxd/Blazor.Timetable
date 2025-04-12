@@ -1,4 +1,4 @@
-﻿using Timetable.Common.Utilities;
+﻿using Timetable.Common.Helpers;
 using Timetable.Configuration;
 using Timetable.Structure;
 
