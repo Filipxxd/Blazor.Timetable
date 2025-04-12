@@ -114,7 +114,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
     private async Task HandleNextClicked()
     {
-        // todo: do in manager, calculate current date based on config.days  & months etc.
+        // todo: do in manager, calculate current date based on config.days  & months etc. (and skip if not in allowed days/months)
         _timetableManager.CurrentDate = _timetableManager.DisplayType switch
         {
             DisplayType.Day => _timetableManager.CurrentDate.AddDays(1),

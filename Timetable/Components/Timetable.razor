@@ -17,14 +17,10 @@
         <div class="timetable-content">
             <div class="timetable-head">
                 <div class="timetable-time-column"></div>
-                @{
-                    var startOfWeek = DateHelper.GetStartOfWeekDate(_timetableManager.CurrentDate, TimetableConfig.Days.First());
-                }
                 @foreach (var column in _timetableManager.Grid.Columns)
                 {
-                    var dateForDay = DateHelper.GetDateForDay(startOfWeek, column.DayOfWeek);
                     <div class="timetable-head-cell" @onclick="() => HandleChangedToDay(column.DayOfWeek)">
-                        @dateForDay.ToString("dddd").Capitalize()
+                        @DateHelper.GetWeekDayName(column.DayOfWeek).Capitalize()
                     </div>
                 }
             </div>
