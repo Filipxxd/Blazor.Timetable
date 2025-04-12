@@ -2,6 +2,9 @@
 
 internal static class StringExtensions
 {
+    internal static string CapitalizeWords(this string input) =>
+        string.Join(" ", input.Split(' ').Select(word => word.Capitalize()));
+
     internal static string Capitalize(this string input) =>
         input switch
         {

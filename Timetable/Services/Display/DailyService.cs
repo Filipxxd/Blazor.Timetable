@@ -1,4 +1,5 @@
-﻿using Timetable.Configuration;
+﻿using Timetable.Common.Extensions;
+using Timetable.Configuration;
 using Timetable.Structure;
 
 namespace Timetable.Services.Display;
@@ -23,7 +24,7 @@ internal sealed class DailyService
 
         var grid = new Grid<TEvent>
         {
-            Title = $"{cellDate:dddd d, MMMM}"
+            Title = $"{cellDate:dddd d. MMMM}".CapitalizeWords()
         };
 
         foreach (var hour in config.Hours)

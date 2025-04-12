@@ -1,4 +1,5 @@
-﻿using Timetable.Common.Helpers;
+﻿using Timetable.Common.Extensions;
+using Timetable.Common.Helpers;
 using Timetable.Configuration;
 using Timetable.Structure;
 
@@ -27,7 +28,7 @@ internal sealed class WeeklyService
 
         var grid = new Grid<TEvent>
         {
-            Title = $"{startDate:dddd d, MMMM} - {endDate:dddd d, MMMM}"
+            Title = $"{startDate:dddd d. MMMM} - {endDate:dddd d. MMMM}".CapitalizeWords()
         };
 
         foreach (var hour in config.Hours)

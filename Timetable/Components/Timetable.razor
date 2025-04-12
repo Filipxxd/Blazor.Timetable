@@ -29,46 +29,54 @@
                 }
             </div>
 
-            <div class="timetable-grid">
-                <div class="timetable-row">
-                    <div class="timetable-time-column"></div>
-                    @foreach (var column in _timetableManager.Grid.Columns)
-                    {
-                        <div class="timetable-whole-day-cell" data-slot-id="@column.HeaderCell.Id" @key="@column.HeaderCell.Id">
-                            @foreach (var headerEvent in column.HeaderCell.Events)
-                            {
-                                <TimetableEvent EventId=@headerEvent.Id
-                                                Title=@headerEvent.Title
-                                                IsWholeDay=true
-                                                Span=@headerEvent.Span
-                                                DetailTemplate=@(builder => DetailTemplate(headerEvent.Event)(builder)) />
-                            }
-                        </div>
-                    }
-                </div>
-
-                @for (int i = 0; i < _timetableManager.Grid.RowPrepend.Count; i++)
-                {
+            @if (_timetableManager.DisplayType == DisplayType.Day || _timetableManager.DisplayType == DisplayType.Week)
+            {
+                <div class="timetable-grid">
                     <div class="timetable-row">
-                        <div class="timetable-time-column">
-                            @_timetableManager.Grid.RowPrepend[i]
-                        </div>
+                        <div class="timetable-time-column"></div>
                         @foreach (var column in _timetableManager.Grid.Columns)
                         {
-                            var cell = column.Cells[i];
-                            <div class="timetable-body-cell" data-slot-id="@cell.Id" @key="@cell.Id">
-                                @foreach (var cellEvent in cell.Events)
+                            <div class="timetable-whole-day-cell" data-slot-id="@column.HeaderCell.Id" @key="@column.HeaderCell.Id">
+                                @foreach (var headerEvent in column.HeaderCell.Events)
                                 {
-                                    <TimetableEvent EventId=@cellEvent.Id
-                                                    Title=@cellEvent.Title
-                                                    DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
-                                                    Span=@cellEvent.Span />
+                                    <TimetableEvent EventId=@headerEvent.Id
+                                    Title=@headerEvent.Title
+                                    IsWholeDay=true
+                                    Span=@headerEvent.Span
+                                    DetailTemplate=@(builder => DetailTemplate(headerEvent.Event)(builder)) />
                                 }
                             </div>
                         }
                     </div>
-                }
-            </div>
+
+                    @for (int i = 0; i < _timetableManager.Grid.RowPrepend.Count; i++)
+                    {
+                        <div class="timetable-row">
+                            <div class="timetable-time-column">
+                                @_timetableManager.Grid.RowPrepend[i]
+                            </div>
+                            @foreach (var column in _timetableManager.Grid.Columns)
+                            {
+                                var cell = column.Cells[i];
+                                <div class="timetable-body-cell" data-slot-id="@cell.Id" @key="@cell.Id">
+                                    @foreach (var cellEvent in cell.Events)
+                                    {
+                                        <TimetableEvent EventId=@cellEvent.Id
+                                        Title=@cellEvent.Title
+                                        DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
+                                        Span=@cellEvent.Span />
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                
+            }
+                
         </div>
     </div>
 </div>
