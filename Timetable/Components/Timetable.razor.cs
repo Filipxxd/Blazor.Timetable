@@ -114,27 +114,14 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
     private async Task HandleNextClicked()
     {
-        // todo: do in manager, calculate current date based on config.days  & months etc. (and skip if not in allowed days/months)
-        _timetableManager.CurrentDate = _timetableManager.DisplayType switch
-        {
-            DisplayType.Day => _timetableManager.CurrentDate.AddDays(1),
-            DisplayType.Week => _timetableManager.CurrentDate.AddDays(7),
-            _ => throw new NotImplementedException(),
-        };
-        StateHasChanged();
+        _timetableManager.NextDate(TimetableConfig);
         await OnNextClicked.InvokeAsync();
     }
 
     private async Task HandlePreviousClicked()
     {
-        _timetableManager.CurrentDate = _timetableManager.DisplayType switch
-        {
-            DisplayType.Day => _timetableManager.CurrentDate.AddDays(-1),
-            DisplayType.Week => _timetableManager.CurrentDate.AddDays(-7),
-            _ => throw new NotImplementedException(),
-        };
-        StateHasChanged();
-        await OnNextClicked.InvokeAsync();
+        _timetableManager.PreviousDate(TimetableConfig);
+        await OnPreviousClicked.InvokeAsync();
     }
 
     private async Task HandleDisplayTypeChanged(DisplayType displayType)

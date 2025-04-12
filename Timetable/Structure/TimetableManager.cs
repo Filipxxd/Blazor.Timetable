@@ -1,4 +1,5 @@
 ﻿using Timetable.Common.Enums;
+using Timetable.Configuration;
 
 namespace Timetable.Structure;
 
@@ -11,6 +12,26 @@ internal sealed class TimetableManager<TEvent> where
     public Grid<TEvent> Grid { get; set; } = default!;
     public DateTime CurrentDate { get; set; }
     public DisplayType DisplayType { get; set; }
+
+    public void NextDate(TimetableConfig config)
+    {
+        CurrentDate = FindNextAvailableDate(CurrentDate, GetIncrement(), config);
+    }
+
+    public void PreviousDate(TimetableConfig config)
+    {
+        CurrentDate = FindNextAvailableDate(CurrentDate, -GetIncrement(), config);
+    }
+
+    private int GetIncrement()
+    {
+        return DisplayType switch
+        {
+            DisplayType.Day => 1,
+            DisplayType.Week => 7,
+            _ => throw new NotImplementedException(),
+        };
+    }
 
     public TEvent? MoveEvent(Guid eventId, Guid targetCellId)
     {
@@ -96,5 +117,17 @@ internal sealed class TimetableManager<TEvent> where
     {
         return Grid.Columns.SelectMany(col => col.Cells)
                            .FirstOrDefault(cell => cell.Id == cellId);
+    }
+
+    private static DateTime FindNextAvailableDate(DateTime startDate, int increment, TimetableConfig config)
+    {
+        var newDate = startDate.AddDays(increment);
+
+        while (!config.Days.Contains(newDate.DayOfWeek))
+        {
+            newDate = newDate.AddDays(increment > 0 ? 1 : -1);
+        }
+
+        return newDate;
     }
 }
