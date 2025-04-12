@@ -35,7 +35,7 @@ internal sealed class TimetableManager<TEvent> where
         return timetableEvent.Event;
     }
 
-    public IList<TEvent>? MoveGroupEvents(Guid eventId, Guid targetCellId)
+    public IList<TEvent>? MoveGroupEvents(Guid eventId, Guid targetCellId, bool futureOnly = false)
     {
         if (Props.GetGroupId is null) return null;
 
@@ -52,7 +52,20 @@ internal sealed class TimetableManager<TEvent> where
 
         var updatedEvents = new List<TEvent>();
 
-        foreach (var evt in Events)
+        var eventsToUpdate = Events
+            .Where(e =>
+            {
+                var groupId = Props.GetGroupId(e);
+                return groupId?.Equals(groupId) == true && groupId != timetableEvent.GroupIdentifier;
+            })
+            .ToList();
+
+        if (futureOnly)
+        {
+            eventsToUpdate = [.. eventsToUpdate.Where(e => Props.GetDateFrom(e) > CurrentDate)];
+        }
+
+        foreach (var evt in eventsToUpdate)
         {
             var groupIdentifier = Props.GetGroupId(evt);
 
