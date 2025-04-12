@@ -20,7 +20,7 @@ public class NamePropertySelector<TEvent, TProperty> : INamePropertySelector<TEv
         Getter = selector.Compile();
     }
 
-    public string GetStringValue(TEvent entity)
+    public virtual string GetStringValue(TEvent entity)
     {
         var value = Getter(entity);
 
