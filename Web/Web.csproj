@@ -7,13 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Remove="wwwroot\**" />
-      <Content Remove="wwwroot\**" />
-      <EmbeddedResource Remove="wwwroot\**" />
-      <None Remove="wwwroot\**" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Timetable\Timetable.csproj" />
     </ItemGroup>
 
