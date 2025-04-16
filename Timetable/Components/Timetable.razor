@@ -24,7 +24,7 @@
                     @foreach (var column in _timetableManager.Grid.Columns)
                     {
                         <div class="timetable-head-cell" @onclick="() => HandleChangedToDay(column.DayOfWeek)">
-                            @DateHelper.GetWeekDayName(column.DayOfWeek).Capitalize()
+                            @DateHelper.GetLocalizedName(column.DayOfWeek).Capitalize()
                         </div>
                     }
                 </div>

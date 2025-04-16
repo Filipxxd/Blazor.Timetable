@@ -22,7 +22,7 @@ internal static class DateHelper
         return startOfWeek.AddDays((targetDayInt - startDayInt + 7) % 7);
     }
 
-    public static string GetWeekDayName(DayOfWeek dayOfWeek)
+    public static string GetLocalizedName(DayOfWeek dayOfWeek)
     {
         var today = DateTime.Today;
         var daysToAdd = ((int)dayOfWeek - (int)today.DayOfWeek + 7) % 7;
