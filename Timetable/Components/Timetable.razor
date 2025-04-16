@@ -28,43 +28,66 @@
             @if (_timetableManager.DisplayType == DisplayType.Day || _timetableManager.DisplayType == DisplayType.Week)
             {
                 <div class="timetable-grid">
-                    <div class="timetable-row">
-                        <div class="timetable-time-column"></div>
-                        @foreach (var column in _timetableManager.Grid.Columns)
-                        {
-                            <div class="timetable-whole-day-cell" data-slot-id="@column.HeaderCell.Id" @key="@column.HeaderCell.Id">
-                                @foreach (var headerEvent in column.HeaderCell.Events)
-                                {
-                                    <TimetableEvent EventId=@headerEvent.Id
-                                    Title=@headerEvent.Title
-                                    IsWholeDay=true
-                                    Span=@headerEvent.Span
-                                    DetailTemplate=@(builder => DetailTemplate(headerEvent.Event)(builder)) />
-                                }
-                            </div>
-                        }
-                    </div>
-
-                    @for (int i = 0; i < _timetableManager.Grid.RowPrepend.Count; i++)
+                    @* Header events *@
+                    @foreach (var column in _timetableManager.Grid.Columns)
                     {
-                        <div class="timetable-row">
-                            <div class="timetable-time-column">
-                                @_timetableManager.Grid.RowPrepend[i]
-                            </div>
-                            @foreach (var column in _timetableManager.Grid.Columns)
+                        foreach (var eventWrapper in column.HeaderCell.Events)
+                        {
+                            <TimetableEvent EventId="@eventWrapper.Id"
+                            Title="@eventWrapper.Title"
+                            IsWholeDay="@eventWrapper.IsWholeDay"
+                            Span=1
+                            DetailTemplate=@(builder => DetailTemplate(eventWrapper.Event)(builder))
+                            DayColumn="@eventWrapper.DayColumn"
+                            StartSlot=1 />
+                        }
+                    }
+
+                    @* Grid (borders + dragdrop containers) *@
+                    @for (var col = 0; col <= _timetableManager.Grid.Columns.Count; col++)
+                    {
+                        @for (var cell = 0; cell <= _timetableManager.Grid.Columns[0].Cells.Count; cell++)
+                        {
+                            if (col == 0 || cell == 0)
                             {
-                                var cell = column.Cells[i];
-                                <div class="timetable-body-cell" data-slot-id="@cell.Id" @key="@cell.Id">
-                                    @foreach (var cellEvent in cell.Events)
-                                    {
-                                        <TimetableEvent EventId=@cellEvent.Id
-                                        Title=@cellEvent.Title
-                                        DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
-                                        Span=@cellEvent.Span />
-                                    }
+                                <div class="timetable-body-cell"
+                                     style="grid-column:@(col + 1); grid-row:@(cell + 1);">
                                 </div>
                             }
-                        </div>
+                            else
+                            {
+                                <div class="timetable-body-cell"
+                                     data-slot-id="@_timetableManager.Grid.Columns[col - 1].Cells[cell - 1].Id"
+                                     style="grid-column:@(col + 1); grid-row:@(cell + 1);">
+                                </div>
+                            }
+                        }
+                    }
+
+
+                    @for (var i = 0; i < _timetableManager.Grid.RowPrepend.Count; i++)
+                    {
+                        <div style="grid-column: 1; grid-row: @(i + 2);">
+                            @(_timetableManager.Grid.RowPrepend[i])
+                         </div>
+                    }
+
+                    @* DragDropable events *@
+                    @foreach (var column in _timetableManager.Grid.Columns)
+                    {
+                        foreach (var cell in column.Cells)
+                        {
+                            foreach (var cellEvent in cell.Events)
+                            {
+                                <TimetableEvent EventId="@cellEvent.Id"
+                                                Title="@cellEvent.Title"
+                                                IsWholeDay="@cellEvent.IsWholeDay"
+                                                Span="@cellEvent.Span"
+                                                DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
+                                                DayColumn="@cellEvent.DayColumn"
+                                                StartSlot="@(cellEvent.StartSlot + 1)" />
+                            }
+                        }
                     }
                 </div>
             }

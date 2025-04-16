@@ -6,5 +6,5 @@ internal sealed class Cell<TEvent> where
     public required Guid Id { get; init; }
     public required DateTime DateTime { get; init; }
     public string? Title { get; set; }
-    public IList<EventWrapper<TEvent>> Events { get; init; } = [];
+    public List<EventWrapper<TEvent>> Events { get; init; } = [];
 }

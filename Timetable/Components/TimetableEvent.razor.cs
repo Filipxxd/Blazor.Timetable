@@ -16,6 +16,8 @@ public partial class TimetableEvent
     [Parameter] public string Title { get; set; } = default!;
     [Parameter] public int Span { get; set; }
     [Parameter] public bool IsWholeDay { get; set; }
+    [Parameter] public int DayColumn { get; set; } // Column index (1-based)
+    [Parameter] public int StartSlot { get; set; } // Starting row index (1-based)
     [Parameter] public RenderFragment DetailTemplate { get; set; } = default!;
     [Parameter] public RenderFragment EditTemplate { get; set; } = default!;
     [Parameter] public RenderFragment DeleteTemplate { get; set; } = default!;
@@ -42,7 +44,7 @@ public partial class TimetableEvent
     private void TogglePopover()
     {
         _state = PopupState.Detail;
-        _popoverVisible = !_popoverVisible;
+        _popoverVisible = true;
         StateHasChanged();
     }
 

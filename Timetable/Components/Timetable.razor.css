@@ -7,18 +7,20 @@
     color: #333;
 }
 
-.timetable-wrapper * {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
+    .timetable-wrapper * {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
 
 .timetable {
     background-color: #fff;
-    border-radius: .5rem;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .timetable-content {
@@ -27,41 +29,40 @@
 }
 
 .timetable-head {
-    display: flex;
+    display: grid;
+    grid-template-columns: 100px repeat(7, 1fr); /* Time column + 7 days */
     align-items: center;
     padding: 1em 0;
     border-bottom: 1px solid #a0a0a0;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
 }
 
 .timetable-head-cell {
-    flex: 1;
     text-align: center;
+    cursor: pointer;
+    padding: 0.5rem;
+    background-color: #f0f0f0;
+    border-right: 1px solid #a0a0a0;
 }
 
 .timetable-grid {
-    display: block;
+    display: grid;
+    grid-template-columns: 100px repeat(7, 1fr); /* Time column + 7 days */
+    grid-auto-rows: 90px; /* Height for each time slot */
+    position: relative;
+    min-height: 600px; /* Adjust as needed */
 }
 
-.timetable-row {
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid #a0a0a0;
-}
-
-.timetable-whole-day-cell, .timetable-body-cell {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.timetable-body-cell {
+    border-bottom: 1px solid #e0e0e0;
+    border-right: 1px solid #e0e0e0;
+    position: relative;
 }
 
 .timetable-time-column {
-    min-width: 10em;
-    border-right: 1px solid #a0a0a0;
+    padding: 0.5rem;
     font-size: 0.8rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem 0;
+    text-align: center;
+    background-color: #f9f9f9;
+    border-right: 1px solid #a0a0a0;
 }

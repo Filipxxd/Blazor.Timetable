@@ -1,36 +1,38 @@
-﻿<div class="timetable-event-pill @(IsWholeDay ? "" : "movable-event")"
-    data-event-id=@EventId
-    @key=EventId
-    style="height: @(IsWholeDay ? "2rem" : $"{Span * 2}rem");"
-    @onmousedown=OnMouseDown
-    @onmouseup=OnMouseUp>
+﻿<div class="timetable-event-pill @(IsWholeDay ? "whole-day-event" : "movable-event")"
+     data-event-id="@EventId"
+     @key="EventId"
+     style="grid-column: @(DayColumn + 1); grid-row: @(StartSlot) / span @(Span);"
+     @onmousedown="OnMouseDown"
+     @onmouseup="OnMouseUp"
+     @onclick="TogglePopover">
     @Title
-</div>
 
-@if (_popoverVisible)
-{
-    <div class="popover">
-        <div class="popover-header">
-            <span>@Title</span>
-            <div class="header-buttons">
-                <button class="action-btn" @onclick=ToggleEdit>&#9998;</button>
-                <button class="action-btn" @onclick=ToggleDelete>&#128465;</button>
-                <button class="close-btn" @onclick=TogglePopover>&#10006;</button>
+    @if (_popoverVisible)
+    {
+        <div class="popover">
+            <div class="popover-header">
+                <span>@Title</span>
+                <div class="header-buttons">
+                    <button class="action-btn" @onclick=ToggleEdit>&#9998;</button>
+                    <button class="action-btn" @onclick=ToggleDelete>&#128465;</button>
+                    <button class="close-btn" @onclick=TogglePopover>&#10006;</button>
+                </div>
+            </div>
+            <div class="popover-body">
+                @switch (_state)
+                {
+                    case PopupState.Edit:
+                        @EditTemplate
+                        break;
+                    case PopupState.Delete:
+                        @DeleteTemplate
+                        break;
+                    default:
+                        @DetailTemplate
+                        break;
+                }
             </div>
         </div>
-        <div class="popover-body">
-            @switch (_state)
-            {
-                case PopupState.Edit:
-                    @EditTemplate
-                    break;
-                case PopupState.Delete:
-                    @DeleteTemplate
-                    break;
-                default:
-                    @DetailTemplate
-                    break;
-            }
-        </div>
-    </div>
-}
+    }
+</div>
+
