@@ -1,14 +1,11 @@
 ﻿<div class="timetable-event-pill @(IsHeaderEvent ? "whole-day-event" : "movable-event")"
      data-event-id="@EventId"
-     @key="EventId"
-     style="@(IsHeaderEvent 
-                ? $"grid-column: {DayColumn + 1} / span {Span}; grid-row: 1;" 
-                : $"grid-column: {DayColumn + 1}; grid-row: {(StartSlot)} / span {Span};")"
+     style=@EventStyle
+     @key=EventId
      @onmousedown=OnMouseDown
      @onmouseup=OnMouseUp
      @onclick=TogglePopover>
     @Title
-
     @if (_popoverVisible)
     {
         <div class="popover">
@@ -37,4 +34,3 @@
         </div>
     }
 </div>
-

@@ -53,6 +53,12 @@
     min-height: 600px; /* Adjust as needed */
 }
 
+.timetable-row-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .timetable-body-cell {
     border-bottom: 1px solid #e0e0e0;
     border-right: 1px solid #e0e0e0;
