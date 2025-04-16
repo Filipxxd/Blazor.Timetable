@@ -86,7 +86,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         TimetableConfig.Validate();
         ExportConfig.Validate();
 
-        GenerateGrid();
+        _timetableManager.Grid = GenerateGrid();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
