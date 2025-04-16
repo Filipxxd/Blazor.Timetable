@@ -32,9 +32,7 @@
                 <div class="timetable-grid" style="grid-template-columns: 80px repeat(@(_timetableManager.Grid.Columns.Count), 1fr); grid-auto-rows: minmax(50px, auto);">
                     @for (var i = 1; i <= _timetableManager.Grid.RowHeader.Count + 1; i++)
                     {
-                        <div class="timetable-body-cell"
-                        style="@($"grid-column: 1; grid-row: {i};")">
-                        </div>
+                        <div class="timetable-body-cell" style="@($"grid-column: 1; grid-row: {i};")"></div>
 
                         @if (i > 1)
                         {                            
@@ -47,9 +45,8 @@
                     @foreach (var cell in _timetableManager.Grid.Columns.SelectMany(column => column.Cells))
                     {
                         <div class="timetable-body-cell"
-                        data-slot-id="@(!cell.IsHeaderCell ? cell.Id.ToString() : null)"
-                        style="@($"grid-column: {cell.ColumnIndex + 1}; grid-row: {cell.RowIndex};")">
-                        </div>
+                             data-slot-id="@(!cell.IsHeaderCell ? cell.Id.ToString() : null)"
+                             style="@($"grid-column: {cell.ColumnIndex + 1}; grid-row: {cell.RowIndex};")"></div>
                     }
 
                     @foreach (var cell in _timetableManager.Grid.Columns.SelectMany(column => column.Cells))
@@ -58,11 +55,10 @@
 
                         foreach (var cellEvent in cell.Events)
                         {
-                            var order = sortedEvents.IndexOf(cellEvent);
                             <TimetableEvent 
                                 EventId=@cellEvent.Id
                                 Title=@cellEvent.Title
-                                Order=@order
+                                Order=@sortedEvents.IndexOf(cellEvent)
                                 IsHeaderEvent=@cell.IsHeaderCell
                                 NumberOfEvents=@cell.Events.Count
                                 Span=@cellEvent.Span

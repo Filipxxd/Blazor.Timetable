@@ -1,4 +1,5 @@
-﻿using Timetable.Configuration;
+﻿using Timetable.Common.Extensions;
+using Timetable.Configuration;
 using Timetable.Structure;
 
 namespace Timetable.Services.Display;
@@ -6,110 +7,136 @@ namespace Timetable.Services.Display;
 internal sealed class DailyService
 {
     public Grid<TEvent> CreateGrid<TEvent>(
-        IList<TEvent> events,
-        TimetableConfig config,
-        DateTime currentDate,
-        CompiledProps<TEvent> props) where TEvent : class
+            IList<TEvent> events,
+            TimetableConfig config,
+            DateTime currentDate,
+            CompiledProps<TEvent> props) where TEvent : class
     {
-        //var cellDate = CalculateGridDate(currentDate, config.Days)
-        //    ?? throw new InvalidOperationException("No valid date found for creating the grid.");
+        var cellDate = currentDate.Date;
 
-        //var dailyEvents = events
-        //    .Where(e =>
-        //    {
-        //        var eventStart = props.GetDateFrom(e);
-        //        return eventStart.Date == cellDate.Date;
-        //    }).ToList();
+        var todayEvents = events.Where(e =>
+        {
+            var eventStart = props.GetDateFrom(e);
+            return eventStart >= cellDate && eventStart < cellDate.AddDays(1);
+        }).ToList();
 
-        //var grid = new Grid<TEvent>
-        //{
-        //    Title = $"{cellDate:dddd d. MMMM}".CapitalizeWords()
-        //};
+        var rowHeader = config.Hours.Select(hour =>
+            config.Is24HourFormat
+                ? TimeSpan.FromHours(hour).ToString(@"hh\:mm")
+                : DateTime.Today.AddHours(hour).ToString("h tt")
+        ).ToList();
 
-        //foreach (var hour in config.Hours)
-        //{
-        //    var formattedTime = config.Is24HourFormat
-        //        ? TimeSpan.FromHours(hour).ToString(@"hh\:mm")
-        //        : DateTime.Today.AddHours(hour).ToString("h tt");
-        //    grid.RowHeader.Add(formattedTime);
-        //}
+        var dayIndex = 1;
+        var columns = new List<Column<TEvent>>();
 
-        //var column = new Column<TEvent>
-        //{
-        //    DayOfWeek = cellDate.DayOfWeek,
-        //    HeaderCell = new Cell<TEvent>
-        //    {
-        //        Id = Guid.NewGuid(),
-        //        DateTime = cellDate,
-        //        Events = [.. dailyEvents
-        //            .Where(e =>
-        //            {
-        //                var dateFrom = props.GetDateFrom(e);
-        //                var dateTo = props.GetDateTo(e);
-        //                return (dateFrom.Hour < config.TimeFrom.Hour || dateTo.Hour > config.TimeTo.Hour);
-        //            })
-        //            .Select(e => new EventWrapper<TEvent>
-        //            {
-        //                Props = props,
-        //                Event = e,
-        //                Id = Guid.NewGuid(),
-        //                Index = 0,
-        //                Span = 1,
-        //                RowIndex = 1,
-        //                IsHeaderEvent = true,
-        //                ColumnIndex = 1
-        //            })]
-        //    }
-        //};
+        var column = new Column<TEvent>
+        {
+            DayOfWeek = cellDate.DayOfWeek,
+            Cells = CreateCells(cellDate, dayIndex, config, todayEvents, props)
+        };
+        columns.Add(column);
+        dayIndex++;
 
-        //foreach (var hour in config.Hours)
-        //{
-        //    var cellStartTime = cellDate.AddHours(hour);
-        //    var cellEndTime = cellStartTime.AddHours(1);
-        //    var cellEvents = dailyEvents
-        //        .Where(e =>
-        //        {
-        //            var dateFrom = props.GetDateFrom(e);
-        //            var dateTo = props.GetDateTo(e);
-        //            return dateFrom.Hour == hour && dateFrom.Hour >= config.TimeFrom.Hour && dateTo.Hour <= config.TimeTo.Hour && dateFrom.Date == cellDate.Date && dateTo.Date == cellDate.Date;
-        //        })
-        //        .Select(e => new EventWrapper<TEvent>
-        //        {
-        //            Props = props,
-        //            Event = e,
-        //            Id = Guid.NewGuid(),
-        //            Index = 0,
-        //            Span = 1,
-        //            RowIndex = 1,
-        //            IsHeaderEvent = true,
-        //            ColumnIndex = 1
-        //        }).ToList();
-
-        //    var cell = new Cell<TEvent>
-        //    {
-        //        Id = Guid.NewGuid(),
-        //        DateTime = cellStartTime,
-        //        Events = cellEvents
-        //    };
-
-        //    column.Cells.Add(cell);
-        //}
-
-        //grid.Columns.Add(column);
-        //return grid;
-        throw new NotImplementedException();
+        return new Grid<TEvent>
+        {
+            Title = $"{cellDate:dddd d. MMMM}".CapitalizeWords(),
+            HasColumnHeader = true,
+            RowHeader = rowHeader,
+            Columns = columns
+        };
     }
 
-    private static DateTime? CalculateGridDate(DateTime currentDate, IEnumerable<DayOfWeek> configuredDays)
+    private static List<Cell<TEvent>> CreateCells<TEvent>(
+        DateTime cellDate,
+        int dayIndex,
+        TimetableConfig config,
+        IList<TEvent> weeklyEvents,
+        CompiledProps<TEvent> props) where TEvent : class
     {
-        if (configuredDays.Contains(currentDate.DayOfWeek))
-            return currentDate;
+        var cells = new List<Cell<TEvent>>();
 
-        var nextDay = configuredDays.FirstOrDefault(day => (int)day > (int)currentDate.DayOfWeek);
+        var headerEvents = weeklyEvents
+            .Where(e => IsHeaderEvent(e, props, cellDate, config))
+            .Select(e => WrapEvent(e, props, isHeader: true))
+            .ToList();
 
-        if (nextDay != default)
-            return currentDate.Date.AddDays((int)nextDay - (int)currentDate.DayOfWeek);
+        var headerCell = new Cell<TEvent>
+        {
+            Id = Guid.NewGuid(),
+            DateTime = cellDate,
+            Title = $"{cellDate:dddd, dd MMM}",
+            IsHeaderCell = true,
+            ColumnIndex = dayIndex,
+            RowIndex = 1,
+            Events = headerEvents
+        };
+        cells.Add(headerCell);
 
-        return currentDate.Date.AddDays(7 + (int)configuredDays.First() - (int)currentDate.DayOfWeek);
+        foreach (var hour in config.Hours)
+        {
+            var hourIndex = config.Hours.ToList().IndexOf(hour);
+            var cellStartTime = cellDate.Date.AddHours(hour);
+            var cellEvents = weeklyEvents
+                .Where(e => IsRegularEvent(e, props, cellStartTime, config))
+                .Select(e => WrapEvent(e, props, isHeader: false))
+                .ToList();
+
+            var cell = new Cell<TEvent>
+            {
+                Id = Guid.NewGuid(),
+                DateTime = cellStartTime,
+                Title = cellStartTime.ToString(config.Is24HourFormat ? @"hh\:mm" : "h tt"),
+                IsHeaderCell = false,
+                ColumnIndex = dayIndex,
+                RowIndex = hourIndex + 2,
+                Events = cellEvents
+            };
+            cells.Add(cell);
+        }
+
+        return cells;
+    }
+
+    private static bool IsHeaderEvent<TEvent>(
+        TEvent e,
+        CompiledProps<TEvent> props,
+        DateTime cellDate,
+        TimetableConfig config) where TEvent : class
+    {
+        var dateFrom = props.GetDateFrom(e);
+        var dateTo = props.GetDateTo(e);
+        return dateFrom.Date == cellDate.Date &&
+               (dateFrom.Hour < config.TimeFrom.Hour || dateTo.Hour > config.TimeTo.Hour);
+    }
+
+    private static bool IsRegularEvent<TEvent>(
+        TEvent e,
+        CompiledProps<TEvent> props,
+        DateTime cellStartTime,
+        TimetableConfig config) where TEvent : class
+    {
+        var dateFrom = props.GetDateFrom(e);
+        var dateTo = props.GetDateTo(e);
+        return dateFrom.Hour == cellStartTime.Hour &&
+               dateFrom.Hour >= config.TimeFrom.Hour &&
+               dateTo.Hour <= config.TimeTo.Hour &&
+               dateFrom.Date == cellStartTime.Date &&
+               dateTo.Date == cellStartTime.Date;
+    }
+
+    private static EventWrapper<TEvent> WrapEvent<TEvent>(
+        TEvent e,
+        CompiledProps<TEvent> props,
+        bool isHeader) where TEvent : class
+    {
+        return new EventWrapper<TEvent>
+        {
+            Props = props,
+            Event = e,
+            Id = Guid.NewGuid(),
+            Span = isHeader
+                ? props.GetDateTo(e).Day - props.GetDateFrom(e).Day + 1
+                : (int)Math.Ceiling((props.GetDateTo(e) - props.GetDateFrom(e)).TotalHours)
+        };
     }
 }
