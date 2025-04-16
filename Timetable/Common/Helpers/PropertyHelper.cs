@@ -5,7 +5,7 @@ namespace Timetable.Common.Helpers;
 
 internal static class PropertyHelper
 {
-    public static Func<TObject, TProperty?> CreateGetter<TObject, TProperty>(Expression<Func<TObject, TProperty?>> expression)
+    public static Func<TObject, TProperty?> CreateGetter<TObject, TProperty>(Expression<Func<TObject, TProperty?>> expression) where TObject : class
     {
         if (expression.Body is not MemberExpression
             && expression.Body is not UnaryExpression { Operand: MemberExpression })
@@ -24,7 +24,7 @@ internal static class PropertyHelper
         var targetExpression = expression.Parameters[0];
         var valueExpression = Expression.Parameter(typeof(TProperty), "value");
 
-        Expression convertedValueExpression = valueExpression;
+        var convertedValueExpression = valueExpression as Expression;
 
         if (property.PropertyType != typeof(TProperty))
         {

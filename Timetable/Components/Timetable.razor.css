@@ -18,7 +18,9 @@
 
 .timetable {
     background-color: #fff;
-    border-radius: .5rem;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .timetable-content {
@@ -27,41 +29,39 @@
 }
 
 .timetable-head {
-    display: flex;
+    display: grid;
+    grid-template-columns: 100px repeat(7, 1fr);
     align-items: center;
     padding: 1em 0;
-    border-bottom: 1px solid #a0a0a0;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
 }
 
 .timetable-head-cell {
-    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     text-align: center;
+    cursor: pointer;
+    font-weight: bold;
 }
 
 .timetable-grid {
-    display: block;
+    display: grid;
+    grid-template-columns: 100px repeat(7, 1fr);
+    grid-auto-rows: 90px;
+    position: relative;
+    min-height: 600px;
 }
 
-.timetable-row {
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid #a0a0a0;
-}
-
-.timetable-whole-day-cell, .timetable-body-cell {
-    flex: 1;
+.timetable-row-header {
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 0.7rem;
 }
 
-.timetable-time-column {
-    min-width: 10em;
-    border-right: 1px solid #a0a0a0;
-    font-size: 0.8rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem 0;
+.grid-border {
+    border-width: 0 0 1px 1px;
+    border-style: solid;
+    border-color: #e0e0e0;
 }

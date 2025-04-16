@@ -44,7 +44,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     #endregion
 
     #region Private Fields
-    private static bool _firstRender = false;
+    private bool _firstRender = false;
     private DotNetObjectReference<Timetable<TEvent>> _objectReference = default!;
     private TimetableManager<TEvent> _timetableManager = default!;
     private CompiledProps<TEvent> _eventProps = default!;
@@ -86,13 +86,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         TimetableConfig.Validate();
         ExportConfig.Validate();
 
-        _timetableManager.Grid = _timetableManager.DisplayType switch
-        {
-            DisplayType.Day => DailyService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps),
-            DisplayType.Week => WeeklyService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps),
-            DisplayType.Month => throw new NotImplementedException(),
-            _ => throw new NotSupportedException($"Implementation for {nameof(DisplayType)}: '{_timetableManager.DisplayType}' not found."),
-        };
+        _timetableManager.Grid = GenerateGrid();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -139,10 +133,20 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
     private async Task HandleChangedToDay(DayOfWeek dayOfWeek)
     {
-        await OnChangedToDay.InvokeAsync(dayOfWeek);
         _timetableManager.CurrentDate = DateHelper.GetDateForDay(_timetableManager.CurrentDate, dayOfWeek);
+        _timetableManager.DisplayType = DisplayType.Day;
+        await OnChangedToDay.InvokeAsync(dayOfWeek);
         await OnDisplayTypeChanged.InvokeAsync(DisplayType.Day);
+        _timetableManager.Grid = GenerateGrid();
     }
+
+    private Grid<TEvent> GenerateGrid() => _timetableManager.DisplayType switch
+    {
+        DisplayType.Day => DailyService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps),
+        DisplayType.Week => WeeklyService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps),
+        DisplayType.Month => throw new NotImplementedException(),
+        _ => throw new NotSupportedException($"Implementation for {nameof(DisplayType)}: '{_timetableManager.DisplayType}' not found."),
+    };
 
     async ValueTask IAsyncDisposable.DisposeAsync()
     {

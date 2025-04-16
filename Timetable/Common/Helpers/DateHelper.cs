@@ -22,7 +22,7 @@ internal static class DateHelper
         return startOfWeek.AddDays((targetDayInt - startDayInt + 7) % 7);
     }
 
-    public static string GetWeekDayName(DayOfWeek dayOfWeek)
+    public static string GetLocalizedName(DayOfWeek dayOfWeek)
     {
         var today = DateTime.Today;
         var daysToAdd = ((int)dayOfWeek - (int)today.DayOfWeek + 7) % 7;
@@ -32,6 +32,9 @@ internal static class DateHelper
 
     public static DateTime GetNextAvailableDate(DateTime currentDate, int increment, IEnumerable<DayOfWeek> availableDays)
     {
+        if (currentDate.DayOfWeek > availableDays.First())
+            return currentDate;
+
         var newDate = currentDate.AddDays(increment);
         while (!availableDays.Contains(newDate.DayOfWeek))
         {

@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using Timetable.Common.Helpers;
 
 namespace Timetable.Services.DataExchange.Export;
 
@@ -8,19 +9,19 @@ public interface INamePropertySelector<in TEvent>
     string GetStringValue(TEvent entity);
 }
 
-public class NamePropertySelector<TEvent, TProperty> : INamePropertySelector<TEvent>
+internal sealed class NamePropertySelector<TEvent, TProperty> : INamePropertySelector<TEvent>
     where TEvent : class
 {
     public string Name { get; init; }
-    internal Func<TEvent, TProperty> Getter { get; init; }
+    public Func<TEvent, TProperty> Getter { get; init; }
 
     public NamePropertySelector(string name, Expression<Func<TEvent, TProperty>> selector)
     {
         Name = name;
-        Getter = selector.Compile();
+        Getter = PropertyHelper.CreateGetter(selector!)!;
     }
 
-    public virtual string GetStringValue(TEvent entity)
+    public string GetStringValue(TEvent entity)
     {
         var value = Getter(entity);
 

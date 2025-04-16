@@ -39,7 +39,7 @@ public sealed class WeeklyServiceTests
             TimeTo = new TimeOnly(17, 0)
         };
         var result = _weeklyService.CreateGrid([], mockConfig, currentDate, _props);
-        Assert.Equal(mockConfig.TimeTo.Hour - mockConfig.TimeFrom.Hour + 1, result.RowPrepend.Count);
+        Assert.Equal(mockConfig.TimeTo.Hour - mockConfig.TimeFrom.Hour + 1, result.RowHeader.Count);
     }
 
     [Fact]

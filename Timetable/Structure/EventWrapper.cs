@@ -6,11 +6,10 @@ internal sealed class EventWrapper<TEvent> where
     public required CompiledProps<TEvent> Props { get; init; }
 
     public required TEvent Event { get; init; }
-    public required int Index { get; init; }
-    public required int Span { get; init; }
     public required Guid Id { get; init; }
+    public required int Span { get; init; }
 
-    //public bool HasGroupdAssigned => GroupId != null;
+    public bool HasGroupdAssigned => GroupIdentifier != null;
 
     public string Title
     {
