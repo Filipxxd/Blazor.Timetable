@@ -32,6 +32,7 @@
                 CreateEvent("Yoga Session", now.AddDays(-3).AddHours(1), 1),
                 CreateEvent("Poggers Session", now.AddHours(7), 2),
                 CreateEvent("Grc Session", now.AddDays(-3).AddHours(7), 2),
+                CreateEvent("Hahahah Session", now.AddDays(-3).AddHours(7), 3),
                 CreateEvent("Cooking Class", now.AddDays(6).AddHours(11), 2),
                 CreateEvent("Photography Workshop", now.AddDays(10).AddHours(9), 3),
                 CreateEvent("Dance Class", now.AddDays(12).AddHours(18), 2),

@@ -18,6 +18,8 @@ public partial class TimetableEvent
     [Parameter] public bool IsHeaderEvent { get; set; }
     [Parameter] public int DayColumn { get; set; }
     [Parameter] public int StartSlot { get; set; }
+    [Parameter] public int Order { get; set; }
+    [Parameter] public int NumberOfEvents { get; set; }
     [Parameter] public RenderFragment DetailTemplate { get; set; } = default!;
     [Parameter] public RenderFragment EditTemplate { get; set; } = default!;
     [Parameter] public RenderFragment DeleteTemplate { get; set; } = default!;
