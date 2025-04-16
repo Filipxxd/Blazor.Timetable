@@ -56,9 +56,9 @@ internal sealed class DailyService
                         Id = Guid.NewGuid(),
                         Index = 0,
                         Span = 1,
-                        StartSlot = 1,
-                        IsWholeDay = true,
-                        DayColumn = 1
+                        RowIndex = 1,
+                        IsHeaderEvent = true,
+                        ColumnIndex = 1
                     })]
             }
         };
@@ -81,9 +81,9 @@ internal sealed class DailyService
                     Id = Guid.NewGuid(),
                     Index = 0,
                     Span = 1,
-                    StartSlot = 1,
-                    IsWholeDay = true,
-                    DayColumn = 1
+                    RowIndex = 1,
+                    IsHeaderEvent = true,
+                    ColumnIndex = 1
                 }).ToList();
 
             var cell = new Cell<TEvent>

@@ -15,7 +15,7 @@ public partial class TimetableEvent
     [Parameter] public Guid EventId { get; set; }
     [Parameter] public string Title { get; set; } = default!;
     [Parameter] public int Span { get; set; }
-    [Parameter] public bool IsWholeDay { get; set; }
+    [Parameter] public bool IsHeaderEvent { get; set; }
     [Parameter] public int DayColumn { get; set; } // Column index (1-based)
     [Parameter] public int StartSlot { get; set; } // Starting row index (1-based)
     [Parameter] public RenderFragment DetailTemplate { get; set; } = default!;

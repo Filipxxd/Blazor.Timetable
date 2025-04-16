@@ -69,9 +69,9 @@ namespace Timetable.Services.Display
                         Id = Guid.NewGuid(),
                         Index = 0, // TODO: Calculate overlapping index if needed
                         Span = (int)Math.Ceiling((config.TimeTo - config.TimeFrom).TotalHours),
-                        IsWholeDay = true,
-                        DayColumn = dayIndex,
-                        StartSlot = 1
+                        IsHeaderEvent = true,
+                        ColumnIndex = dayIndex,
+                        RowIndex = 1
                     }).ToList();
 
                 column.HeaderCell.Events.AddRange(wholeDayEvents);
@@ -103,9 +103,9 @@ namespace Timetable.Services.Display
                             Id = Guid.NewGuid(),
                             Index = 0, // TODO: Calculate overlapping index if needed
                             Span = (int)Math.Ceiling((props.GetDateTo(e) - props.GetDateFrom(e)).TotalHours),
-                            IsWholeDay = false,
-                            DayColumn = grid.Columns.IndexOf(column) + 1,
-                            StartSlot = slotIndex
+                            IsHeaderEvent = false,
+                            ColumnIndex = grid.Columns.IndexOf(column) + 1,
+                            RowIndex = slotIndex
                         })
                         .ToList();
 

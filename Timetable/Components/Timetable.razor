@@ -35,10 +35,10 @@
                         {
                             <TimetableEvent EventId="@eventWrapper.Id"
                             Title="@eventWrapper.Title"
-                            IsWholeDay="@eventWrapper.IsWholeDay"
+                            IsWholeDay="@eventWrapper.IsHeaderEvent"
                             Span=1
                             DetailTemplate=@(builder => DetailTemplate(eventWrapper.Event)(builder))
-                            DayColumn="@eventWrapper.DayColumn"
+                            DayColumn="@eventWrapper.ColumnIndex"
                             StartSlot=1 />
                         }
                     }
@@ -81,11 +81,11 @@
                             {
                                 <TimetableEvent EventId="@cellEvent.Id"
                                                 Title="@cellEvent.Title"
-                                                IsWholeDay="@cellEvent.IsWholeDay"
+                                                IsHeaderEvent="@cellEvent.IsHeaderEvent"
                                                 Span="@cellEvent.Span"
                                                 DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
-                                                DayColumn="@cellEvent.DayColumn"
-                                                StartSlot="@(cellEvent.StartSlot + 1)" />
+                                                DayColumn="@cellEvent.ColumnIndex"
+                                                StartSlot="@(cellEvent.RowIndex + 1)" />
                             }
                         }
                     }

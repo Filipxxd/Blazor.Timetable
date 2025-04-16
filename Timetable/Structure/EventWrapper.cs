@@ -7,11 +7,10 @@ internal sealed class EventWrapper<TEvent> where
 
     public required TEvent Event { get; init; }
     public required Guid Id { get; init; }
-    public required int Index { get; init; }
-    public required int Span { get; init; }
-    public required bool IsWholeDay { get; init; }
-    public required int DayColumn { get; init; }
-    public required int StartSlot { get; init; }
+    public required bool IsHeaderEvent { get; init; }
+    public required int ColumnIndex { get; init; }
+    public required int RowIndex { get; init; }
+    public required int Span { get; init; } // if IsHeader -> span accross columns (multi day event) else span accross rows (mtuli hours)
 
     //public bool HasGroupdAssigned => GroupId != null;
 

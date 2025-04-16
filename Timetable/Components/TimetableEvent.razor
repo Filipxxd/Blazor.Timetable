@@ -1,4 +1,4 @@
-﻿<div class="timetable-event-pill @(IsWholeDay ? "whole-day-event" : "movable-event")"
+﻿<div class="timetable-event-pill @(IsHeaderEvent ? "whole-day-event" : "movable-event")"
      data-event-id="@EventId"
      @key="EventId"
      style="grid-column: @(DayColumn + 1); grid-row: @(StartSlot) / span @(Span);"
