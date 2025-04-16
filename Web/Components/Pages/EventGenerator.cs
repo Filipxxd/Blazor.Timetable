@@ -6,12 +6,13 @@
 
         public List<TimetableEvent> GenerateHardcodedEvents()
         {
-            var now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day + 5, 6, 0, 0);
+            var now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day + 4, 6, 0, 0);
             var events = new List<TimetableEvent>
             {
                 // Past events
                 CreateEvent("Math Class", now.AddDays(-10).AddHours(9), 1),
                 CreateEvent("Science Class", now.AddDays(-8).AddHours(14), 2),
+                CreateEvent("XXXD Class", now.AddDays(-8).AddHours(14), 2),
 
                 // Present events (closer to current date)
                 CreateEvent("History Class", now.AddDays(-1), 2),

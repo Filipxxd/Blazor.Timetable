@@ -62,9 +62,9 @@
     margin-left: 5px;
 }
 
-    .action-btn:hover, .close-btn:hover {
-        color: red;
-    }
+.action-btn:hover, .close-btn:hover {
+    color: red;
+}
 
 .popover-body {
     font-size: 14px;

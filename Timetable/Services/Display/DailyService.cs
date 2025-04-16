@@ -32,7 +32,8 @@ internal sealed class DailyService
         var column = new Column<TEvent>
         {
             DayOfWeek = cellDate.DayOfWeek,
-            Cells = CreateCells(cellDate, dayIndex, config, todayEvents, props)
+            Index = dayIndex,
+            Cells = CreateCells(cellDate, config, todayEvents, props)
         };
         columns.Add(column);
         dayIndex++;
@@ -48,7 +49,6 @@ internal sealed class DailyService
 
     private static List<Cell<TEvent>> CreateCells<TEvent>(
         DateTime cellDate,
-        int dayIndex,
         TimetableConfig config,
         IList<TEvent> weeklyEvents,
         CompiledProps<TEvent> props) where TEvent : class
@@ -66,7 +66,6 @@ internal sealed class DailyService
             DateTime = cellDate,
             Title = $"{cellDate:dddd, dd MMM}",
             IsHeaderCell = true,
-            ColumnIndex = dayIndex,
             RowIndex = 1,
             Events = headerEvents
         };
@@ -87,7 +86,6 @@ internal sealed class DailyService
                 DateTime = cellStartTime,
                 Title = cellStartTime.ToString(config.Is24HourFormat ? @"hh\:mm" : "h tt"),
                 IsHeaderCell = false,
-                ColumnIndex = dayIndex,
                 RowIndex = hourIndex + 2,
                 Events = cellEvents
             };

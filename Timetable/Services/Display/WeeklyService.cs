@@ -37,6 +37,7 @@ namespace Timetable.Services.Display
                 var column = new Column<TEvent>
                 {
                     DayOfWeek = cellDate.DayOfWeek,
+                    Index = dayIndex,
                     Cells = CreateCells(cellDate, dayIndex, config, weeklyEvents, props)
                 };
                 columns.Add(column);
@@ -96,7 +97,6 @@ namespace Timetable.Services.Display
                 DateTime = cellDate,
                 Title = $"{cellDate:dddd, dd MMM}",
                 IsHeaderCell = true,
-                ColumnIndex = dayIndex,
                 RowIndex = 1,
                 Events = headerEvents
             };
@@ -117,7 +117,6 @@ namespace Timetable.Services.Display
                     DateTime = cellStartTime,
                     Title = cellStartTime.ToString(config.Is24HourFormat ? @"hh\:mm" : "h tt"),
                     IsHeaderCell = false,
-                    ColumnIndex = dayIndex,
                     RowIndex = hourIndex + 2,
                     Events = cellEvents
                 };

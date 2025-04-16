@@ -33,16 +33,16 @@
     grid-template-columns: 100px repeat(7, 1fr);
     align-items: center;
     padding: 1em 0;
-    border-bottom: 1px solid #a0a0a0;
     font-size: 0.9rem;
 }
 
 .timetable-head-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     text-align: center;
     cursor: pointer;
-    padding: 0.5rem;
-    background-color: #f0f0f0;
-    border-right: 1px solid #a0a0a0;
+    font-weight: bold;
 }
 
 .timetable-grid {
@@ -60,16 +60,8 @@
     font-size: 0.7rem;
 }
 
-.timetable-body-cell {
-    border-bottom: 1px solid #e0e0e0;
-    border-right: 1px solid #e0e0e0;
-    position: relative;
-}
-
-.timetable-time-column {
-    padding: 0.5rem;
-    font-size: 0.8rem;
-    text-align: center;
-    background-color: #f9f9f9;
-    border-right: 1px solid #a0a0a0;
+.grid-border {
+    border-width: 0 0 1px 1px;
+    border-style: solid;
+    border-color: #e0e0e0;
 }

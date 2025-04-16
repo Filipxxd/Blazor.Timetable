@@ -25,7 +25,7 @@ public partial class TimetableEvent
     [Parameter] public RenderFragment DeleteTemplate { get; set; } = default!;
 
     private string EventStyle => IsHeaderEvent
-        ? $"grid-column: {DayColumn + 1} / span {Span}; grid-row: 1;"
+        ? $"grid-column: {DayColumn + 1} / span {Span}; grid-row: 2;"
         : $"grid-column: {DayColumn + 1}; grid-row: {StartSlot} / span {Span};";
 
     private void OnMouseDown(MouseEventArgs e)
