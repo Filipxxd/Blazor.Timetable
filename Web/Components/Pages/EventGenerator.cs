@@ -19,7 +19,7 @@
 
                 // Future events
                 CreateEvent("English Class", now.AddDays(1).AddHours(11), 1),
-                CreateEvent("Biology Class", now.AddDays(5).Date, 24),
+                CreateEvent("Biology Class", now.AddDays(5).Date, 48),
                 CreateEvent("Chemistry Class", now.AddDays(8).AddHours(15), 2),
 
                 // Mixed durations, some spanning today
@@ -29,9 +29,9 @@
                 CreateEvent("Drama Rehearsal", now.AddHours(-5), 1),
                 CreateEvent("Football Practice", now.AddDays(4).AddHours(16), 2),
                 CreateEvent("Guitar Lesson", now.AddDays(3).AddHours(19), 1),
-                CreateEvent("Yoga Session", now.AddDays(-3).AddHours(7), 1),
-                CreateEvent("Poggers Session", now.AddDays(-3).AddHours(7), 1),
-                CreateEvent("Grc Session", now.AddDays(-3).AddHours(7), 1),
+                CreateEvent("Yoga Session", now.AddDays(-3).AddHours(1), 1),
+                CreateEvent("Poggers Session", now.AddHours(7), 2),
+                CreateEvent("Grc Session", now.AddDays(-3).AddHours(7), 2),
                 CreateEvent("Cooking Class", now.AddDays(6).AddHours(11), 2),
                 CreateEvent("Photography Workshop", now.AddDays(10).AddHours(9), 3),
                 CreateEvent("Dance Class", now.AddDays(12).AddHours(18), 2),
@@ -55,12 +55,6 @@
                 EndTime = start.AddHours(durationHours),
                 Description = "Hardcoded event"
             };
-
-            // Adjust end time for full day events by subtracting a minute
-            if (durationHours % 24 == 0)
-            {
-                ev.EndTime = ev.EndTime.AddMinutes(-1);
-            }
 
             return ev;
         }

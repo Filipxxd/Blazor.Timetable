@@ -2,8 +2,8 @@
      data-event-id="@EventId"
      @key="EventId"
      style="@(IsHeaderEvent 
-                ? $"grid-column: {(DayColumn + 1)} / span {Span}; grid-row: ${StartSlot};" 
-                : $"grid-column: {(DayColumn + 1)}; grid-row: {(StartSlot)} / span {Span};")"
+                ? $"grid-column: {DayColumn + 1} / span {Span}; grid-row: 1;" 
+                : $"grid-column: {DayColumn + 1}; grid-row: {(StartSlot)} / span {Span};")"
      @onmousedown=OnMouseDown
      @onmouseup=OnMouseUp
      @onclick=TogglePopover>

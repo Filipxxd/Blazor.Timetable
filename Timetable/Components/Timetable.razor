@@ -28,47 +28,58 @@
             @if (_timetableManager.DisplayType == DisplayType.Day || _timetableManager.DisplayType == DisplayType.Week)
             {
                 <div class="timetable-grid">
-                    @* Header events *@
-                    @foreach (var column in _timetableManager.Grid.Columns)
-                    {
-                        foreach (var eventWrapper in column.HeaderCell.Events)
-                        {
-                            <TimetableEvent EventId="@eventWrapper.Id"
-                            Title="@eventWrapper.Title"
-                            IsWholeDay="@eventWrapper.IsHeaderEvent"
-                            Span=1
-                            DetailTemplate=@(builder => DetailTemplate(eventWrapper.Event)(builder))
-                            DayColumn="@eventWrapper.ColumnIndex"
-                            StartSlot=1 />
-                        }
-                    }
-
                     @* Grid (borders + dragdrop containers) *@
-                    @for (var col = 0; col <= _timetableManager.Grid.Columns.Count; col++)
+
+                    @for (var columnIndex = 1; columnIndex < _timetableManager.Grid.Columns.Count; columnIndex++)
                     {
-                        @for (var cell = 0; cell <= _timetableManager.Grid.Columns[0].Cells.Count; cell++)
+                        @for (var cellIndex = 0; cellIndex < _timetableManager.Grid.Columns[columnIndex - 1].Cells.Count; cellIndex++)
                         {
-                            if (col == 0 || cell == 0)
+                            var cell = _timetableManager.Grid.Columns[columnIndex - 1].Cells[cellIndex];
+
+                            if (cell.IsHeaderCell)
                             {
                                 <div class="timetable-body-cell"
-                                     style="grid-column:@(col + 1); grid-row:@(cell + 1);">
+                                    style="grid-column:@(cell.ColumnIndex + 1); grid-row: 1;">
                                 </div>
                             }
                             else
                             {
                                 <div class="timetable-body-cell"
-                                     data-slot-id="@_timetableManager.Grid.Columns[col - 1].Cells[cell - 1].Id"
-                                     style="grid-column:@(col + 1); grid-row:@(cell + 1);">
+                                    data-slot-id="@cell.Id"
+                                    style="grid-column:@(cell.ColumnIndex + 1); grid-row:@(cell.RowIndex);">
                                 </div>
                             }
                         }
                     }
 
+                    @foreach(var cell in _timetableManager.Grid.Columns.SelectMany(x => x.Cells))
+                    {
+                        if (cell.IsHeaderCell)
+                        {
+                            <div class="timetable-body-cell"
+                                 style="grid-column:@(cell.ColumnIndex + 1); grid-row: 1;">
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="timetable-body-cell"
+                                 data-slot-id="@cell.Id"
+                                 style="grid-column:@(cell.ColumnIndex + 1); grid-row:@(cell.RowIndex);">
+                            </div>
+                        }
+                    }
 
-                    @for (var i = 0; i < _timetableManager.Grid.RowPrepend.Count; i++)
+                    @for (var i = 0; i <= _timetableManager.Grid.RowHeader.Count; i++)
+                    {
+                        <div class="timetable-body-cell"
+                             style="grid-column: 1; grid-row:@(i + 1);">
+                        </div>
+                    }
+
+                    @for (var i = 0; i < _timetableManager.Grid.RowHeader.Count; i++)
                     {
                         <div style="grid-column: 1; grid-row: @(i + 2);">
-                            @(_timetableManager.Grid.RowPrepend[i])
+                            @(_timetableManager.Grid.RowHeader[i])
                          </div>
                     }
 
@@ -81,11 +92,11 @@
                             {
                                 <TimetableEvent EventId="@cellEvent.Id"
                                                 Title="@cellEvent.Title"
-                                                IsHeaderEvent="@cellEvent.IsHeaderEvent"
+                                                IsHeaderEvent="@cell.IsHeaderCell"
                                                 Span="@cellEvent.Span"
                                                 DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
-                                                DayColumn="@cellEvent.ColumnIndex"
-                                                StartSlot="@(cellEvent.RowIndex + 1)" />
+                                                DayColumn="@cell.ColumnIndex"
+                                                StartSlot="@(cell.RowIndex)" />
                             }
                         }
                     }

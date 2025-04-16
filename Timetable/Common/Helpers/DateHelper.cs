@@ -32,6 +32,9 @@ internal static class DateHelper
 
     public static DateTime GetNextAvailableDate(DateTime currentDate, int increment, IEnumerable<DayOfWeek> availableDays)
     {
+        if (currentDate.DayOfWeek > availableDays.First())
+            return currentDate;
+
         var newDate = currentDate.AddDays(increment);
         while (!availableDays.Contains(newDate.DayOfWeek))
         {
