@@ -46,7 +46,7 @@ namespace Timetable.Services.Display
 
             return new Grid<TEvent>
             {
-                Title = $"{startDate:dddd d. MMMM} - {gridEndDate:dddd d. MMMM}".CapitalizeWords(),
+                Title = $"{startDate:dddd d.} - {gridEndDate:dddd d. MMMM yyyy}".CapitalizeWords(),
                 RowTitles = rowTitles,
                 Columns = columns
             };
