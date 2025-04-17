@@ -61,8 +61,8 @@ internal static class TimetableHelper
     {
         var dateFrom = props.GetDateFrom(e);
         var dateTo = props.GetDateTo(e);
-        return dateFrom.Date == cellDate.Date &&
-               (dateFrom.Hour < config.TimeFrom.Hour || dateTo.Hour > config.TimeTo.Hour);
+        return (dateFrom.Date == cellDate.Date && dateTo.Date != dateFrom.Date) ||
+               (dateFrom.Date == cellDate.Date && (dateFrom.Hour < config.TimeFrom.Hour || dateTo.Hour > config.TimeTo.Hour));
     }
 
     private static bool IsRegularEvent<TEvent>(
