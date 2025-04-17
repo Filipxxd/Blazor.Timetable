@@ -41,7 +41,6 @@ internal sealed class DailyService
         return new Grid<TEvent>
         {
             Title = $"{cellDate:dddd d. MMMM}".CapitalizeWords(),
-            HasColumnHeader = true,
             RowHeader = rowHeader,
             Columns = columns
         };
