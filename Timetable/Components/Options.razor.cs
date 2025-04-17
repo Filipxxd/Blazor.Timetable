@@ -5,7 +5,7 @@ using Timetable.Configuration;
 
 namespace Timetable.Components;
 
-public partial class Options<TEvent> : ComponentBase, IAsyncDisposable where TEvent : class
+public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
 {
     private IJSObjectReference _jsModule = default!;
 
@@ -33,8 +33,9 @@ public partial class Options<TEvent> : ComponentBase, IAsyncDisposable where TEv
         var transformResult = ExportConfig.Transformer.Transform(Events, ExportConfig.Properties);
         var fileName = $"{ExportConfig.FileName}.{transformResult.FileExtension}";
 
-        await _jsModule.InvokeVoidAsync("downloadFileFromStream", fileName, transformResult.StreamReference);
-        transformResult.StreamReference.Dispose();
+        using var stream = transformResult.StreamReference;
+
+        await _jsModule.InvokeVoidAsync("downloadFileFromStream", fileName, stream);
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()

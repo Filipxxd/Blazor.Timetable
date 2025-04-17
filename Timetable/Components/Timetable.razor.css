@@ -31,13 +31,13 @@
     min-height: 600px;
 }
 
-.grid-border {
+::deep .grid-border {
     border-width: 0 0 1px 1px;
     border-style: solid;
     border-color: #e0e0e0;
 }
 
-.timetable-head-title {
+::deep .timetable-head-title {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -47,7 +47,7 @@
     font-size: .8em;
 }
 
-.timetable-row-title {
+::deep .timetable-row-title {
     display: flex;
     align-items: center;
     justify-content: center;

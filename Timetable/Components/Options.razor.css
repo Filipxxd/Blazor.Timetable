@@ -1,11 +1,11 @@
-﻿.display-type-options {
+﻿.buttons {
     display: flex;
     justify-content: end;
     background-color: transparent;
     margin-bottom: 0.2rem;
 }
 
-.display-type-options > * {
+.buttons > * {
     margin-right: .3rem;
 }
 

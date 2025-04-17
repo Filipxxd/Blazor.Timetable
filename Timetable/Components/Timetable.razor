@@ -21,13 +21,18 @@
             <div class="timetable-grid" style="grid-template-columns: 80px repeat(@(_timetableManager.Grid.Columns.Count), 1fr); grid-template-rows: 40px auto; grid-auto-rows: minmax(50px, auto);">
                 @for (var i = 1; i <= _timetableManager.Grid.RowTitles.Count + 1; i++)
                 {
-                    <div class="grid-border" style="@($"grid-column: 1; grid-row: {i + 1};")"></div>
+                    <GridItem CssClass="grid-border"
+                              RowIndex=@(i + 1)
+                              ColumnIndex=1 />
 
-                    @if (i > 1)
-                    {                            
-                        <div class="timetable-row-title" style="@($"grid-column: 1; grid-row: {i + 1};")">
-                            @_timetableManager.Grid.RowTitles[i - 2]
-                        </div>
+                    var index = i - 2;
+                    @if (index >= 0 && index < _timetableManager.Grid.RowTitles.Count)
+                    {
+                        <GridItem CssClass="timetable-row-title"
+                                  RowIndex=@(i + 1)
+                                  ColumnIndex=1>
+                                @_timetableManager.Grid.RowTitles[index]
+                        </GridItem>
                     }
                 }
 
@@ -35,18 +40,21 @@
                 {
                     foreach (var cell in column.Cells)
                     {
-                        <div class="timetable-body-cell grid-border"
-                                data-slot-id="@(!cell.IsHeaderCell ? cell.Id.ToString() : null)"
-                                style="@($"grid-column: {column.Index + 1}; grid-row: {cell.RowIndex + 1};")"></div>
+                        <GridItem CssClass="timetable-body-cell grid-border"
+                                  RowIndex=@(cell.RowIndex + 1)
+                                  SlotId=@(!cell.IsHeaderCell ? cell.Id : null)
+                                  ColumnIndex=@(column.Index + 1) />
                     }
                 }
 
                 @foreach (var column in _timetableManager.Grid.Columns)
                 {
-                    <div class="timetable-head-title grid-border" @onclick="() => HandleChangedToDay(column.DayOfWeek)"
-                            style="@($"grid-column: {column.Index + 1}; grid-row: 1;")">
-                            @DateHelper.GetLocalizedName(column.DayOfWeek).Capitalize()
-                    </div>
+                    <GridItem CssClass="timetable-head-title grid-border"
+                              RowIndex=1
+                              OnClick=@(() => HandleChangedToDay(column.DayOfWeek))
+                              ColumnIndex=@((column.Index + 1))>
+                        @(DateHelper.GetLocalizedName(column.DayOfWeek).Capitalize())
+                    </GridItem>
 
                     @foreach (var cell in column.Cells)
                     {                            

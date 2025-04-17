@@ -3,7 +3,7 @@ using Timetable.Configuration;
 
 namespace Timetable.Components;
 
-public partial class Header : ComponentBase
+public partial class Header
 {
     [Parameter, EditorRequired] public TimetableConfig Config { get; set; } = default!;
     [Parameter] public string Title { get; set; } = default!;
