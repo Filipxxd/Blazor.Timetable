@@ -21,7 +21,7 @@ internal sealed class DailyService
             return eventStart >= cellDate && eventStart < cellDate.AddDays(1);
         }).ToList();
 
-        var rowHeader = config.Hours.Select(hour =>
+        var rowTitles = config.Hours.Select(hour =>
             config.Is24HourFormat
                 ? TimeSpan.FromHours(hour).ToString(@"hh\:mm")
                 : DateTime.Today.AddHours(hour).ToString("h tt")
@@ -42,7 +42,7 @@ internal sealed class DailyService
         return new Grid<TEvent>
         {
             Title = $"{cellDate:dddd d. MMMM}".CapitalizeWords(),
-            RowHeader = rowHeader,
+            RowTitles = rowTitles,
             Columns = columns
         };
     }

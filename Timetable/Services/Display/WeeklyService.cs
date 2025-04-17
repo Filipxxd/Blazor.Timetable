@@ -24,7 +24,7 @@ namespace Timetable.Services.Display
                 return eventStart >= startDate && eventStart < gridEndDate.AddDays(1);
             }).ToList();
 
-            var rowHeader = config.Hours.Select(hour =>
+            var rowTitles = config.Hours.Select(hour =>
                 config.Is24HourFormat
                     ? TimeSpan.FromHours(hour).ToString(@"hh\:mm")
                     : DateTime.Today.AddHours(hour).ToString("h tt")
@@ -47,7 +47,7 @@ namespace Timetable.Services.Display
             return new Grid<TEvent>
             {
                 Title = $"{startDate:dddd d. MMMM} - {gridEndDate:dddd d. MMMM}".CapitalizeWords(),
-                RowHeader = rowHeader,
+                RowTitles = rowTitles,
                 Columns = columns
             };
         }

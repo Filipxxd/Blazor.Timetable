@@ -16,63 +16,61 @@
             OnNextClicked=HandleNextClicked
             OnPreviousClicked=HandlePreviousClicked />
 
-        <div class="timetable-content">
-            @if (_timetableManager.DisplayType == DisplayType.Week || _timetableManager.DisplayType == DisplayType.Day)
-            {
-                <div class="timetable-grid" style="grid-template-columns: 80px repeat(@(_timetableManager.Grid.Columns.Count), 1fr); grid-template-rows: 40px auto; grid-auto-rows: minmax(50px, auto);">
-                    @for (var i = 1; i <= _timetableManager.Grid.RowHeader.Count + 1; i++)
-                    {
-                        <div class="grid-border" style="@($"grid-column: 1; grid-row: {i + 1};")"></div>
+        @if (_timetableManager.DisplayType == DisplayType.Week || _timetableManager.DisplayType == DisplayType.Day)
+        {
+            <div class="timetable-grid" style="grid-template-columns: 80px repeat(@(_timetableManager.Grid.Columns.Count), 1fr); grid-template-rows: 40px auto; grid-auto-rows: minmax(50px, auto);">
+                @for (var i = 1; i <= _timetableManager.Grid.RowTitles.Count + 1; i++)
+                {
+                    <div class="grid-border" style="@($"grid-column: 1; grid-row: {i + 1};")"></div>
 
-                        @if (i > 1)
-                        {                            
-                            <div class="timetable-row-header" style="@($"grid-column: 1; grid-row: {i + 1};")">
-                                @_timetableManager.Grid.RowHeader[i - 2]
-                            </div>
-                        }
-                    }
-
-                    @foreach(var column in _timetableManager.Grid.Columns)
-                    {
-                        foreach (var cell in column.Cells)
-                        {
-                            <div class="timetable-body-cell grid-border"
-                                 data-slot-id="@(!cell.IsHeaderCell ? cell.Id.ToString() : null)"
-                                 style="@($"grid-column: {column.Index + 1}; grid-row: {cell.RowIndex + 1};")"></div>
-                        }
-                    }
-
-                    @foreach (var column in _timetableManager.Grid.Columns)
-                    {
-                        <div class="timetable-head-cell grid-border" @onclick="() => HandleChangedToDay(column.DayOfWeek)"
-                             style="@($"grid-column: {column.Index + 1}; grid-row: 1;")">
-                             @DateHelper.GetLocalizedName(column.DayOfWeek).Capitalize()
+                    @if (i > 1)
+                    {                            
+                        <div class="timetable-row-title" style="@($"grid-column: 1; grid-row: {i + 1};")">
+                            @_timetableManager.Grid.RowTitles[i - 2]
                         </div>
+                    }
+                }
 
-                        @foreach (var cell in column.Cells)
-                        {                            
-                            var sortedEvents = cell.Events.OrderByDescending(x => x.Span).ToList();
+                @foreach(var column in _timetableManager.Grid.Columns)
+                {
+                    foreach (var cell in column.Cells)
+                    {
+                        <div class="timetable-body-cell grid-border"
+                                data-slot-id="@(!cell.IsHeaderCell ? cell.Id.ToString() : null)"
+                                style="@($"grid-column: {column.Index + 1}; grid-row: {cell.RowIndex + 1};")"></div>
+                    }
+                }
 
-                            foreach (var cellEvent in cell.Events)
-                            {
-                                <TimetableEvent 
-                                    EventId=@cellEvent.Id
-                                    Title=@cellEvent.Title
-                                    Order=@sortedEvents.IndexOf(cellEvent)
-                                    IsHeaderEvent=@cell.IsHeaderCell
-                                    NumberOfEvents=@cell.Events.Count
-                                    Span=@cellEvent.Span
-                                    DetailTemplate=@((builder) => DetailTemplate(cellEvent.Event)(builder))
-                                    EditTemplate=@((builder) => EditTemplate(cellEvent.Event)(builder))
-                                    DeleteTemplate=@((builder) => DeleteTemplate(cellEvent.Event)(builder))
-                                    DayColumn=@column.Index
-                                    StartSlot=@(cell.RowIndex + 1) />
-                            }
+                @foreach (var column in _timetableManager.Grid.Columns)
+                {
+                    <div class="timetable-head-title grid-border" @onclick="() => HandleChangedToDay(column.DayOfWeek)"
+                            style="@($"grid-column: {column.Index + 1}; grid-row: 1;")">
+                            @DateHelper.GetLocalizedName(column.DayOfWeek).Capitalize()
+                    </div>
+
+                    @foreach (var cell in column.Cells)
+                    {                            
+                        var sortedEvents = cell.Events.OrderByDescending(x => x.Span).ToList();
+
+                        foreach (var cellEvent in cell.Events)
+                        {
+                            <TimetableEvent 
+                                EventId=@cellEvent.Id
+                                Title=@cellEvent.Title
+                                Order=@sortedEvents.IndexOf(cellEvent)
+                                IsHeaderEvent=@cell.IsHeaderCell
+                                NumberOfEvents=@cell.Events.Count
+                                Span=@cellEvent.Span
+                                DetailTemplate=@((builder) => DetailTemplate(cellEvent.Event)(builder))
+                                EditTemplate=@((builder) => EditTemplate(cellEvent.Event)(builder))
+                                DeleteTemplate=@((builder) => DeleteTemplate(cellEvent.Event)(builder))
+                                DayColumn=@column.Index
+                                StartSlot=@(cell.RowIndex + 1) />
                         }
                     }
+                }
 
-                </div>
-            }
-        </div>
+            </div>
+        }
     </div>
 </div>

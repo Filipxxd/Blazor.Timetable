@@ -18,31 +18,9 @@
 
 .timetable {
     background-color: #fff;
-    border-radius: 0.5rem;
+    border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.timetable-content {
-    display: flex;
-    flex-direction: column;
-}
-
-.timetable-head {
-    display: grid;
-    grid-template-columns: 100px repeat(7, 1fr);
-    align-items: center;
-    padding: 1em 0;
-    font-size: 0.9rem;
-}
-
-.timetable-head-cell {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    cursor: pointer;
-    font-weight: bold;
 }
 
 .timetable-grid {
@@ -53,15 +31,25 @@
     min-height: 600px;
 }
 
-.timetable-row-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.7rem;
-}
-
 .grid-border {
     border-width: 0 0 1px 1px;
     border-style: solid;
     border-color: #e0e0e0;
+}
+
+.timetable-head-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: .8em;
+}
+
+.timetable-row-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .7em;
 }
