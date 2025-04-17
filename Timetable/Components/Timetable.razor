@@ -16,6 +16,8 @@
             OnNextClicked=HandleNextClicked
             OnPreviousClicked=HandlePreviousClicked />
 
+        <Modal />
+
         @if (_timetableManager.DisplayType == DisplayType.Week || _timetableManager.DisplayType == DisplayType.Day)
         {
             <div class="timetable-grid" style="grid-template-columns: 80px repeat(@(_timetableManager.Grid.Columns.Count), 1fr); grid-template-rows: 40px auto; grid-auto-rows: minmax(50px, auto);">

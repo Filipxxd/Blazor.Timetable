@@ -1,0 +1,16 @@
+﻿<div class="modal-wrapper @(ModalService.IsOpen ? "show" : "hide")"
+     @onclick=Close>
+    <div class="modal" @onclick:stopPropagation>
+        <div class="modal-header">
+            <span class="modal-title">
+                @ModalService.Title
+            </span>
+            <div class="close-button" @onclick=Close>
+                <CloseIcon />
+            </div>
+        </div>
+        <div class="modal-body">
+            @ModalService.ModalContent
+        </div>
+    </div>
+</div>

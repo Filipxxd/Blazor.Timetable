@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
 using Timetable.Configuration;
+using Timetable.Services;
 using Timetable.Services.Display;
 
 namespace Timetable.Common.Extensions;
@@ -12,6 +13,8 @@ public static class ServiceExtensions
         services.AddScoped<DailyService>();
         services.AddScoped<WeeklyService>();
         services.AddScoped<MonthlyService>();
+
+        services.AddSingleton<ModalService>();
 
         return services;
     }
