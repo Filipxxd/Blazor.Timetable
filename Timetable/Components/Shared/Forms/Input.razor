@@ -1,4 +1,4 @@
-﻿@typeparam T
+﻿@typeparam TType
 
 <div class="input-container">
     <label for="@Id">@Label:</label>
@@ -12,8 +12,8 @@
 
 @code {
     [Parameter, EditorRequired] public string Label { get; set; } = default!;
-    [Parameter, EditorRequired] public T Value { get; set; } = default!;
-    [Parameter, EditorRequired] public EventCallback<T> ValueChanged { get; set; }
+    [Parameter, EditorRequired] public TType Value { get; set; } = default!;
+    [Parameter, EditorRequired] public EventCallback<TType> ValueChanged { get; set; }
     [Parameter] public string? ErrorMessage { get; set; }
 
     private string InputType => GetInputType();
@@ -23,7 +23,7 @@
     {
         get
         {
-            if (typeof(T) == typeof(DateTime) && Value is DateTime dateTime)
+            if (typeof(TType) == typeof(DateTime) && Value is DateTime dateTime)
             {
                 return dateTime.ToString("yyyy-MM-ddTHH:mm");
             }
@@ -31,14 +31,14 @@
         }
         set
         {
-            if (typeof(T) == typeof(DateTime) && DateTime.TryParse(value, out DateTime dateTime))
+            if (typeof(TType) == typeof(DateTime) && DateTime.TryParse(value, out DateTime dateTime))
             {
-                Value = (T)(object)dateTime;
+                Value = (TType)(object)dateTime;
                 ValueChanged.InvokeAsync(Value);
             }
             else if (Value?.ToString() != value)
             {
-                Value = (T)(object)value;
+                Value = (TType)(object)value;
                 ValueChanged.InvokeAsync(Value);
             }
         }
@@ -47,11 +47,11 @@
     private string GetInputType()
     {
         var numberTypes = new[] { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) };
-        if (Array.Exists(numberTypes, type => type == typeof(T)))
+        if (Array.Exists(numberTypes, type => type == typeof(TType)))
         {
             return "number";
         }
-        return typeof(T) switch
+        return typeof(TType) switch
         {
             Type type when type == typeof(string) => "text",
             Type type when type == typeof(bool) => "checkbox",
