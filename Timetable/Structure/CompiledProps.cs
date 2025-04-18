@@ -3,7 +3,7 @@ using Timetable.Common.Helpers;
 
 namespace Timetable.Structure;
 
-internal sealed class CompiledProps<TEvent> where TEvent : class
+public sealed class CompiledProps<TEvent> where TEvent : class
 {
     public Func<TEvent, DateTime> GetDateFrom { get; }
     public Action<TEvent, DateTime> SetDateFrom { get; }

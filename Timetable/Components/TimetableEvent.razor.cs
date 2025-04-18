@@ -2,11 +2,14 @@
 using Microsoft.AspNetCore.Components.Web;
 using System.Diagnostics;
 using Timetable.Common.Enums;
+using Timetable.Services;
 
 namespace Timetable.Components;
 
 public partial class TimetableEvent
 {
+    [Inject] private ModalService ModalService { get; set; } = default!;
+
     private const int MousedownThreshold = 500;
     private readonly Stopwatch _clickStopwatch = new();
     private bool _popoverVisible = false;
@@ -49,9 +52,14 @@ public partial class TimetableEvent
 
     private void TogglePopover()
     {
-        _state = PopupState.Detail;
-        _popoverVisible = !_popoverVisible;
-        StateHasChanged();
+        ModalService.Show(Title, builder =>
+        {
+            builder.AddContent(0, DetailTemplate);
+        });
+
+        //_state = PopupState.Detail;
+        //_popoverVisible = !_popoverVisible;
+        //StateHasChanged();
     }
 
     private void ToggleEdit()

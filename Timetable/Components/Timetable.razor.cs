@@ -1,9 +1,13 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using Timetable.Common.Enums;
 using Timetable.Common.Helpers;
+using Timetable.Components.Shared;
+using Timetable.Components.Shared.Modals;
 using Timetable.Configuration;
+using Timetable.Services;
 using Timetable.Services.DataExchange.Export;
 using Timetable.Services.Display;
 using Timetable.Structure;
@@ -15,8 +19,9 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     [Inject] internal IJSRuntime JsRuntime { get; set; } = default!;
     [Inject] internal DailyService DailyService { get; set; } = default!;
     [Inject] internal WeeklyService WeeklyService { get; set; } = default!;
+    [Inject] internal ModalService ModalService { get; set; } = default!;
 
-    [Parameter, EditorRequired] public IList<TEvent> Events { get; set; } = [];
+    [Parameter] public ObservableCollection<TEvent> Events { get; set; } = [];
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateFrom { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateTo { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, string>> Title { get; set; } = default!;
@@ -157,5 +162,30 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             await _jsModule.DisposeAsync();
         }
         catch (JSDisconnectedException) { }
+    }
+
+    private void HandleOpenCreateModal(Cell<TEvent> cell)
+    {
+        var newEvent = new NewEventModel()
+        {
+            Title = string.Empty,
+            DateFrom = cell.DateTime,
+            DateTo = cell.DateTime.AddHours(1),
+        };
+
+        var parameters = new Dictionary<string, object>
+        {
+            { "Event", newEvent },
+            { "Props", _eventProps },
+            { "OnSave", EventCallback.Factory.Create(this, async (TEvent ev)
+                => {
+                    Events.Add(ev);
+                    await OnEventCreated.InvokeAsync(ev);
+                    _timetableManager.Grid = GenerateGrid();
+                })
+            }
+        };
+
+        ModalService.Show<CreateEventModal<TEvent>>("Create New Event", parameters);
     }
 }

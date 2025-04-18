@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using System.Collections.ObjectModel
 @using Timetable.Components
 @using Timetable.Common.Enums
 @rendermode InteractiveServer
@@ -47,7 +48,7 @@
 </Timetable>
 
 @code{
-    public List<TimetableEvent> Events { get; set; } = new EventGenerator().GenerateHardcodedEvents();
+    public ObservableCollection<TimetableEvent> Events { get; set; } = new EventGenerator().GenerateHardcodedEvents();
     
     public void HandleNextClicked()
     {

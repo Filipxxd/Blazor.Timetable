@@ -2,7 +2,7 @@
 
 namespace Timetable.Services;
 
-public class ModalService
+internal sealed class ModalService
 {
     public event Action? OnModalChanged;
 
@@ -15,6 +15,23 @@ public class ModalService
         ModalContent = content;
         IsOpen = true;
         Title = title;
+        NotifyStateChanged();
+    }
+
+    public void Show<TComponent>(string title, IDictionary<string, object> parameters)
+    {
+        ModalContent = builder =>
+        {
+            builder.OpenComponent<DynamicComponent>(0);
+            builder.AddAttribute(1, "Type", typeof(TComponent));
+            if (parameters.Count != 0)
+            {
+                builder.AddAttribute(2, "Parameters", parameters);
+            }
+            builder.CloseComponent();
+        };
+        Title = title;
+        IsOpen = true;
         NotifyStateChanged();
     }
 

@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Timetable.Services;
 
-namespace Timetable.Components.Shared;
+namespace Timetable.Components.Shared.Modals;
 
-public partial class Modal
+public partial class ModalContainer
 {
     [Inject] private ModalService ModalService { get; set; } = default!;
 

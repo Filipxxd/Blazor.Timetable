@@ -16,7 +16,7 @@
             OnNextClicked=HandleNextClicked
             OnPreviousClicked=HandlePreviousClicked />
 
-        <Modal />
+        <ModalContainer />
 
         @if (_timetableManager.DisplayType == DisplayType.Week || _timetableManager.DisplayType == DisplayType.Day)
         {
@@ -45,6 +45,7 @@
                         <GridItem CssClass="timetable-body-cell grid-border"
                                   RowIndex=@(cell.RowIndex + 1)
                                   SlotId=@(!cell.IsHeaderCell ? cell.Id : null)
+                                  OnClick="@(() => HandleOpenCreateModal(cell))"
                                   ColumnIndex=@(column.Index + 1) />
                     }
                 }

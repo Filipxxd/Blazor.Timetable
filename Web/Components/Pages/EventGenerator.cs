@@ -1,13 +1,15 @@
-﻿namespace Web.Components.Pages
+﻿using System.Collections.ObjectModel;
+
+namespace Web.Components.Pages
 {
     public sealed class EventGenerator
     {
         private int _currentEventId = 1;
 
-        public List<TimetableEvent> GenerateHardcodedEvents()
+        public ObservableCollection<TimetableEvent> GenerateHardcodedEvents()
         {
             var now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day + 4, 6, 0, 0);
-            var events = new List<TimetableEvent>
+            var events = new ObservableCollection<TimetableEvent>
             {
                 // Past events
                 CreateEvent("Math Class", now.AddDays(-10).AddHours(9), 1),

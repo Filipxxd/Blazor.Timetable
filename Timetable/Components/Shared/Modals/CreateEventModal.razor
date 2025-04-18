@@ -1,0 +1,42 @@
+﻿@using Timetable.Services
+@using Timetable.Structure
+@typeparam TEvent where TEvent : class
+@inject ModalService ModalService
+
+<div>
+    <div>
+        <label>Title:</label>
+        <input class="form-control" type="text" @bind="Event.Title" />
+    </div>
+    <div>
+        <label>Date From:</label>
+        <input class="form-control" type="datetime-local" @bind="Event.DateFrom" />
+    </div>
+    <div>
+        <label>Date To:</label>
+        <input class="form-control" type="datetime-local" @bind="Event.DateTo" />
+    </div>
+    <div>
+        <button class="btn btn-primary" @onclick="Save">Save Event</button>
+    </div>
+</div>
+
+@code {
+
+
+    [Parameter] public NewEventModel Event { get; set; }
+    [Parameter] public EventCallback<TEvent> OnSave { get; set; }
+    [Parameter] public CompiledProps<TEvent> Props { get; set; }
+
+    private async Task Save()
+    {
+        var ev = Activator.CreateInstance<TEvent>();
+
+        Props.SetTitle(ev, Event.Title);
+        Props.SetDateFrom(ev, Event.DateFrom);
+        Props.SetDateTo(ev, Event.DateTo);
+
+        await OnSave.InvokeAsync(ev);
+        ModalService.Close();
+    }
+}
