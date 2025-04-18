@@ -1,0 +1,12 @@
+﻿.dropdown-container select {
+    width: 95%;
+    padding: 6px;
+    margin-bottom: 15px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.error-message {
+    color: red;
+}

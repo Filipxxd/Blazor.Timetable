@@ -24,7 +24,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateFrom { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateTo { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, string>> Title { get; set; } = default!;
-    [Parameter] public Expression<Func<TEvent, object?>>? GroupIdentifier { get; set; }
+    [Parameter] public Expression<Func<TEvent, object?>> GroupIdentifier { get; set; } = default!;
     [Parameter] public TimetableConfig TimetableConfig { get; set; } = new();
     [Parameter] public ExportConfig<TEvent> ExportConfig { get; set; } = default!;
 
@@ -35,6 +35,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter] public EventCallback<DisplayType> OnDisplayTypeChanged { get; set; }
     [Parameter] public EventCallback<TEvent> OnEventUpdated { get; set; } = default!;
     [Parameter] public EventCallback<TEvent> OnEventCreated { get; set; } = default!;
+    [Parameter] public EventCallback<IList<TEvent>> OnGroupEventCreated { get; set; } = default!;
     [Parameter] public EventCallback<TEvent> OnEventDeleted { get; set; } = default!;
     [Parameter] public EventCallback<IList<TEvent>> OnGroupEventsChanged { get; set; } = default!;
     [Parameter] public EventCallback<DayOfWeek> OnChangedToDay { get; set; } = default!;
@@ -194,10 +195,22 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
                 CreateTemplate?.Invoke(tEvent)(builder);
             });
 
-        var onSaveCallback = EventCallback.Factory.Create(this, async (TEvent ev) =>
+        var onSaveCallback = EventCallback.Factory.Create(this, async (IList<TEvent> ev) =>
         {
-            Events.Add(ev);
-            await OnEventCreated.InvokeAsync(ev);
+            foreach (var e in ev)
+            {
+                Events.Add(e);
+            }
+
+            if (ev.Count == 1)
+            {
+                await OnEventCreated.InvokeAsync(ev[0]);
+            }
+            else
+            {
+                await OnGroupEventCreated.InvokeAsync(ev);
+            }
+
             _timetableManager.Grid = GenerateGrid();
         });
 
