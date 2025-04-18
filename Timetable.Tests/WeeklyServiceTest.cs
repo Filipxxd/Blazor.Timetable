@@ -39,7 +39,7 @@ public sealed class WeeklyServiceTests
             TimeTo = new TimeOnly(17, 0)
         };
         var result = _weeklyService.CreateGrid([], mockConfig, currentDate, _props);
-        Assert.Equal(mockConfig.TimeTo.Hour - mockConfig.TimeFrom.Hour + 1, result.RowTitles.Count);
+        Assert.Equal(mockConfig.TimeTo.Hour - mockConfig.TimeFrom.Hour, result.RowTitles.Count);
     }
 
     [Fact]
@@ -108,7 +108,7 @@ public sealed class WeeklyServiceTests
             new() { StartTime = new DateTime(2023, 10, 30, 18, 0, 0), EndTime = new DateTime(2023, 10, 30, 19, 0, 0) }
         };
         var result = _weeklyService.CreateGrid(events, mockConfig, currentDate, _props);
-        var headerEvents = result.Columns.SelectMany(col => col.HeaderCell.Events.Select(e => e.Event)).ToList();
+        var headerEvents = result.Columns.SelectMany(col => col.Cells.Where(cell => cell.IsHeaderCell).SelectMany(cell => cell.Events).Select(e => e.Event)).ToList();
         Assert.Equal(events, headerEvents);
     }
 
@@ -127,7 +127,7 @@ public sealed class WeeklyServiceTests
             new() { StartTime = new DateTime(2023, 10, 30, 0, 0, 0), EndTime = new DateTime(2023, 10, 30, 23, 59, 59) }
         };
         var result = _weeklyService.CreateGrid(events, mockConfig, currentDate, _props);
-        var headerEvents = result.Columns.SelectMany(col => col.HeaderCell.Events.Select(e => e.Event)).ToList();
+        var headerEvents = result.Columns.SelectMany(col => col.Cells.Where(cell => cell.IsHeaderCell).SelectMany(cell => cell.Events).Select(e => e.Event)).ToList();
         Assert.Single(headerEvents);
         Assert.Equal(events[0], headerEvents[0]);
     }
