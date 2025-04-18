@@ -2,6 +2,7 @@
 @using System.Collections.ObjectModel
 @using Timetable.Components
 @using Timetable.Common.Enums
+@using Timetable.Components.Shared.Modals
 @rendermode InteractiveServer
 
 <PageTitle>Example page</PageTitle>
@@ -37,7 +38,11 @@
         </div>
     </DetailTemplate>
     <CreateTemplate>
-        @* TODO *@
+        <InputField TEvent="TimetableEvent" TProperty="string" 
+                    Label="Description"
+                    Selector="x => x.Description" 
+                    EventInstance="@context" 
+                    Validate="MyDescriptionValidator" />
     </CreateTemplate>
     <EditTemplate>
         @* TODO *@
@@ -50,6 +55,12 @@
 @code{
     public ObservableCollection<TimetableEvent> Events { get; set; } = new EventGenerator().GenerateHardcodedEvents();
     
+    bool MyDescriptionValidator(string description)
+    {
+        // Your validation logic here (for example check length, etc.)
+        return !string.IsNullOrWhiteSpace(description);
+    }
+
     public void HandleNextClicked()
     {
         // TODO: Custom behaviour

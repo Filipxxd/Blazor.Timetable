@@ -1,6 +1,6 @@
 ﻿namespace Timetable.Structure;
 
-internal sealed class EventWrapper<TEvent> where
+public sealed class EventWrapper<TEvent> where
     TEvent : class
 {
     public required CompiledProps<TEvent> Props { get; init; }
@@ -13,9 +13,7 @@ internal sealed class EventWrapper<TEvent> where
 
     public string Title
     {
-        get => string.IsNullOrWhiteSpace(Props.GetTitle(Event)?.Trim())
-            ? "Unknown Event"
-            : Props.GetTitle(Event);
+        get => Props.GetTitle(Event);
         set => Props.SetTitle(Event, value);
     }
     public DateTime DateFrom

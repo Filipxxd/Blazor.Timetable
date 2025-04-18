@@ -3,40 +3,32 @@
 @typeparam TEvent where TEvent : class
 @inject ModalService ModalService
 
-<div>
+<div class="modal-container">
+    <Input Label="Title" @bind-Value=EventWrapper.Title />
+
+    <Input Label="Start" @bind-Value=EventWrapper.DateFrom />
+    
+    <Input Label="End" @bind-Value=EventWrapper.DateTo />
+
+    @if (CreateFields != null)
+    {
+        @CreateFields(EventWrapper.Event)
+    }
+
     <div>
-        <label>Title:</label>
-        <input class="form-control" type="text" @bind="Event.Title" />
-    </div>
-    <div>
-        <label>Date From:</label>
-        <input class="form-control" type="datetime-local" @bind="Event.DateFrom" />
-    </div>
-    <div>
-        <label>Date To:</label>
-        <input class="form-control" type="datetime-local" @bind="Event.DateTo" />
-    </div>
-    <div>
-        <button class="btn btn-primary" @onclick="Save">Save Event</button>
+        <button @onclick=Save>Save Event</button>
     </div>
 </div>
 
 @code {
-
-
-    [Parameter] public NewEventModel Event { get; set; }
+    [Parameter] public EventWrapper<TEvent> EventWrapper { get; set; } = default!;
     [Parameter] public EventCallback<TEvent> OnSave { get; set; }
-    [Parameter] public CompiledProps<TEvent> Props { get; set; }
+    [Parameter] public CompiledProps<TEvent> Props { get; set; } = default!;
+    [Parameter] public RenderFragment<TEvent> CreateFields { get; set; } = default!;
 
     private async Task Save()
     {
-        var ev = Activator.CreateInstance<TEvent>();
-
-        Props.SetTitle(ev, Event.Title);
-        Props.SetDateFrom(ev, Event.DateFrom);
-        Props.SetDateTo(ev, Event.DateTo);
-
-        await OnSave.InvokeAsync(ev);
+        await OnSave.InvokeAsync(EventWrapper.Event);
         ModalService.Close();
     }
 }

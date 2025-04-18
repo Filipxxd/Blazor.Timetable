@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using Timetable.Common.Enums;
 using Timetable.Common.Helpers;
-using Timetable.Components.Shared;
 using Timetable.Components.Shared.Modals;
 using Timetable.Configuration;
 using Timetable.Services;
@@ -166,24 +165,40 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
     private void HandleOpenCreateModal(Cell<TEvent> cell)
     {
-        var newEvent = new NewEventModel()
+        var newEvent = Activator.CreateInstance<TEvent>();
+
+        _eventProps.SetTitle(newEvent, string.Empty);
+        _eventProps.SetDateFrom(newEvent, cell.DateTime);
+        _eventProps.SetDateTo(newEvent, cell.DateTime.AddHours(1));
+
+        var wrapper = new EventWrapper<TEvent>()
         {
-            Title = string.Empty,
-            DateFrom = cell.DateTime,
-            DateTo = cell.DateTime.AddHours(1),
+            Event = newEvent,
+            Id = Guid.NewGuid(),
+            GroupIdentifier = null,
+            Props = _eventProps,
+            Span = 1
         };
+
+        var createFields = (RenderFragment<TEvent>)(tEvent =>
+            builder =>
+            {
+                CreateTemplate?.Invoke(tEvent)(builder);
+            });
+
+        var onSaveCallback = EventCallback.Factory.Create(this, async (TEvent ev) =>
+        {
+            Events.Add(ev);
+            await OnEventCreated.InvokeAsync(ev);
+            _timetableManager.Grid = GenerateGrid();
+        });
 
         var parameters = new Dictionary<string, object>
         {
-            { "Event", newEvent },
+            { "EventWrapper", wrapper },
             { "Props", _eventProps },
-            { "OnSave", EventCallback.Factory.Create(this, async (TEvent ev)
-                => {
-                    Events.Add(ev);
-                    await OnEventCreated.InvokeAsync(ev);
-                    _timetableManager.Grid = GenerateGrid();
-                })
-            }
+            { "OnSave", onSaveCallback },
+            { "CreateFields", createFields }
         };
 
         ModalService.Show<CreateEventModal<TEvent>>("Create New Event", parameters);
