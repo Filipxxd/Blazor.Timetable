@@ -83,7 +83,10 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         if (_firstRender)
         {
             _timetableManager.DisplayType = TimetableConfig.DefaultDisplayType;
-            _timetableManager.CurrentDate = DateHelper.GetNextAvailableDate(DateTime.Now, DateHelper.GetIncrement(_timetableManager.DisplayType), TimetableConfig.Days);
+            _timetableManager.CurrentDate = DateTime.Now;
+
+            if (!TimetableConfig.Days.Any(day => day == _timetableManager.CurrentDate.DayOfWeek))
+                _timetableManager.CurrentDate = DateHelper.GetNextAvailableDate(DateTime.Now, DateHelper.GetIncrement(_timetableManager.DisplayType), TimetableConfig.Days);
             // TODO: add option to provide custom via _firstRender prop & fix when datetime now is not in available Days;
         }
 
@@ -121,23 +124,28 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     {
         _timetableManager.NextDate(TimetableConfig);
         await OnNextClicked.InvokeAsync();
+        _timetableManager.Grid = GenerateGrid();
     }
 
     private async Task HandlePreviousClicked()
     {
         _timetableManager.PreviousDate(TimetableConfig);
         await OnPreviousClicked.InvokeAsync();
+        _timetableManager.Grid = GenerateGrid();
     }
 
     private async Task HandleDisplayTypeChanged(DisplayType displayType)
     {
         _timetableManager.DisplayType = displayType;
+        // TODO: default via param
+        _timetableManager.CurrentDate = DateTime.Now;
+
         await OnNextClicked.InvokeAsync();
     }
 
     private async Task HandleChangedToDay(DayOfWeek dayOfWeek)
     {
-        _timetableManager.CurrentDate = DateHelper.GetDateForDay(_timetableManager.CurrentDate, dayOfWeek);
+        _timetableManager.CurrentDate = DateHelper.GetDateForDay(_timetableManager.CurrentDate, dayOfWeek, TimetableConfig.FirstDayOfWeek);
         _timetableManager.DisplayType = DisplayType.Day;
         await OnChangedToDay.InvokeAsync(dayOfWeek);
         await OnDisplayTypeChanged.InvokeAsync(DisplayType.Day);

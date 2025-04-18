@@ -14,12 +14,16 @@ internal static class DateHelper
         return currentDate.AddDays(-diff).Date;
     }
 
-    public static DateTime GetDateForDay(DateTime startOfWeek, DayOfWeek targetDay)
+    public static DateTime GetDateForDay(DateTime currentDate, DayOfWeek targetDay, DayOfWeek firstDayOfWeek)
     {
-        var startDayInt = (int)startOfWeek.DayOfWeek;
-        var targetDayInt = (int)targetDay;
+        var weekStartDate = GetStartOfWeekDate(currentDate, firstDayOfWeek);
 
-        return startOfWeek.AddDays((targetDayInt - startDayInt + 7) % 7);
+        while (weekStartDate.DayOfWeek != targetDay)
+        {
+            weekStartDate = weekStartDate.AddDays(1);
+        }
+
+        return weekStartDate;
     }
 
     public static string GetLocalizedName(DayOfWeek dayOfWeek)
@@ -32,9 +36,6 @@ internal static class DateHelper
 
     public static DateTime GetNextAvailableDate(DateTime currentDate, int increment, IEnumerable<DayOfWeek> availableDays)
     {
-        if (currentDate.DayOfWeek > availableDays.First())
-            return currentDate;
-
         var newDate = currentDate.AddDays(increment);
         while (!availableDays.Contains(newDate.DayOfWeek))
         {
