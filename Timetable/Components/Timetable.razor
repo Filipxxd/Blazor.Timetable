@@ -72,11 +72,11 @@
                                 IsHeaderEvent=@cell.IsHeaderCell
                                 NumberOfEvents=@cell.Events.Count
                                 Span=@cellEvent.Span
-                                DetailTemplate=@((builder) => DetailTemplate(cellEvent.Event)(builder))
-                                EditTemplate=@((builder) => EditTemplate(cellEvent.Event)(builder))
-                                DeleteTemplate=@((builder) => DeleteTemplate(cellEvent.Event)(builder))
-                                DayColumn=@column.Index
-                                StartSlot=@(cell.RowIndex + 1) />
+                                DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
+                                EditTemplate=@(builder => EditTemplate(cellEvent.Event)(builder))
+                                DeleteTemplate=@(builder => DeleteTemplate(cellEvent.Event)(builder))
+                                ColumnIndex=@column.Index
+                                RowIndex=@(cell.RowIndex + 1) />
                         }
                     }
                 }

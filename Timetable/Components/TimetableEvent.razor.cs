@@ -19,8 +19,8 @@ public partial class TimetableEvent
     [Parameter] public string Title { get; set; } = default!;
     [Parameter] public int Span { get; set; }
     [Parameter] public bool IsHeaderEvent { get; set; }
-    [Parameter] public int DayColumn { get; set; }
-    [Parameter] public int StartSlot { get; set; }
+    [Parameter] public int ColumnIndex { get; set; }
+    [Parameter] public int RowIndex { get; set; }
     [Parameter] public int Order { get; set; }
     [Parameter] public int NumberOfEvents { get; set; }
     [Parameter] public RenderFragment DetailTemplate { get; set; } = default!;
@@ -28,8 +28,8 @@ public partial class TimetableEvent
     [Parameter] public RenderFragment DeleteTemplate { get; set; } = default!;
 
     private string EventStyle => IsHeaderEvent
-        ? $"grid-column: {DayColumn + 1} / span {Span}; grid-row: 2;"
-        : $"grid-column: {DayColumn + 1}; grid-row: {StartSlot} / span {Span};";
+        ? $"grid-column: {ColumnIndex + 1} / span {Span}; grid-row: 2;"
+        : $"grid-column: {ColumnIndex + 1}; grid-row: {RowIndex} / span {Span};";
 
     private void OnMouseDown(MouseEventArgs e)
     {
@@ -56,10 +56,6 @@ public partial class TimetableEvent
         {
             builder.AddContent(0, DetailTemplate);
         });
-
-        //_state = PopupState.Detail;
-        //_popoverVisible = !_popoverVisible;
-        //StateHasChanged();
     }
 
     private void ToggleEdit()
