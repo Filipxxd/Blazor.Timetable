@@ -16,47 +16,67 @@ public sealed class WeeklyServiceTests
     private readonly CompiledProps<TestEvent> _props =
         new(e => e.StartTime, e => e.EndTime, e => e.Title);
 
-    [Fact]
-    public void CreateGrid_ShouldReturnGridWithCorrectColumnCount()
+    [Theory]
+    [InlineData(new[] { DayOfWeek.Monday }, 1)]
+    [InlineData(new[] { DayOfWeek.Monday, DayOfWeek.Tuesday }, 2)]
+    [InlineData(new[] { DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday }, 3)]
+    [InlineData(new[] { DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday, DayOfWeek.Monday }, 7)]
+    public void CreateGrid_ShouldReturnGridWithCorrectColumnCount(DayOfWeek[] days, int expectedColumnCount)
     {
         var currentDate = new DateTime(2023, 10, 30);
         var mockConfig = new TimetableConfig
         {
-            Days = [DayOfWeek.Monday, DayOfWeek.Tuesday]
+            Days = days
         };
+
         var result = _weeklyService.CreateGrid([], mockConfig, currentDate, _props);
-        Assert.Equal(mockConfig.Days.Count(), result.Columns.Count);
+        Assert.Equal(expectedColumnCount, result.Columns.Count);
     }
 
-    [Fact]
-    public void CreateGrid_ShouldReturnGridWithCorrectRowPrependCount()
+    [Theory]
+    [InlineData(1, 2, 1)]
+    [InlineData(8, 16, 8)]
+    [InlineData(10, 20, 10)]
+    [InlineData(0, 23, 23)]
+    public void CreateGrid_ShouldReturnGridWithCorrectRowPrependCount(int hourFrom, int hourTo, int expectedRowPrependCount)
+    {
+        var currentDate = new DateTime(2023, 10, 30);
+        var mockConfig = new TimetableConfig
+        {
+            Days = [DayOfWeek.Monday],
+            TimeFrom = new TimeOnly(hourFrom, 0),
+            TimeTo = new TimeOnly(hourTo, 0)
+        };
+        var result = _weeklyService.CreateGrid([], mockConfig, currentDate, _props);
+        Assert.Equal(expectedRowPrependCount, result.RowTitles.Count);
+    }
+
+
+    [Theory]
+    [InlineData(1, 2, 2)]
+    [InlineData(8, 16, 9)]
+    [InlineData(10, 20, 11)]
+    [InlineData(0, 23, 24)]
+    public void CreateGrid_ShouldReturnCorrectCellCountPerColumn(int hourFrom, int hourTo, int expectedColumnCellCount)
     {
         var currentDate = new DateTime(2023, 10, 30);
         var mockConfig = new TimetableConfig
         {
             Days = [DayOfWeek.Monday, DayOfWeek.Tuesday],
-            TimeFrom = new TimeOnly(9, 0),
-            TimeTo = new TimeOnly(17, 0)
-        };
-        var result = _weeklyService.CreateGrid([], mockConfig, currentDate, _props);
-        Assert.Equal(mockConfig.TimeTo.Hour - mockConfig.TimeFrom.Hour, result.RowTitles.Count);
-    }
-
-    [Fact]
-    public void CreateGrid_ShouldReturnCorrectCellCountPerColumn()
-    {
-        var currentDate = new DateTime(2023, 10, 30);
-        var mockConfig = new TimetableConfig
-        {
-            Days = [DayOfWeek.Monday, DayOfWeek.Tuesday],
-            TimeFrom = new TimeOnly(9, 0),
-            TimeTo = new TimeOnly(17, 0)
+            TimeFrom = new TimeOnly(hourFrom, 0),
+            TimeTo = new TimeOnly(hourTo, 0)
         };
         var result = _weeklyService.CreateGrid([], mockConfig, currentDate, _props);
 
         foreach (var column in result.Columns)
         {
-            Assert.Equal(mockConfig.TimeTo.Hour - mockConfig.TimeFrom.Hour + 1, column.Cells.Count);
+            Assert.Equal(expectedColumnCellCount, column.Cells.Count);
+
+            foreach (var cell in column.Cells.Where(cell => !cell.IsHeaderCell))
+            {
+                Assert.True(cell.DateTime.Hour >= hourFrom);
+                Assert.True(cell.DateTime.Hour < hourTo);
+            }
         }
     }
 
@@ -79,15 +99,16 @@ public sealed class WeeklyServiceTests
         Assert.Equal(events[0], includedEvents[0]);
     }
 
-    [Fact]
-    public void CreateGrid_WithEmptyConfiguration_ShouldThrow()
+    [Theory]
+    [InlineData((DayOfWeek[])[])]
+    public void CreateGrid_WithInvalidConfiguration_ShouldThrow(DayOfWeek[] days)
     {
         var currentDate = DateTime.Now;
         var mockConfig = new TimetableConfig
         {
-            Days = [],
+            Days = days,
             TimeFrom = new TimeOnly(0, 0),
-            TimeTo = new TimeOnly(0, 0)
+            TimeTo = new TimeOnly(1, 0)
         };
         Assert.Throws<InvalidOperationException>(() => _weeklyService.CreateGrid([], mockConfig, currentDate, _props));
     }
