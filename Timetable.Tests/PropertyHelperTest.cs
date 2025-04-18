@@ -9,6 +9,7 @@ public sealed class PropertyHelperTests
         public int ValueTypeGetOnly => 1;
         public int ValueType { get; init; } = 1;
         public int? ValueTypeNullable { get; init; }
+        public Guid? GuidNullable { get; init; }
         public string ReferenceType { get; init; } = "Hello world";
         public string? ReferenceTypeNull { get; init; }
         public NestedObject ComplexObject { get; init; } = new();
@@ -22,6 +23,27 @@ public sealed class PropertyHelperTests
         public double NonNullableDouble { get; init; }
         public double? NullableDouble { get; init; }
     }
+
+    [Fact]
+    public void CreateGetter_Guid_ValueType()
+    {
+        var obj = new TestObject() { GuidNullable = Guid.NewGuid() };
+        var getter = PropertyHelper.CreateGetter<TestObject, Guid?>(x => x.GuidNullable);
+        var value = getter(obj);
+        Assert.Equal(obj.GuidNullable, value);
+    }
+
+
+    [Fact]
+    public void CreateSetter_Guid_ValueType()
+    {
+        var obj = new TestObject();
+        var guid = Guid.NewGuid();
+        var setter = PropertyHelper.CreateSetter<TestObject, Guid?>(x => x.GuidNullable);
+        setter(obj, guid);
+        Assert.Equal(guid, obj.GuidNullable);
+    }
+
 
     [Fact]
     public void CreateGetter_GetOnly_Int_ValueType()
