@@ -10,9 +10,9 @@ public static class ServiceExtensions
 {
     public static IServiceCollection AddSchoolTimetable(this IServiceCollection services)
     {
-        services.AddScoped<DailyService>();
-        services.AddScoped<WeeklyService>();
-        services.AddScoped<MonthlyService>();
+        services.AddScoped<IDisplayService, DailyService>();
+        services.AddScoped<IDisplayService, WeeklyService>();
+        services.AddScoped<IDisplayService, MonthlyService>();
 
         services.AddSingleton<ModalService>();
 

@@ -6,8 +6,10 @@ using Timetable.Structure;
 
 namespace Timetable.Services.Display;
 
-internal sealed class MonthlyService
+internal sealed class MonthlyService : IDisplayService
 {
+    public DisplayType DisplayType => DisplayType.Month;
+
     public Grid<TEvent> CreateGrid<TEvent>(
         IList<TEvent> events,
         TimetableConfig config,

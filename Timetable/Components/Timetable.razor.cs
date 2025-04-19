@@ -16,9 +16,7 @@ namespace Timetable.Components;
 public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 {
     [Inject] internal IJSRuntime JsRuntime { get; set; } = default!;
-    [Inject] internal DailyService DailyService { get; set; } = default!;
-    [Inject] internal WeeklyService WeeklyService { get; set; } = default!;
-    [Inject] internal MonthlyService MonthlyService { get; set; } = default!;
+    [Inject] internal IEnumerable<IDisplayService> DisplayServices { get; set; } = default!;
     [Inject] internal ModalService ModalService { get; set; } = default!;
 
     [Parameter] public ObservableCollection<TEvent> Events { get; set; } = [];
@@ -154,13 +152,13 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         _timetableManager.Grid = GenerateGrid();
     }
 
-    private Grid<TEvent> GenerateGrid() => _timetableManager.DisplayType switch
+    private Grid<TEvent> GenerateGrid()
     {
-        DisplayType.Day => DailyService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps),
-        DisplayType.Week => WeeklyService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps),
-        DisplayType.Month => MonthlyService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps),
-        _ => throw new NotSupportedException($"Implementation for {nameof(DisplayType)}: '{_timetableManager.DisplayType}' not found."),
-    };
+        var displayService = DisplayServices.FirstOrDefault(s => s.DisplayType == _timetableManager.DisplayType)
+            ?? throw new NotSupportedException($"Implementation for {nameof(DisplayType)}: '{_timetableManager.DisplayType}' not found.");
+
+        return displayService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps);
+    }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
     {

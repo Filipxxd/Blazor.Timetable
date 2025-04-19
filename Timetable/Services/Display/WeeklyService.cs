@@ -1,12 +1,15 @@
-﻿using Timetable.Common.Extensions;
+﻿using Timetable.Common.Enums;
+using Timetable.Common.Extensions;
 using Timetable.Common.Helpers;
 using Timetable.Configuration;
 using Timetable.Structure;
 
 namespace Timetable.Services.Display;
 
-internal sealed class WeeklyService
+internal sealed class WeeklyService : IDisplayService
 {
+    public DisplayType DisplayType => DisplayType.Week;
+
     public Grid<TEvent> CreateGrid<TEvent>(
         IList<TEvent> events,
         TimetableConfig config,
