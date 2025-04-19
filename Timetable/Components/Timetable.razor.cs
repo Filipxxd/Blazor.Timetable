@@ -25,7 +25,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateFrom { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateTo { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, string>> Title { get; set; } = default!;
-    [Parameter] public Expression<Func<TEvent, object?>> GroupIdentifier { get; set; } = default!;
+    [Parameter, EditorRequired] public Expression<Func<TEvent, object?>> GroupIdentifier { get; set; } = default!;
     [Parameter] public TimetableConfig TimetableConfig { get; set; } = new();
     [Parameter] public ExportConfig<TEvent> ExportConfig { get; set; } = default!;
 
@@ -184,7 +184,6 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         var wrapper = new EventWrapper<TEvent>()
         {
             Event = newEvent,
-            Id = Guid.NewGuid(),
             GroupIdentifier = null,
             Props = _eventProps,
             Span = 1

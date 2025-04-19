@@ -5,8 +5,8 @@ public sealed class EventWrapper<TEvent> where
 {
     public required CompiledProps<TEvent> Props { get; init; }
 
+    public Guid Id { get; init; } = Guid.NewGuid();
     public required TEvent Event { get; init; }
-    public required Guid Id { get; init; }
     public required int Span { get; init; }
 
     public bool HasGroupdAssigned => GroupIdentifier != null;

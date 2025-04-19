@@ -1,4 +1,4 @@
-﻿<div style="display: grid; grid-template-columns: repeat(@NumberOfEvents, 1fr); @EventStyle">
+﻿<div style="display: grid; grid-template-columns: repeat(@Offset, 1fr); @EventStyle">
     <div class="timetable-event-pill @(IsHeaderEvent ? "whole-day-event" : "movable-event")"
          data-event-id="@EventId"
          style="grid-column-start: @(Order + 1);"
@@ -8,32 +8,5 @@
          <div class="timetable-event-title">
             @Title
          </div>
-        @if (_popoverVisible)
-        {
-            <div class="popover">
-                <div class="popover-header">
-                    <span>@Title</span>
-                    <div class="header-buttons">
-                        <button class="action-btn" @onclick="ToggleEdit">&#9998;</button>
-                        <button class="action-btn" @onclick="ToggleDelete">&#128465;</button>
-                        <button class="close-btn" @onclick="TogglePopover">&#10006;</button>
-                    </div>
-                </div>
-                <div class="popover-body">
-                    @switch (_state)
-                    {
-                        case PopupState.Edit:
-                            @EditTemplate
-                            break;
-                        case PopupState.Delete:
-                            @DeleteTemplate
-                            break;
-                        default:
-                            @DetailTemplate
-                            break;
-                    }
-                </div>
-            </div>
-        }
     </div>
 </div>

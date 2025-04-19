@@ -5,7 +5,7 @@ namespace Timetable.Structure;
 internal sealed class Cell<TEvent> where
     TEvent : class
 {
-    public required Guid Id { get; init; }
+    public Guid Id { get; init; } = Guid.NewGuid();
     public required DateTime DateTime { get; init; }
     public string? Title { get; init; }
     public required int RowIndex { get; init; }

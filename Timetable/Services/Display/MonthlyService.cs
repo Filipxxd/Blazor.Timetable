@@ -35,7 +35,6 @@ internal sealed class MonthlyService
 
                 var cell = new Cell<TEvent>
                 {
-                    Id = Guid.NewGuid(),
                     DateTime = cellDate,
                     Title = $"{cellDate:dd}",
                     Type = CellType.Normal,

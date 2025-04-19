@@ -33,7 +33,6 @@ internal static class TimetableHelper
 
         var headerCell = new Cell<TEvent>
         {
-            Id = Guid.NewGuid(),
             DateTime = cellDate,
             Type = CellType.Header,
             RowIndex = 1,
@@ -52,7 +51,6 @@ internal static class TimetableHelper
 
             var cell = new Cell<TEvent>
             {
-                Id = Guid.NewGuid(),
                 DateTime = cellStartTime,
                 Type = CellType.Normal,
                 RowIndex = hourIndex + 2,
@@ -100,7 +98,6 @@ internal static class TimetableHelper
         {
             Props = props,
             Event = e,
-            Id = Guid.NewGuid(),
             Span = isHeader
                 ? props.GetDateTo(e).Day - props.GetDateFrom(e).Day + 1
                 : (int)Math.Ceiling((props.GetDateTo(e) - props.GetDateFrom(e)).TotalHours)
