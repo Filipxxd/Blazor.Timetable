@@ -35,7 +35,7 @@ internal sealed class TimetableManager<TEvent> where
         if (timetableEvent is null) return null;
 
         var targetCell = FindCellById(targetCellId);
-        if (targetCell is null || targetCell.IsHeaderCell) return null;
+        if (targetCell is null || targetCell.Type != CellType.Normal) return null;
 
         var duration = timetableEvent.DateTo - timetableEvent.DateFrom;
         var newEndDate = targetCell.DateTime.Add(duration);
@@ -102,13 +102,13 @@ internal sealed class TimetableManager<TEvent> where
 
     private Cell<TEvent>? FindCellByEventId(Guid eventId)
     {
-        return Grid.Columns.SelectMany(col => col.Cells.Where(cell => !cell.IsHeaderCell))
+        return Grid.Columns.SelectMany(col => col.Cells.Where(cell => cell.Type != CellType.Header))
                            .FirstOrDefault(cell => cell.Events.Any(e => e.Id == eventId));
     }
 
     private Cell<TEvent>? FindCellById(Guid cellId)
     {
-        return Grid.Columns.SelectMany(col => col.Cells.Where(cell => !cell.IsHeaderCell))
+        return Grid.Columns.SelectMany(col => col.Cells.Where(cell => cell.Type != CellType.Header))
                            .FirstOrDefault(cell => cell.Id == cellId);
     }
 }

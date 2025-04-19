@@ -1,4 +1,5 @@
-﻿using Timetable.Configuration;
+﻿using Timetable.Common.Enums;
+using Timetable.Configuration;
 using Timetable.Structure;
 
 namespace Timetable.Common.Helpers;
@@ -23,7 +24,7 @@ internal static class TimetableHelper
             Id = Guid.NewGuid(),
             DateTime = cellDate,
             Title = $"{cellDate:dddd, dd MMM}",
-            IsHeaderCell = true,
+            Type = CellType.Header,
             RowIndex = 1,
             Events = headerEvents
         };
@@ -43,7 +44,7 @@ internal static class TimetableHelper
                 Id = Guid.NewGuid(),
                 DateTime = cellStartTime,
                 Title = cellStartTime.ToString(config.Is24HourFormat ? @"hh\:mm" : "h tt"),
-                IsHeaderCell = false,
+                Type = CellType.Normal,
                 RowIndex = hourIndex + 2,
                 Events = cellEvents
             };

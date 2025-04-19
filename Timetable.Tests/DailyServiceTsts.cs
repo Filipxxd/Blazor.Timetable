@@ -1,4 +1,5 @@
-﻿using Timetable.Configuration;
+﻿using Timetable.Common.Enums;
+using Timetable.Configuration;
 using Timetable.Services.Display;
 using Timetable.Structure;
 
@@ -152,11 +153,11 @@ public sealed class DailyServiceTests
 
         var result = _dailyService.CreateGrid(events, mockConfig, currentDate, _props);
 
-        var regularEvents = result.Columns.SelectMany(col => col.Cells.Where(cell => !cell.IsHeaderCell).SelectMany(cell => cell.Events)).Select(e => e.Event).ToList();
+        var regularEvents = result.Columns.SelectMany(col => col.Cells.Where(cell => cell.Type != CellType.Header).SelectMany(cell => cell.Events)).Select(e => e.Event).ToList();
         Assert.Single(regularEvents);
         Assert.Equal("Event 2", regularEvents[0].Title);
 
-        var headerEvents = result.Columns.SelectMany(col => col.Cells.Where(cell => cell.IsHeaderCell).SelectMany(cell => cell.Events)).Select(e => e.Event).ToList();
+        var headerEvents = result.Columns.SelectMany(col => col.Cells.Where(cell => cell.Type == CellType.Header).SelectMany(cell => cell.Events)).Select(e => e.Event).ToList();
         Assert.Single(headerEvents);
         Assert.Equal("Event 1", headerEvents[0].Title);
 
@@ -183,7 +184,7 @@ public sealed class DailyServiceTests
 
         var result = _dailyService.CreateGrid(events, mockConfig, currentDate, _props);
 
-        var headerCell = result.Columns.SelectMany(x => x.Cells).First(cell => cell.IsHeaderCell);
+        var headerCell = result.Columns.SelectMany(x => x.Cells).First(cell => cell.Type == CellType.Header);
         Assert.Contains(headerCell.Events, cellEvent => cellEvent.Title == wholeDayEvent.Title);
     }
 

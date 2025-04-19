@@ -44,7 +44,7 @@
                     {
                         <GridItem CssClass="timetable-body-cell grid-border"
                                   RowIndex=@(cell.RowIndex + 1)
-                                  SlotId=@(!cell.IsHeaderCell ? cell.Id : null)
+                                  SlotId=@(cell.Type == CellType.Normal ? cell.Id : null)
                                   OnClick="@(() => HandleOpenCreateModal(cell))"
                                   ColumnIndex=@(column.Index + 1) />
                     }
@@ -69,7 +69,7 @@
                                 EventId=@cellEvent.Id
                                 Title=@cellEvent.Title
                                 Order=@sortedEvents.IndexOf(cellEvent)
-                                IsHeaderEvent=@cell.IsHeaderCell
+                                IsHeaderEvent=@(cell.Type == CellType.Header)
                                 NumberOfEvents=@cell.Events.Count
                                 Span=@cellEvent.Span
                                 DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))

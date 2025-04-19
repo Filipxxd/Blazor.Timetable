@@ -1,3 +1,4 @@
+using Timetable.Common.Enums;
 using Timetable.Configuration;
 using Timetable.Services.Display;
 using Timetable.Structure;
@@ -72,7 +73,7 @@ public sealed class WeeklyServiceTests
         {
             Assert.Equal(expectedColumnCellCount, column.Cells.Count);
 
-            foreach (var cell in column.Cells.Where(cell => !cell.IsHeaderCell))
+            foreach (var cell in column.Cells.Where(cell => cell.Type != CellType.Header))
             {
                 Assert.True(cell.DateTime.Hour >= hourFrom);
                 Assert.True(cell.DateTime.Hour < hourTo);
@@ -129,7 +130,7 @@ public sealed class WeeklyServiceTests
             new() { StartTime = new DateTime(2023, 10, 30, 18, 0, 0), EndTime = new DateTime(2023, 10, 30, 19, 0, 0) }
         };
         var result = _weeklyService.CreateGrid(events, mockConfig, currentDate, _props);
-        var headerEvents = result.Columns.SelectMany(col => col.Cells.Where(cell => cell.IsHeaderCell).SelectMany(cell => cell.Events).Select(e => e.Event)).ToList();
+        var headerEvents = result.Columns.SelectMany(col => col.Cells.Where(cell => cell.Type == CellType.Header).SelectMany(cell => cell.Events).Select(e => e.Event)).ToList();
         Assert.Equal(events, headerEvents);
     }
 
@@ -148,7 +149,7 @@ public sealed class WeeklyServiceTests
             new() { StartTime = new DateTime(2023, 10, 30, 0, 0, 0), EndTime = new DateTime(2023, 10, 30, 23, 59, 59) }
         };
         var result = _weeklyService.CreateGrid(events, mockConfig, currentDate, _props);
-        var headerEvents = result.Columns.SelectMany(col => col.Cells.Where(cell => cell.IsHeaderCell).SelectMany(cell => cell.Events).Select(e => e.Event)).ToList();
+        var headerEvents = result.Columns.SelectMany(col => col.Cells.Where(cell => cell.Type == CellType.Header).SelectMany(cell => cell.Events).Select(e => e.Event)).ToList();
         Assert.Single(headerEvents);
         Assert.Equal(events[0], headerEvents[0]);
     }
