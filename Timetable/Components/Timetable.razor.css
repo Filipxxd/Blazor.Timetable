@@ -27,8 +27,6 @@
 
 .timetable-grid {
     display: grid;
-    grid-template-columns: 100px repeat(7, 1fr);
-    grid-auto-rows: 90px;
     position: relative;
     min-height: 600px;
 }
@@ -54,4 +52,9 @@
     align-items: center;
     justify-content: center;
     font-size: .7em;
+}
+
+::deep .disabled {
+    background-color: #f0f0f0;
+    color: #999;
 }

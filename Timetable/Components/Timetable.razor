@@ -2,19 +2,17 @@
 @attribute [type: RenderModeInteractiveServer]
 
 <div class="timetable-wrapper">
-    <Options 
-        Events=@Events
-        CurrentDisplayType=@_timetableManager.DisplayType
-        ExportConfig=@ExportConfig
-        TimetableConfig=@TimetableConfig
-        OnDisplayTypeChanged=HandleDisplayTypeChanged />
+    <Options Events=@Events
+             CurrentDisplayType=@_timetableManager.DisplayType
+             ExportConfig=@ExportConfig
+             TimetableConfig=@TimetableConfig
+             OnDisplayTypeChanged=HandleDisplayTypeChanged />
 
     <div class="timetable">
-        <Header 
-            Config=@TimetableConfig
-            Title=@_timetableManager.Grid.Title
-            OnNextClicked=HandleNextClicked
-            OnPreviousClicked=HandlePreviousClicked />
+        <Header Config=@TimetableConfig
+                Title=@_timetableManager.Grid.Title
+                OnNextClicked=HandleNextClicked
+                OnPreviousClicked=HandlePreviousClicked />
 
         <ModalContainer />
 
@@ -33,7 +31,7 @@
                         <GridItem CssClass="timetable-row-title"
                                   RowIndex=@(i + 1)
                                   ColumnIndex=1>
-                                @_timetableManager.Grid.RowTitles[index]
+                            @_timetableManager.Grid.RowTitles[index]
                         </GridItem>
                     }
                 }
@@ -65,18 +63,65 @@
 
                         foreach (var cellEvent in cell.Events)
                         {
-                            <TimetableEvent 
-                                EventId=@cellEvent.Id
-                                Title=@cellEvent.Title
-                                Order=@sortedEvents.IndexOf(cellEvent)
-                                IsHeaderEvent=@(cell.Type == CellType.Header)
-                                NumberOfEvents=@cell.Events.Count
-                                Span=@cellEvent.Span
-                                DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
-                                EditTemplate=@(builder => EditTemplate(cellEvent.Event)(builder))
-                                DeleteTemplate=@(builder => DeleteTemplate(cellEvent.Event)(builder))
-                                ColumnIndex=@column.Index
-                                RowIndex=@(cell.RowIndex + 1) />
+                            <TimetableEvent EventId=@cellEvent.Id
+                                            Title=@cellEvent.Title
+                                            Order=@sortedEvents.IndexOf(cellEvent)
+                                            IsHeaderEvent=@(cell.Type == CellType.Header)
+                                            NumberOfEvents=@cell.Events.Count
+                                            Span=@cellEvent.Span
+                                            DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
+                                            EditTemplate=@(builder => EditTemplate(cellEvent.Event)(builder))
+                                            DeleteTemplate=@(builder => DeleteTemplate(cellEvent.Event)(builder))
+                                            ColumnIndex=@column.Index
+                                            RowIndex=@(cell.RowIndex + 1) />
+                        }
+                    }
+                }
+
+            </div>
+        }
+        else
+        {
+            <div class="timetable-grid" style="display: grid; grid-template-columns: repeat(@(_timetableManager.Grid.Columns.Count), 1fr); grid-template-rows: 40px repeat(auto-fit, minmax(0, 1fr));">
+                @foreach (var column in _timetableManager.Grid.Columns)
+                {
+                    foreach (var cell in column.Cells)
+                    {
+                        var style = "timetable-body-cell grid-border" + (cell.Type == CellType.Disabled ? " disabled" : "");
+                        <GridItem CssClass="@style"
+                                    RowIndex=@(cell.RowIndex + 1)
+                                    SlotId=@(cell.Type == CellType.Normal ? cell.Id : null)
+                                    OnClick="@(() => HandleOpenCreateModal(cell))"
+                                    ColumnIndex=@(column.Index) />
+                    }
+                }
+
+                @foreach (var column in _timetableManager.Grid.Columns)
+                {
+                    <GridItem CssClass="timetable-head-title grid-border"
+                                RowIndex=1
+                                OnClick=@(() => HandleChangedToDay(column.DayOfWeek))
+                                ColumnIndex=@((column.Index))>
+                        @(DateHelper.GetLocalizedName(column.DayOfWeek).Capitalize())
+                    </GridItem>
+
+                    @foreach (var cell in column.Cells)
+                    {
+                        var sortedEvents = cell.Events.OrderByDescending(x => x.Span).ToList();
+
+                        foreach (var cellEvent in cell.Events)
+                        {
+                            <TimetableEvent EventId=@cellEvent.Id
+                                            Title=@cellEvent.Title
+                                            Order=@sortedEvents.IndexOf(cellEvent)
+                                            IsHeaderEvent=false
+                                            NumberOfEvents=@cell.Events.Count
+                                            Span=1
+                                            DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
+                                            EditTemplate=@(builder => EditTemplate(cellEvent.Event)(builder))
+                                            DeleteTemplate=@(builder => DeleteTemplate(cellEvent.Event)(builder))
+                                            ColumnIndex=@(column.Index - 1)
+                                            RowIndex=@(cell.RowIndex + 1) />
                         }
                     }
                 }

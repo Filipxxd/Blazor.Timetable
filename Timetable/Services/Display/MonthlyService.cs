@@ -1,4 +1,6 @@
-﻿using Timetable.Common.Helpers;
+﻿using Timetable.Common.Enums;
+using Timetable.Common.Extensions;
+using Timetable.Common.Helpers;
 using Timetable.Configuration;
 using Timetable.Structure;
 
@@ -12,120 +14,113 @@ internal sealed class MonthlyService
         DateTime currentDate,
         CompiledProps<TEvent> props) where TEvent : class
     {
-        //var cellDates = CalculateGridDates(currentDate, config.Days);
-        //var endOfGrid = cellDates.Last().AddDays(1);
-        //var monthEvents = events
-        //    .Where(e =>
-        //    {
-        //        var eventStart = props.GetDateFrom(e);
-        //        return eventStart.Date.Month == currentDate.Month && config.Days.Contains(eventStart.DayOfWeek);
-        //    }).ToList();
+        var rows = CalculateMonthGridDates(currentDate, config.Days).ToList();
 
-        //var startDate = cellDates.First();
-        //var endDate = cellDates.Last();
+        var columnsCount = rows.First().Count;
 
-        //var grid = new Grid<TEvent>
-        //{
-        //    Title = $"{startDate:MMMM}".CapitalizeWords()
-        //};
+        var columns = new List<Column<TEvent>>();
 
-        //foreach (var hour in config.Hours)
-        //{
-        //    var formattedTime = config.Is24HourFormat
-        //        ? TimeSpan.FromHours(hour).ToString(@"hh\:mm")
-        //        : DateTime.Today.AddHours(hour).ToString("h tt");
-
-        //    grid.RowPrepend.Add(formattedTime);
-        //}
-
-        //foreach (var cellDate in cellDates)
-        //{
-        //    var wholeDayEvents = weeklyEvents
-        //        .Where(e =>
-        //        {
-        //            var dateFrom = props.GetDateFrom(e);
-        //            var dateTo = props.GetDateTo(e);
-        //            return dateFrom.Date == cellDate &&
-        //                   (dateFrom.Hour < config.TimeFrom.Hour || dateTo.Hour > config.TimeTo.Hour);
-        //        }).ToList();
-
-        //    var newColumn = new Column<TEvent>
-        //    {
-        //        DayOfWeek = cellDate.DayOfWeek,
-        //        HeaderCell = new Cell<TEvent>
-        //        {
-        //            Id = Guid.NewGuid(),
-        //            DateTime = cellDate,
-        //            Events = [.. wholeDayEvents
-        //                .Select(e => new EventWrapper<TEvent>
-        //                {
-        //                    Props = props,
-        //                    Event = e,
-        //                    Id = Guid.NewGuid(),
-        //                    Index = 0, // TODO: Calculate the appropriate index
-        //                    Span = 1 // TODO: Calculate the appropriate span
-        //                })]
-        //        }
-        //    };
-
-        //    foreach (var hour in config.Hours)
-        //    {
-        //        var cellStartTime = cellDate.AddHours(hour);
-        //        var cellEndTime = cellStartTime.AddHours(1);
-
-        //        var cellEvents = weeklyEvents
-        //            .Where(e =>
-        //            {
-        //                var dateFrom = props.GetDateFrom(e);
-        //                var dateTo = props.GetDateTo(e);
-        //                return dateFrom.Hour == hour && dateFrom.Hour >= config.TimeFrom.Hour && dateTo.Hour <= config.TimeTo.Hour && dateFrom.Date == cellDate.Date && dateTo.Date == cellDate.Date;
-        //            })
-        //            .Select(e => new EventWrapper<TEvent>
-        //            {
-        //                Props = props,
-        //                Event = e,
-        //                Id = Guid.NewGuid(),
-        //                Index = 0, // TODO: Calculate the appropriate index
-        //                Span = 1 // TODO: Calculate the appropriate span
-        //            }).ToList();
-
-        //        var cell = new Cell<TEvent>
-        //        {
-        //            Id = Guid.NewGuid(),
-        //            DateTime = cellStartTime,
-        //            Events = cellEvents
-        //        };
-
-        //        newColumn.Cells.Add(cell);
-        //    }
-
-        //    grid.Columns.Add(newColumn);
-        //}
-
-        //return grid;
-        throw new NotImplementedException("Monthly grid generation is not implemented yet.");
-    }
-
-    private static IEnumerable<DateTime> CalculateGridDates(DateTime currentDate, IEnumerable<DayOfWeek> configuredDays)
-    {
-        var dates = new List<DateTime>();
-        var startDate = DateHelper.GetStartOfWeekDate(currentDate, configuredDays.First());
-        dates.Add(startDate);
-        var previousDayValue = (int)configuredDays.First();
-        var previousDate = startDate;
-
-        foreach (var day in configuredDays.Skip(1))
+        for (var col = 0; col < rows[0].Count; col++)
         {
-            var diff = (int)day - previousDayValue;
-            if (diff < 0) diff += 7;
+            var column = new Column<TEvent>
+            {
+                DayOfWeek = config.Days.ToList().ElementAt(col),
+                Index = col + 1,
+                Cells = []
+            };
 
-            var nextDate = previousDate.AddDays(diff);
-            dates.Add(nextDate);
+            for (var row = 0; row < rows.Count; row++)
+            {
+                var cellDate = rows[row][col];
 
-            previousDayValue = (int)day;
-            previousDate = nextDate;
+                var cell = new Cell<TEvent>
+                {
+                    Id = Guid.NewGuid(),
+                    DateTime = cellDate,
+                    Title = $"{cellDate:dd}",
+                    Type = CellType.Normal,
+                    RowIndex = row + 1,
+                    Events = []
+                };
+                if (cellDate.Month != currentDate.Month)
+                {
+                    cell.Type = CellType.Disabled;
+                }
+                else
+                {
+                    var cellEvents = events
+                        .Where(e => TimetableHelper.IsMonthValidEvent(e, props, cellDate, config))
+                        .Select(e => TimetableHelper.WrapEvent(e, props, isHeader: true))
+                        .ToList();
+
+                    cell.Events = cellEvents;
+                }
+
+                column.Cells.Add(cell);
+            }
+
+            columns.Add(column);
         }
 
-        return dates.Distinct();
+        return new Grid<TEvent>
+        {
+            Title = $"{currentDate:MMMM YYYY}".CapitalizeWords(),
+            Columns = columns
+        };
+    }
+
+    public static List<List<DateTime>> CalculateMonthGridDates(
+            DateTime currentDate,
+            IEnumerable<DayOfWeek> configuredDays)
+    {
+        var orderedDays = configuredDays.ToList();
+        if (orderedDays.Count == 0)
+            throw new InvalidOperationException("Configured days cannot be empty.");
+
+        // Determine the month boundaries.
+        var firstOfMonth = new DateTime(currentDate.Year, currentDate.Month, 1);
+        var lastOfMonth = firstOfMonth.AddMonths(1).AddDays(-1);
+
+        // Determine grid start: we want the grid's first cell to be the latest date whose DayOfWeek equals configuredDays[0] and is <= firstOfMonth.
+        DayOfWeek gridStartDay = orderedDays.First();
+        int diff = (7 + ((int)firstOfMonth.DayOfWeek - (int)gridStartDay)) % 7;
+        var gridStart = firstOfMonth.AddDays(-diff);
+
+        // Build grid rows.
+        var gridRows = new List<List<DateTime>>();
+        DateTime rowStart = gridStart;
+        while (true)
+        {
+            var row = CalculateRowDates(rowStart, orderedDays);
+
+            gridRows.Add(row);
+            // Check if at least one cell in the last generated row is on or after lastOfMonth.
+            if (row.Last() >= lastOfMonth)
+                break;
+
+
+            // Move to the next row.
+            rowStart = rowStart.AddDays(7);
+        }
+
+        return gridRows;
+    }
+    private static List<DateTime> CalculateRowDates(DateTime rowStart, IList<DayOfWeek> orderedDays)
+    {
+        var dates = new List<DateTime>();
+        // The first cell.
+        DateTime current = rowStart.Date;
+        dates.Add(current);
+
+        int previousDayValue = (int)orderedDays[0];
+        foreach (var day in orderedDays.Skip(1))
+        {
+            int diff = ((int)day - previousDayValue + 7) % 7;
+            diff = diff == 0 ? 7 : diff;
+            current = current.AddDays(diff);
+            dates.Add(current);
+            previousDayValue = (int)day;
+        }
+        return dates;
     }
 }

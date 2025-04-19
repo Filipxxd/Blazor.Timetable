@@ -9,6 +9,6 @@ internal sealed class Cell<TEvent> where
     public required DateTime DateTime { get; init; }
     public string? Title { get; init; }
     public required int RowIndex { get; init; }
-    public required CellType Type { get; init; }
-    public IList<EventWrapper<TEvent>> Events { get; init; } = [];
+    public required CellType Type { get; set; }
+    public IList<EventWrapper<TEvent>> Events { get; set; } = [];
 }

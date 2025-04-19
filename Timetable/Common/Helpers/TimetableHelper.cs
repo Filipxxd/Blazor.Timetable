@@ -6,6 +6,18 @@ namespace Timetable.Common.Helpers;
 
 internal static class TimetableHelper
 {
+    public static bool IsMonthValidEvent<TEvent>(
+    TEvent e,
+    CompiledProps<TEvent> props,
+    DateTime cellDate,
+    TimetableConfig config) where TEvent : class
+    {
+        var dateFrom = props.GetDateFrom(e);
+        var dateTo = props.GetDateTo(e);
+        return (dateFrom.Date == cellDate.Date && dateTo.Date != dateFrom.Date) ||
+               (dateFrom.Date == cellDate.Date);
+    }
+
     public static List<Cell<TEvent>> CreateCells<TEvent>(
        DateTime cellDate,
        TimetableConfig config,
@@ -23,7 +35,6 @@ internal static class TimetableHelper
         {
             Id = Guid.NewGuid(),
             DateTime = cellDate,
-            Title = $"{cellDate:dddd, dd MMM}",
             Type = CellType.Header,
             RowIndex = 1,
             Events = headerEvents
@@ -43,7 +54,6 @@ internal static class TimetableHelper
             {
                 Id = Guid.NewGuid(),
                 DateTime = cellStartTime,
-                Title = cellStartTime.ToString(config.Is24HourFormat ? @"hh\:mm" : "h tt"),
                 Type = CellType.Normal,
                 RowIndex = hourIndex + 2,
                 Events = cellEvents
@@ -81,7 +91,7 @@ internal static class TimetableHelper
                dateTo.Date == cellStartTime.Date;
     }
 
-    private static EventWrapper<TEvent> WrapEvent<TEvent>(
+    public static EventWrapper<TEvent> WrapEvent<TEvent>(
         TEvent e,
         CompiledProps<TEvent> props,
         bool isHeader) where TEvent : class
