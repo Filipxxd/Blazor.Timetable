@@ -75,7 +75,7 @@
                         <TimetableEvent EventId=@cellEvent.Id
                                         Title=@cellEvent.Title
                                         Order=@sortedEvents.IndexOf(cellEvent)
-                                        IsHeaderEvent=false
+                                        IsHeaderEvent=@(cell.Type == CellType.Header)
                                         Offset=@cell.Events.Count
                                         Span=1
                                         DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
