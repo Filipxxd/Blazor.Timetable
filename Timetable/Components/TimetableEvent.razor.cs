@@ -10,7 +10,7 @@ public partial class TimetableEvent
 {
     [Inject] private ModalService ModalService { get; set; } = default!;
 
-    private const int MousedownThreshold = 500;
+    private const int MousedownThreshold = 100;
     private readonly Stopwatch _clickStopwatch = new();
     private bool _popoverVisible = false;
     private PopupState _state = PopupState.Detail;

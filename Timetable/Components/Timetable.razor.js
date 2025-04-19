@@ -1,4 +1,4 @@
-﻿const timetableSelector = '.timetable-content';
+﻿const timetableSelector = '.timetable-grid';
 const slotSelector = '.timetable-body-cell';
 const eventSelector = '.movable-event';
 
@@ -45,6 +45,7 @@ export const dragDrop = {
                 },
 
                 async end(event) {
+                    event.preventDefault();
                     const target = event.target;
                     const closestSlot = findClosestSlot(target);
                     target.style.zIndex = '';
