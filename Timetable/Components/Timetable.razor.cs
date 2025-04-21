@@ -145,7 +145,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
     private async Task HandleChangedToDay(DayOfWeek dayOfWeek)
     {
-        _timetableManager.CurrentDate = DateHelper.GetDateForDay(_timetableManager.CurrentDate, dayOfWeek, TimetableConfig.FirstDayOfWeek);
+        _timetableManager.CurrentDate = DateHelper.GetDateForDay(_timetableManager.CurrentDate, dayOfWeek, TimetableConfig.Days.First());
         _timetableManager.DisplayType = DisplayType.Day;
         await OnChangedToDay.InvokeAsync(dayOfWeek);
         await OnDisplayTypeChanged.InvokeAsync(DisplayType.Day);

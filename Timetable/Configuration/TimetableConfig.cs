@@ -42,16 +42,6 @@ public sealed class TimetableConfig
     public bool Is24HourFormat { get; init; } = true;
 
     /// <summary>
-    /// First day of the week to display. Defaults to <see cref="DayOfWeek.Monday"/>. Must be part of <see cref="Days"/>.
-    /// </summary>
-    public DayOfWeek FirstDayOfWeek { get; init; } = DayOfWeek.Monday;
-
-    /// <summary>
-    /// First month of the year to display. Defaults to <see cref="Month.January"/>. Must be part of <see cref="Months"/>.
-    /// </summary>
-    public Month FirstMonthOfYear { get; init; } = Month.January;
-
-    /// <summary>
     /// Initial display type of the timetable. Defaults to <see cref="DisplayType.Week"/>.
     /// </summary>
     public DisplayType DefaultDisplayType { get; set; } = DisplayType.Week;
@@ -81,17 +71,11 @@ public sealed class TimetableConfig
         if (!Months.Any())
             throw new InvalidSetupException($"At least one {nameof(DayOfWeek)} in {nameof(Days)} required.");
 
-        if (!Months.Contains(FirstMonthOfYear))
-            throw new InvalidSetupException($"{nameof(FirstMonthOfYear)} must be part of {nameof(Months)}.");
-
         if (Months.GroupBy(x => x).Any(x => x.Count() > 1))
             throw new InvalidSetupException($"Duplicate months found in {nameof(Months)}.");
 
         if (!Days.Any())
             throw new InvalidSetupException($"At least one {nameof(DayOfWeek)} in {nameof(Days)} required.");
-
-        if (!Days.Contains(FirstDayOfWeek))
-            throw new InvalidSetupException($"{nameof(FirstDayOfWeek)} must be part of {nameof(Days)}.");
 
         if (Days.GroupBy(x => x).Any(x => x.Count() > 1))
             throw new InvalidSetupException($"Duplicate days found in {nameof(Days)}.");
