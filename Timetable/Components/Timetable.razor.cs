@@ -19,7 +19,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     [Inject] internal IEnumerable<IDisplayService> DisplayServices { get; set; } = default!;
     [Inject] internal ModalService ModalService { get; set; } = default!;
 
-    [Parameter] public ObservableCollection<TEvent> Events { get; set; } = [];
+    [Parameter, EditorRequired] public ObservableCollection<TEvent> Events { get; set; } = [];
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateFrom { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateTo { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, string>> Title { get; set; } = default!;
