@@ -3,7 +3,6 @@
     border-radius: 0.5rem;
     position: relative;
     z-index: 2;
-    height: 100%;
     box-sizing: border-box;
     border: 2px solid transparent;
     cursor: pointer !important;

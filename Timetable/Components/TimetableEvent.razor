@@ -1,7 +1,7 @@
-﻿<div style="display: grid; grid-template-columns: repeat(@Offset, 1fr); @EventStyle">
+﻿<div style="@WrapperStyle">
     <div class="timetable-event-pill @(IsHeaderEvent ? "whole-day-event" : "movable-event")"
          data-event-id="@EventId"
-         style="grid-column-start: @(Order + 1);"
+         style="@EventStyle"
          @key="EventId"
          @onmousedown=OnMouseDown
          @onmouseup=OnMouseUp>

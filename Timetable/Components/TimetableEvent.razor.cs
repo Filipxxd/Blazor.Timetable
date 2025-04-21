@@ -24,9 +24,13 @@ public partial class TimetableEvent
     [Parameter] public RenderFragment EditTemplate { get; set; } = default!;
     [Parameter] public RenderFragment DeleteTemplate { get; set; } = default!;
 
+    private string WrapperStyle => "display: grid; " + (IsHeaderEvent
+        ? $"grid-template-rows: repeat({Offset}, 1fr); grid-column: {ColumnIndex + 1} / span {Span}; grid-row: 2;"
+        : $"grid-template-columns: repeat({Offset}, 1fr); grid-column: {ColumnIndex + 1}; grid-row: {RowIndex} / span {Span};");
+
     private string EventStyle => IsHeaderEvent
-        ? $"grid-column: {ColumnIndex + 1} / span {Span}; grid-row: 2;"
-        : $"grid-column: {ColumnIndex + 1}; grid-row: {RowIndex} / span {Span};";
+        ? $"grid-row-start: {Order + 1};"
+        : $"grid-column-start: {Order + 1};";
 
     private void OnMouseDown(MouseEventArgs e)
     {
