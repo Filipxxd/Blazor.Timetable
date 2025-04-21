@@ -47,6 +47,7 @@ internal static class TimetableHelper
             var cellEvents = events
                 .Where(e => IsRegularEvent(e, props, cellStartTime, config))
                 .Select(e => WrapEvent(e, props, isHeader: false))
+                .OrderByDescending(e => e.Span)
                 .ToList();
 
             var cell = new Cell<TEvent>

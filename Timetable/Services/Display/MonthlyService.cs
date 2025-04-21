@@ -52,6 +52,7 @@ internal sealed class MonthlyService : IDisplayService
                     var cellEvents = events
                         .Where(e => TimetableHelper.IsMonthValidEvent(e, props, cellDate, config))
                         .Select(e => TimetableHelper.WrapEvent(e, props, isHeader: true))
+                        .OrderByDescending(e => e.Span)
                         .ToList();
 
                     cell.Events = cellEvents;
