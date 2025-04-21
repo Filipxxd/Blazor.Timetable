@@ -1,5 +1,5 @@
 ﻿using Timetable.Common.Enums;
-using Timetable.Common.Helpers;
+using Timetable.Common.Extensions;
 using Timetable.Configuration;
 
 namespace Timetable.Models;
@@ -16,14 +16,12 @@ internal sealed class TimetableManager<TEvent> where
 
     public void NextDate(TimetableConfig config)
     {
-        var increment = DateHelper.GetIncrement(DisplayType);
-        CurrentDate = DateHelper.GetNextAvailableDate(CurrentDate, increment, config.Days);
+        CurrentDate = CurrentDate.GetValidDate(DisplayType, false, config.Days, config.Months);
     }
 
     public void PreviousDate(TimetableConfig config)
     {
-        var increment = DateHelper.GetIncrement(DisplayType);
-        CurrentDate = DateHelper.GetNextAvailableDate(CurrentDate, -increment, config.Days);
+        CurrentDate = CurrentDate.GetValidDate(DisplayType, true, config.Days, config.Months);
     }
 
     public TEvent? MoveEvent(Guid eventId, Guid targetCellId)

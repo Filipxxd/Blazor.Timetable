@@ -3,13 +3,14 @@ using Microsoft.JSInterop;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using Timetable.Common.Enums;
+using Timetable.Common.Extensions;
 using Timetable.Common.Helpers;
 using Timetable.Components.Shared.Modals;
 using Timetable.Configuration;
+using Timetable.Models;
 using Timetable.Services;
 using Timetable.Services.DataExchange.Export;
 using Timetable.Services.Display;
-using Timetable.Models;
 
 namespace Timetable.Components;
 
@@ -83,11 +84,10 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         if (_firstRender)
         {
             _timetableManager.DisplayType = TimetableConfig.DefaultDisplayType;
-            _timetableManager.CurrentDate = DateTime.Now;
+            _timetableManager.CurrentDate = DateTime.Now; // TODO: add option to provide custom via _firstRender prop;
 
-            if (!TimetableConfig.Days.Any(day => day == _timetableManager.CurrentDate.DayOfWeek))
-                _timetableManager.CurrentDate = DateHelper.GetNextAvailableDate(DateTime.Now, DateHelper.GetIncrement(_timetableManager.DisplayType), TimetableConfig.Days);
-            // TODO: add option to provide custom via _firstRender prop & fix when datetime now is not in available Days;
+            while (!_timetableManager.CurrentDate.IsValidDateTime(TimetableConfig.Days, TimetableConfig.Months))
+                _timetableManager.CurrentDate = _timetableManager.CurrentDate.GetNextValidDate(TimetableConfig.Days, TimetableConfig.Months);
         }
 
         TimetableConfig.Validate();
