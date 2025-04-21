@@ -14,7 +14,7 @@ public static class ServiceExtensions
         services.AddScoped<IDisplayService, WeeklyService>();
         services.AddScoped<IDisplayService, MonthlyService>();
 
-        services.AddSingleton<ModalService>();
+        services.AddScoped<ModalService>();
 
         return services;
     }
