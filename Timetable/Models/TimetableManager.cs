@@ -2,7 +2,7 @@
 using Timetable.Common.Helpers;
 using Timetable.Configuration;
 
-namespace Timetable.Structure;
+namespace Timetable.Models;
 
 internal sealed class TimetableManager<TEvent> where
     TEvent : class
@@ -69,7 +69,7 @@ internal sealed class TimetableManager<TEvent> where
             {
                 var groupId = Props.GetGroupId(e);
                 return groupId?.Equals(groupId) == true && groupId != timetableEvent.GroupIdentifier;
-            }).ToList();
+            });
 
         if (futureOnly)
         {

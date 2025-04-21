@@ -1,7 +1,7 @@
 ﻿using Timetable.Common.Enums;
 using Timetable.Configuration;
 using Timetable.Services.Display;
-using Timetable.Structure;
+using Timetable.Models;
 
 namespace Timetable.Tests;
 

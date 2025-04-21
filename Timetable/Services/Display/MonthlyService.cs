@@ -2,7 +2,7 @@
 using Timetable.Common.Extensions;
 using Timetable.Common.Helpers;
 using Timetable.Configuration;
-using Timetable.Structure;
+using Timetable.Models;
 
 namespace Timetable.Services.Display;
 

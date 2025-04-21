@@ -9,7 +9,7 @@ using Timetable.Configuration;
 using Timetable.Services;
 using Timetable.Services.DataExchange.Export;
 using Timetable.Services.Display;
-using Timetable.Structure;
+using Timetable.Models;
 
 namespace Timetable.Components;
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Timetable.Common.Enums;
 using Timetable.Services;
-using Timetable.Structure;
+using Timetable.Models;
 
 namespace Timetable.Components.Shared.Modals;
 

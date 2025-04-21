@@ -1,6 +1,6 @@
 ﻿using Timetable.Common.Enums;
 
-namespace Timetable.Structure;
+namespace Timetable.Models;
 
 internal sealed class Cell<TEvent> where
     TEvent : class

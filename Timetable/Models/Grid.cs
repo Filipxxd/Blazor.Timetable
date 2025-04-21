@@ -1,4 +1,4 @@
-﻿namespace Timetable.Structure;
+﻿namespace Timetable.Models;
 
 internal sealed class Grid<TEvent> where
     TEvent : class

@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using Timetable.Common.Helpers;
 
-namespace Timetable.Structure;
+namespace Timetable.Models;
 
 public sealed class CompiledProps<TEvent> where TEvent : class
 {

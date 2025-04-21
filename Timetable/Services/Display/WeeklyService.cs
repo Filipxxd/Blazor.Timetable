@@ -2,7 +2,7 @@
 using Timetable.Common.Extensions;
 using Timetable.Common.Helpers;
 using Timetable.Configuration;
-using Timetable.Structure;
+using Timetable.Models;
 
 namespace Timetable.Services.Display;
 
@@ -16,7 +16,7 @@ internal sealed class WeeklyService : IDisplayService
         DateTime currentDate,
         CompiledProps<TEvent> props) where TEvent : class
     {
-        var cellDates = CalculateGridDates(currentDate, config.Days).ToList();
+        var cellDates = CalculateGridDates(currentDate, config.Days);
 
         var startDate = cellDates.First();
         var gridEndDate = cellDates.Last();

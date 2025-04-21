@@ -1,4 +1,4 @@
-﻿namespace Timetable.Structure;
+﻿namespace Timetable.Models;
 
 public sealed class EventWrapper<TEvent> where
     TEvent : class

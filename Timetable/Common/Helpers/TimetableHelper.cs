@@ -1,6 +1,6 @@
 ﻿using Timetable.Common.Enums;
 using Timetable.Configuration;
-using Timetable.Structure;
+using Timetable.Models;
 
 namespace Timetable.Common.Helpers;
 
