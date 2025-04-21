@@ -82,6 +82,9 @@ public sealed class TimetableConfig
 
         if (!AreDaysConsecutive(Days))
             throw new InvalidSetupException($"Days must be consecutive.");
+
+        if (!AreMonthsConsecutive(Months))
+            throw new InvalidSetupException($"Months must be consecutive.");
     }
 
     private static bool AreDaysConsecutive(IEnumerable<DayOfWeek> days)
@@ -91,6 +94,18 @@ public sealed class TimetableConfig
         for (int i = 0; i < sortedDays.Count - 1; i++)
         {
             if (((int)sortedDays[i] + 1) % 7 != (int)sortedDays[i + 1] % 7)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    private static bool AreMonthsConsecutive(IEnumerable<Month> months)
+    {
+        var sortedMonths = months.OrderBy(m => m).ToList();
+        for (int i = 0; i < sortedMonths.Count - 1; i++)
+        {
+            if (((int)sortedMonths[i] + 1) % 12 != ((int)sortedMonths[i + 1]) % 12)
             {
                 return false;
             }
