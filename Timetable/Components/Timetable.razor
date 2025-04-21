@@ -6,6 +6,7 @@
              CurrentDisplayType=@_timetableManager.DisplayType
              ExportConfig=@ExportConfig
              TimetableConfig=@TimetableConfig
+             OnCreateClicked=@(() => HandleOpenCreateModal(_timetableManager.CurrentDate))
              OnDisplayTypeChanged=HandleDisplayTypeChanged />
 
     <div class="timetable">
@@ -51,7 +52,7 @@
                     <GridItem CssClass="@style"
                                 RowIndex=@(cell.RowIndex + 1)
                                 SlotId=@(cell.Type == CellType.Normal ? cell.Id : null)
-                                OnClick="@(() => HandleOpenCreateModal(cell))"
+                                OnClick="@(() => HandleOpenCreateModal(cell.DateTime))"
                                 ColumnIndex=@(!isMonthView ? column.Index + 1 : column.Index) />
                 }
             }

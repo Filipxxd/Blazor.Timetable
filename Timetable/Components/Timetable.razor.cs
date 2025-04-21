@@ -171,13 +171,13 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         catch (JSDisconnectedException) { }
     }
 
-    private void HandleOpenCreateModal(Cell<TEvent> cell)
+    private void HandleOpenCreateModal(DateTime dateTime)
     {
         var newEvent = Activator.CreateInstance<TEvent>();
 
         _eventProps.SetTitle(newEvent, string.Empty);
-        _eventProps.SetDateFrom(newEvent, cell.DateTime);
-        _eventProps.SetDateTo(newEvent, cell.DateTime.AddHours(1));
+        _eventProps.SetDateFrom(newEvent, dateTime);
+        _eventProps.SetDateTo(newEvent, dateTime.AddHours(1));
 
         var wrapper = new EventWrapper<TEvent>()
         {

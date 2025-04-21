@@ -16,6 +16,7 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter] public TimetableConfig TimetableConfig { get; set; } = default!;
     [Parameter] public DisplayType CurrentDisplayType { get; set; } = default!;
     [Parameter] public EventCallback<DisplayType> OnDisplayTypeChanged { get; set; }
+    [Parameter] public EventCallback OnCreateClicked { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -24,6 +25,11 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
             _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import",
                 "./_content/Timetable/Components/Options.razor.js");
         }
+    }
+
+    private async Task HandleCreateClicked()
+    {
+        await OnCreateClicked.InvokeAsync();
     }
 
     private async Task Export()

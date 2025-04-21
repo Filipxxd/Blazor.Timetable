@@ -1,34 +1,42 @@
 ﻿@typeparam TEvent where TEvent : class
 
-<div class="buttons">
-    <div @onclick=Export class="icon-button">
-        <FileDownloadIcon />
-        <span>Export</span>
+<div class="options">
+    <div>
+        <div @onclick=HandleCreateClicked class="icon-button">
+            <PlusIcon />
+            <span>Add</span>
+        </div>
     </div>
+    <div class="buttons">
+        <div @onclick=Export class="icon-button">
+            <FileDownloadIcon />
+            <span>Export</span>
+        </div>
 
-    @foreach (var displayType in TimetableConfig.DisplayTypes.Where(x => x != CurrentDisplayType).OrderBy(x => x))
-    {
-        <span @onclick="() => OnDisplayTypeChanged.InvokeAsync(displayType)" class="icon-button">
-            @switch (displayType)
-            {
-                case DisplayType.Day:
-                    <CalendarDayIcon />
-                    break;
+        @foreach (var displayType in TimetableConfig.DisplayTypes.Where(x => x != CurrentDisplayType).OrderBy(x => x))
+        {
+            <span @onclick="() => OnDisplayTypeChanged.InvokeAsync(displayType)" class="icon-button">
+                @switch (displayType)
+                {
+                    case DisplayType.Day:
+                        <CalendarDayIcon />
+                        break;
 
-                case DisplayType.Week:
-                    <CalendarWeekIcon />
-                    break;
+                    case DisplayType.Week:
+                        <CalendarWeekIcon />
+                        break;
 
-                case DisplayType.Month:
-                    <CalendarMonthIcon />
-                    break;
+                    case DisplayType.Month:
+                        <CalendarMonthIcon />
+                        break;
 
-                default:
-                    throw new NotImplementedException($"DisplayType {CurrentDisplayType} is not implemented.");
-            }
-            <span>
-                @displayType
+                    default:
+                        throw new NotImplementedException($"DisplayType {CurrentDisplayType} is not implemented.");
+                }
+                <span>
+                    @displayType
+                </span>
             </span>
-        </span>
-    }
+        }
+    </div>
 </div>

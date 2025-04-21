@@ -1,4 +1,9 @@
-﻿.buttons {
+﻿.options {
+    display: flex;
+    justify-content: space-between;
+}
+
+.buttons {
     display: flex;
     justify-content: end;
     background-color: transparent;
