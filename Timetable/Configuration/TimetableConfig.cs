@@ -6,7 +6,7 @@ namespace Timetable.Configuration;
 public sealed class TimetableConfig
 {
     /// <summary>
-    /// Months shown in the timetable. Order has no impact. Defaults to all months of the year.
+    /// Months shown in the timetable. Must be consecutive. First item treated as start of year month. Defaults to all months of the year.
     /// </summary>
     public IEnumerable<Month> Months { get; init; } = [
         Month.January, Month.February, Month.March, Month.April, Month.May, Month.June,
@@ -14,7 +14,7 @@ public sealed class TimetableConfig
     ];
 
     /// <summary>
-    /// Days shown in the timetable. Order has no impact. Defaults to all days of the week.
+    /// Days shown in the timetable. Must be consecutive. First item treated as start of week day. Defaults to all days of the week.
     /// </summary>
     public IEnumerable<DayOfWeek> Days { get; init; } = [
         DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday,
