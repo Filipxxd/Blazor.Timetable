@@ -66,7 +66,7 @@ internal sealed class MonthlyService : IDisplayService
 
         return new Grid<TEvent>
         {
-            Title = $"{currentDate:MMMM YYYY}".CapitalizeWords(),
+            Title = $"{currentDate:MMMM yyyy}".CapitalizeWords(),
             Columns = columns
         };
     }
