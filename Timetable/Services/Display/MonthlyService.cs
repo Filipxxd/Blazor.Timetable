@@ -79,30 +79,24 @@ internal sealed class MonthlyService : IDisplayService
         if (orderedDays.Count == 0)
             throw new InvalidOperationException("Configured days cannot be empty.");
 
-        // Determine the month boundaries.
         var firstOfMonth = new DateTime(currentDate.Year, currentDate.Month, 1);
         var lastOfMonth = firstOfMonth.AddMonths(1).AddDays(-1);
 
-        // Determine grid start: we want the grid's first cell to be the latest date whose DayOfWeek equals configuredDays[0] and is <= firstOfMonth.
-        DayOfWeek gridStartDay = orderedDays.First();
-        int diff = (7 + ((int)firstOfMonth.DayOfWeek - (int)gridStartDay)) % 7;
+        var gridStartDay = orderedDays.First();
+        var diff = (7 + ((int)firstOfMonth.DayOfWeek - (int)gridStartDay)) % 7;
         var gridStart = firstOfMonth.AddDays(-diff);
 
-        // Build grid rows.
         var gridRows = new List<List<DateTime>>();
-        DateTime rowStart = gridStart;
+
         while (true)
         {
-            var row = CalculateRowDates(rowStart, orderedDays);
+            var row = CalculateRowDates(gridStart, orderedDays);
 
             gridRows.Add(row);
-            // Check if at least one cell in the last generated row is on or after lastOfMonth.
             if (row.Last() >= lastOfMonth)
                 break;
 
-
-            // Move to the next row.
-            rowStart = rowStart.AddDays(7);
+            gridStart = gridStart.AddDays(7);
         }
 
         return gridRows;
@@ -110,11 +104,11 @@ internal sealed class MonthlyService : IDisplayService
     private static List<DateTime> CalculateRowDates(DateTime rowStart, IList<DayOfWeek> orderedDays)
     {
         var dates = new List<DateTime>();
-        // The first cell.
-        DateTime current = rowStart.Date;
+        var current = rowStart.Date;
+
         dates.Add(current);
 
-        int previousDayValue = (int)orderedDays[0];
+        var previousDayValue = (int)orderedDays[0];
         foreach (var day in orderedDays.Skip(1))
         {
             int diff = ((int)day - previousDayValue + 7) % 7;
@@ -123,6 +117,7 @@ internal sealed class MonthlyService : IDisplayService
             dates.Add(current);
             previousDayValue = (int)day;
         }
+
         return dates;
     }
 }
