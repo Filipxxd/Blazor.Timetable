@@ -2,7 +2,7 @@
 
 <div class="input-container">
     <label for="@Id">@Label:</label>
-    <input id="@Id" @bind="FormattedValue" type="@InputType" />
+    <input id="@Id" @bind="FormattedValue" type="@InputType" required="@Required" />
 
     @if (!string.IsNullOrEmpty(ErrorMessage))
     {

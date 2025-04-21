@@ -5,6 +5,7 @@ namespace Timetable.Components.Shared.Forms;
 public partial class Input<TType>
 {
     [Parameter, EditorRequired] public string Label { get; set; } = default!;
+    [Parameter, EditorRequired] public bool Required { get; set; } = false;
     [Parameter, EditorRequired] public TType Value { get; set; } = default!;
     [Parameter, EditorRequired] public EventCallback<TType> ValueChanged { get; set; }
     [Parameter] public string? ErrorMessage { get; set; }
