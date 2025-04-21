@@ -6,7 +6,7 @@ namespace Timetable.Configuration;
 public sealed class ExportConfig<TEvent> where TEvent : class
 {
     /// <summary>
-    /// File name for the export. This is the name of the file that will be created.
+    /// File name for the export. This is the name of the file that will be created without extension eg. "EventsExport".
     /// </summary>
     public required string FileName { get; init; }
 
