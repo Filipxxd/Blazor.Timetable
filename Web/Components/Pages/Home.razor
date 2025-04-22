@@ -8,25 +8,25 @@
 <PageTitle>Example page</PageTitle>
 
 <Timetable TEvent=TimetableEvent 
-                    Events=Events
+        Events=Events
                     
-                    Title="e => e.Title"
-                    DateFrom="e => e.StartTime"
-                    DateTo="e => e.EndTime"
-                    GroupId="e => e.GroupId"
+        Title="e => e.Title"
+        DateFrom="e => e.StartTime"
+        DateTo="e => e.EndTime"
+        GroupId="e => e.GroupId"
 
-                    TimetableConfig="new(){
-                        DefaultDisplayType=DisplayType.Week,
-                        DisplayTypes=[DisplayType.Week, DisplayType.Month, DisplayType.Day],
-                        Days=[ DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday],
-                        TimeFrom=new(8, 0),
-                        TimeTo=new(16, 0),
-                        Is24HourFormat=false
-                    }"
+        TimetableConfig="new(){
+            DefaultDisplayType=DisplayType.Week,
+            DisplayTypes=[DisplayType.Week, DisplayType.Month, DisplayType.Day],
+            Days=[ DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday],
+            TimeFrom=new(8, 0),
+            TimeTo=new(16, 0),
+            Is24HourFormat=true
+        }"
 
-                    OnEventUpdated=HandleEventUpdated
-                    OnPreviousClicked=HandlePreviousClicked 
-                    OnNextClicked=HandleNextClicked>
+        OnEventUpdated=HandleEventUpdated
+        OnPreviousClicked=HandlePreviousClicked 
+        OnNextClicked=HandleNextClicked>
     <DetailTemplate Context="timetableEvent">
         <div>
             <p>Custom Event View</p>
