@@ -24,7 +24,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateFrom { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateTo { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, string>> Title { get; set; } = default!;
-    [Parameter, EditorRequired] public Expression<Func<TEvent, object?>> GroupIdentifier { get; set; } = default!;
+    [Parameter, EditorRequired] public Expression<Func<TEvent, object?>> GroupId { get; set; } = default!;
     [Parameter] public TimetableConfig TimetableConfig { get; set; } = new();
     [Parameter] public ExportConfig<TEvent> ExportConfig { get; set; } = default!;
 
@@ -42,10 +42,9 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     #endregion
 
     #region Templates
-    [Parameter, EditorRequired] public RenderFragment<TEvent> CreateTemplate { get; set; } = default!;
-    [Parameter, EditorRequired] public RenderFragment<TEvent> EditTemplate { get; set; } = default!;
-    [Parameter, EditorRequired] public RenderFragment<TEvent> DeleteTemplate { get; set; } = default!;
-    [Parameter, EditorRequired] public RenderFragment<TEvent> DetailTemplate { get; set; } = default!;
+    [Parameter] public RenderFragment<TEvent> CreateTemplate { get; set; } = default!;
+    [Parameter] public RenderFragment<TEvent> EditTemplate { get; set; } = default!;
+    [Parameter] public RenderFragment<TEvent> DetailTemplate { get; set; } = default!;
     #endregion
 
     #region Private Fields
@@ -61,7 +60,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         _firstRender = true;
         _objectReference = DotNetObjectReference.Create(this);
 
-        _eventProps = new CompiledProps<TEvent>(DateFrom, DateTo, Title, GroupIdentifier);
+        _eventProps = new CompiledProps<TEvent>(DateFrom, DateTo, Title, GroupId);
         _timetableManager = new TimetableManager<TEvent>()
         {
             Props = _eventProps

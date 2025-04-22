@@ -79,7 +79,6 @@
                                         Span=@cellEvent.Span
                                         DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
                                         EditTemplate=@(builder => EditTemplate(cellEvent.Event)(builder))
-                                        DeleteTemplate=@(builder => DeleteTemplate(cellEvent.Event)(builder))
                                         ColumnIndex=@(isMonthView ? column.Index - 1 : column.Index)
                                         RowIndex=@(cell.RowIndex + 1) />
                     }

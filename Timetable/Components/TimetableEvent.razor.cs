@@ -22,7 +22,6 @@ public partial class TimetableEvent
     [Parameter] public int Offset { get; set; }
     [Parameter] public RenderFragment DetailTemplate { get; set; } = default!;
     [Parameter] public RenderFragment EditTemplate { get; set; } = default!;
-    [Parameter] public RenderFragment DeleteTemplate { get; set; } = default!;
 
     private string WrapperStyle => "display: grid; " + (IsHeaderEvent
         ? $"grid-template-rows: repeat({Offset}, 1fr); grid-column: {ColumnIndex + 1} / span {Span}; grid-row: 2;"
