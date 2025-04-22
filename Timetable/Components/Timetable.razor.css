@@ -8,7 +8,7 @@
     color: #333;
 }
 
-.timetable-wrapper * {
+.timetable-wrapper *, .timetable-wrapper ::deep * {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
