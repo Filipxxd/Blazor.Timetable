@@ -26,7 +26,7 @@ internal sealed class MonthlyService : IDisplayService
         {
             var column = new Column<TEvent>
             {
-                DayOfWeek = config.Days.ToList().ElementAt(col),
+                DayOfWeek = config.Days.ElementAt(col),
                 Index = col + 1,
                 Cells = []
             };

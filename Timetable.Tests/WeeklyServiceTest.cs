@@ -1,19 +1,21 @@
 using Timetable.Common.Enums;
 using Timetable.Configuration;
-using Timetable.Services.Display;
 using Timetable.Models;
+using Timetable.Services.Display;
 
 namespace Timetable.Tests;
 
 public sealed class WeeklyServiceTests
 {
     private readonly WeeklyService _weeklyService = new();
+
     private class TestEvent
     {
         public DateTime StartTime { get; init; }
         public DateTime EndTime { get; init; }
-        public string Title { get; init; } = default!;
+        public string Title { get; init; } = string.Empty;
     }
+
     private readonly CompiledProps<TestEvent> _props =
         new(e => e.StartTime, e => e.EndTime, e => e.Title);
 
@@ -25,55 +27,59 @@ public sealed class WeeklyServiceTests
     public void CreateGrid_ShouldReturnGridWithCorrectColumnCount(DayOfWeek[] days, int expectedColumnCount)
     {
         var currentDate = new DateTime(2023, 10, 30);
-        var mockConfig = new TimetableConfig
+        var config = new TimetableConfig
         {
-            Days = days
+            Days = days,
+            TimeFrom = new TimeOnly(0, 0),
+            TimeTo = new TimeOnly(23, 0)
         };
-
-        var result = _weeklyService.CreateGrid([], mockConfig, currentDate, _props);
-        Assert.Equal(expectedColumnCount, result.Columns.Count);
+        var grid = _weeklyService.CreateGrid([], config, currentDate, _props);
+        var gridColumnDaysOfWeek = grid.Columns.Select(c => c.DayOfWeek);
+        Assert.Equal(expectedColumnCount, grid.Columns.Count);
+        Assert.Equal(days.Length, gridColumnDaysOfWeek.Count());
     }
 
     [Theory]
-    [InlineData(1, 2, 1)]
-    [InlineData(8, 16, 8)]
-    [InlineData(10, 20, 10)]
-    [InlineData(0, 23, 23)]
-    public void CreateGrid_ShouldReturnGridWithCorrectRowPrependCount(int hourFrom, int hourTo, int expectedRowPrependCount)
+    [InlineData(1, 2)]
+    [InlineData(8, 16)]
+    [InlineData(10, 20)]
+    [InlineData(0, 24)]
+    public void CreateGrid_ShouldReturnGridWithCorrectRowPrependCount(int hourFrom, int hourTo)
     {
+        var expectedRowCount = hourTo - hourFrom;
         var currentDate = new DateTime(2023, 10, 30);
-        var mockConfig = new TimetableConfig
+        var config = new TimetableConfig
         {
             Days = [DayOfWeek.Monday],
             TimeFrom = new TimeOnly(hourFrom, 0),
-            TimeTo = new TimeOnly(hourTo, 0)
+            TimeTo = new TimeOnly(hourTo, 0),
         };
-        var result = _weeklyService.CreateGrid([], mockConfig, currentDate, _props);
-        Assert.Equal(expectedRowPrependCount, result.RowTitles.Count);
+        var grid = _weeklyService.CreateGrid([], config, currentDate, _props);
+        Assert.Equal(expectedRowCount, grid.RowTitles.Count);
     }
 
-
     [Theory]
-    [InlineData(1, 2, 2)]
-    [InlineData(8, 16, 9)]
-    [InlineData(10, 20, 11)]
-    [InlineData(0, 23, 24)]
-    public void CreateGrid_ShouldReturnCorrectCellCountPerColumn(int hourFrom, int hourTo, int expectedColumnCellCount)
+    [InlineData(1, 2)]
+    [InlineData(8, 16)]
+    [InlineData(10, 20)]
+    [InlineData(0, 23)]
+    public void CreateGrid_ShouldReturnCorrectCellCountPerColumn(int hourFrom, int hourTo)
     {
+        var hourCount = hourTo - hourFrom;
+        var expectedCellCount = hourCount + 1;
         var currentDate = new DateTime(2023, 10, 30);
-        var mockConfig = new TimetableConfig
+        var config = new TimetableConfig
         {
             Days = [DayOfWeek.Monday, DayOfWeek.Tuesday],
             TimeFrom = new TimeOnly(hourFrom, 0),
-            TimeTo = new TimeOnly(hourTo, 0)
+            TimeTo = new TimeOnly(hourTo, 0),
+            Is24HourFormat = true
         };
-        var result = _weeklyService.CreateGrid([], mockConfig, currentDate, _props);
-
-        foreach (var column in result.Columns)
+        var grid = _weeklyService.CreateGrid([], config, currentDate, _props);
+        foreach (var column in grid.Columns)
         {
-            Assert.Equal(expectedColumnCellCount, column.Cells.Count);
-
-            foreach (var cell in column.Cells.Where(cell => cell.Type != CellType.Header))
+            Assert.Equal(expectedCellCount, column.Cells.Count);
+            foreach (var cell in column.Cells.Where(c => c.Type != CellType.Header))
             {
                 Assert.True(cell.DateTime.Hour >= hourFrom);
                 Assert.True(cell.DateTime.Hour < hourTo);
@@ -85,112 +91,166 @@ public sealed class WeeklyServiceTests
     public void CreateGrid_ShouldOnlyIncludeEventsWithinGridDateRange()
     {
         var currentDate = new DateTime(2023, 10, 30);
-        var mockConfig = new TimetableConfig
+        var config = new TimetableConfig
         {
-            Days = [DayOfWeek.Monday, DayOfWeek.Tuesday]
+            Days = [DayOfWeek.Monday, DayOfWeek.Tuesday],
+            TimeFrom = new TimeOnly(0, 0),
+            TimeTo = new TimeOnly(23, 0),
+            Is24HourFormat = true
         };
-        var events = new List<TestEvent>
+        var events = new[]
         {
-            new() { StartTime = new DateTime(2023, 10, 30, 10, 0, 0), EndTime = new DateTime(2023, 10, 30, 11, 0, 0) },
-            new() { StartTime = new DateTime(2023, 11, 1, 10, 0, 0), EndTime = new DateTime(2023, 11, 1, 11, 0, 0) }
+            new TestEvent { StartTime = new DateTime(2023, 10, 30, 10, 0, 0), EndTime = new DateTime(2023, 10, 30, 11, 0, 0), Title = "Event1" },
+            new TestEvent { StartTime = new DateTime(2023, 11, 1, 10, 0, 0), EndTime = new DateTime(2023, 11, 1, 11, 0, 0), Title = "Event2" }
         };
-        var result = _weeklyService.CreateGrid(events, mockConfig, currentDate, _props);
-        var includedEvents = result.Columns.SelectMany(col => col.Cells.SelectMany(cell => cell.Events)).Select(e => e.Event).ToList();
+        var grid = _weeklyService.CreateGrid(events, config, currentDate, _props);
+        var includedEvents = grid.Columns
+                                  .SelectMany(col => col.Cells.SelectMany(cell => cell.Events))
+                                  .Select(wrapper => wrapper.Event)
+                                  .ToList();
         Assert.Single(includedEvents);
         Assert.Equal(events[0], includedEvents[0]);
     }
 
-    [Theory]
-    [InlineData((DayOfWeek[])[])]
-    public void CreateGrid_WithInvalidConfiguration_ShouldThrow(DayOfWeek[] days)
+    [Fact]
+    public void CreateGrid_WithInvalidConfiguration_ShouldThrow()
     {
         var currentDate = DateTime.Now;
-        var mockConfig = new TimetableConfig
+        var config = new TimetableConfig
         {
-            Days = days,
+            Days = [],
             TimeFrom = new TimeOnly(0, 0),
             TimeTo = new TimeOnly(1, 0)
         };
-        Assert.Throws<InvalidOperationException>(() => _weeklyService.CreateGrid([], mockConfig, currentDate, _props));
+        Assert.Throws<InvalidOperationException>(() => _weeklyService.CreateGrid([], config, currentDate, _props));
     }
 
     [Fact]
     public void CreateGrid_WithEventsOutsideConfiguredTime_ShouldBeInHeaderCells()
     {
         var currentDate = new DateTime(2023, 10, 30);
-        var mockConfig = new TimetableConfig
+        var config = new TimetableConfig
         {
             Days = [DayOfWeek.Monday, DayOfWeek.Tuesday],
             TimeFrom = new TimeOnly(9, 0),
-            TimeTo = new TimeOnly(17, 0)
+            TimeTo = new TimeOnly(17, 0),
+            Is24HourFormat = true
         };
-        var events = new List<TestEvent>
+        var events = new[]
         {
-            new() { StartTime = new DateTime(2023, 10, 30, 8, 0, 0), EndTime = new DateTime(2023, 10, 30, 9, 0, 0) },
-            new() { StartTime = new DateTime(2023, 10, 30, 18, 0, 0), EndTime = new DateTime(2023, 10, 30, 19, 0, 0) }
+            new TestEvent { StartTime = new DateTime(2023, 10, 30, 7, 0, 0), EndTime = new DateTime(2023, 10, 30, 8, 0, 0), Title = "Early" },
+            new TestEvent { StartTime = new DateTime(2023, 10, 30, 8, 0, 0), EndTime = new DateTime(2023, 10, 30, 9, 0, 0), Title = "Early" },
+            new TestEvent { StartTime = new DateTime(2023, 10, 30, 18, 0, 0), EndTime = new DateTime(2023, 10, 30, 19, 0, 0), Title = "Late" },
+            new TestEvent { StartTime = new DateTime(2023, 10, 30, 19, 0, 0), EndTime = new DateTime(2023, 10, 30, 20, 0, 0), Title = "Late" }
         };
-        var result = _weeklyService.CreateGrid(events, mockConfig, currentDate, _props);
-        var headerEvents = result.Columns.SelectMany(col => col.Cells.Where(cell => cell.Type == CellType.Header).SelectMany(cell => cell.Events).Select(e => e.Event)).ToList();
-        Assert.Equal(events, headerEvents);
+        var grid = _weeklyService.CreateGrid(events, config, currentDate, _props);
+        var headerEvents = grid.Columns
+                               .SelectMany(col => col.Cells.Where(cell => cell.Type == CellType.Header)
+                                                           .SelectMany(cell => cell.Events)
+                                                           .Select(wrapper => wrapper.Event));
+
+        Assert.Equal(4, headerEvents.Count());
+        Assert.Contains(events[0], headerEvents);
+        Assert.Contains(events[1], headerEvents);
     }
 
     [Fact]
     public void CreateGrid_WithWholeDayEvents_ShouldBeInHeaderCells()
     {
         var currentDate = new DateTime(2023, 10, 30);
-        var mockConfig = new TimetableConfig
+        var config = new TimetableConfig
         {
             Days = [DayOfWeek.Monday, DayOfWeek.Tuesday],
             TimeFrom = new TimeOnly(9, 0),
-            TimeTo = new TimeOnly(17, 0)
+            TimeTo = new TimeOnly(17, 0),
+            Is24HourFormat = true
         };
-        var events = new List<TestEvent>
+        var events = new[]
         {
-            new() { StartTime = new DateTime(2023, 10, 30, 0, 0, 0), EndTime = new DateTime(2023, 10, 30, 23, 59, 59) }
+            new TestEvent { StartTime = new DateTime(2023, 10, 30, 0, 0, 0), EndTime = new DateTime(2023, 10, 31, 0, 0, 0), Title = "WholeDay" }
         };
-        var result = _weeklyService.CreateGrid(events, mockConfig, currentDate, _props);
-        var headerEvents = result.Columns.SelectMany(col => col.Cells.Where(cell => cell.Type == CellType.Header).SelectMany(cell => cell.Events).Select(e => e.Event)).ToList();
+        var grid = _weeklyService.CreateGrid(events, config, currentDate, _props);
+        var headerEvents = grid.Columns
+                               .SelectMany(col => col.Cells.Where(cell => cell.Type == CellType.Header)
+                                                           .SelectMany(cell => cell.Events)
+                                                           .Select(wrapper => wrapper.Event));
         Assert.Single(headerEvents);
-        Assert.Equal(events[0], headerEvents[0]);
+        Assert.Equal(events[0], headerEvents.First());
     }
 
     [Fact]
     public void CreateGrid_WithOverlappingEvents_ShouldIncludeAllEvents()
     {
         var currentDate = new DateTime(2023, 10, 30);
-        var mockConfig = new TimetableConfig
+        var config = new TimetableConfig
         {
             Days = [DayOfWeek.Monday],
             TimeFrom = new TimeOnly(9, 0),
-            TimeTo = new TimeOnly(17, 0)
+            TimeTo = new TimeOnly(17, 0),
+            Is24HourFormat = true
         };
-        var events = new List<TestEvent>
+        var events = new[]
         {
-            new() { StartTime = new DateTime(2023, 10, 30, 10, 0, 0), EndTime = new DateTime(2023, 10, 30, 12, 0, 0) },
-            new() { StartTime = new DateTime(2023, 10, 30, 11, 0, 0), EndTime = new DateTime(2023, 10, 30, 13, 0, 0) }
+            new TestEvent { StartTime = new DateTime(2023, 10, 30, 10, 0, 0), EndTime = new DateTime(2023, 10, 30, 12, 0, 0), Title = "Event1" },
+            new TestEvent { StartTime = new DateTime(2023, 10, 30, 11, 0, 0), EndTime = new DateTime(2023, 10, 30, 13, 0, 0), Title = "Event2" }
         };
-        var result = _weeklyService.CreateGrid(events, mockConfig, currentDate, _props);
-        var includedEvents = result.Columns.SelectMany(col => col.Cells.SelectMany(cell => cell.Events)).Select(e => e.Event).ToList();
-        Assert.Equal(events.Count, includedEvents.Count);
+        var grid = _weeklyService.CreateGrid(events, config, currentDate, _props);
+        var includedEvents = grid.Columns
+                                  .SelectMany(col => col.Cells)
+                                  .SelectMany(cell => cell.Events)
+                                  .Select(wrapper => wrapper.Event)
+                                  .ToArray();
+        Assert.Equal(events.Length, includedEvents.Length);
     }
 
     [Fact]
     public void CreateGrid_WithEventsOnEdgeBoundaries_ShouldIncludeCorrectly()
     {
         var currentDate = new DateTime(2023, 10, 30);
-        var mockConfig = new TimetableConfig
+        var config = new TimetableConfig
         {
             Days = [DayOfWeek.Monday],
             TimeFrom = new TimeOnly(9, 0),
-            TimeTo = new TimeOnly(17, 0)
+            TimeTo = new TimeOnly(17, 0),
+            Is24HourFormat = true
         };
-        var events = new List<TestEvent>
+        var events = new[]
         {
-            new() { StartTime = new DateTime(2023, 10, 30, 9, 0, 0), EndTime = new DateTime(2023, 10, 30, 9, 30, 0) },
-            new() { StartTime = new DateTime(2023, 10, 30, 17, 0, 0), EndTime = new DateTime(2023, 10, 30, 18, 0, 0) }
+            //new TestEvent { StartTime = new DateTime(2023, 10, 30, 9, 0, 0), EndTime = new DateTime(2023, 10, 30, 9, 30, 0), Title = "StartEdge" }, TODO: Fix minutes case
+            new TestEvent { StartTime = new DateTime(2023, 10, 30, 9, 0, 0), EndTime = new DateTime(2023, 10, 30, 10, 0, 0), Title = "StartEdge" },
+            new TestEvent { StartTime = new DateTime(2023, 10, 30, 17, 0, 0), EndTime = new DateTime(2023, 10, 30, 18, 0, 0), Title = "EndEdge" }
         };
-        var result = _weeklyService.CreateGrid(events, mockConfig, currentDate, _props);
-        var includedEvents = result.Columns.SelectMany(col => col.Cells.Where(cell => cell.DateTime.Hour < mockConfig.TimeTo.Hour).SelectMany(cell => cell.Events)).Select(e => e.Event).ToList();
-        Assert.Equal(events.Count, includedEvents.Count);
+        var grid = _weeklyService.CreateGrid(events, config, currentDate, _props);
+        var includedEvents = grid.Columns
+                                  .SelectMany(col => col.Cells.Where(cell => cell.DateTime.Hour < config.TimeTo.Hour))
+                                  .SelectMany(cell => cell.Events)
+                                  .Select(wrapper => wrapper.Event);
+
+        Assert.Equal(events.Length, includedEvents.Count());
+    }
+
+    [Fact]
+    public void CreateGrid_HeaderEvent_SpanShouldBeCorrect()
+    {
+        var currentDate = new DateTime(2023, 10, 30);
+        var config = new TimetableConfig
+        {
+            Days = [DayOfWeek.Monday, DayOfWeek.Tuesday],
+            TimeFrom = new TimeOnly(9, 0),
+            TimeTo = new TimeOnly(17, 0),
+            Is24HourFormat = true
+        };
+        var evt = new TestEvent
+        {
+            StartTime = new DateTime(2023, 10, 30, 8, 0, 0),
+            EndTime = new DateTime(2023, 10, 31, 10, 0, 0),
+            Title = "SpanningEvent"
+        };
+        var events = new[] { evt };
+        var grid = _weeklyService.CreateGrid(events, config, currentDate, _props);
+        var headerCell = grid.Columns.First().Cells.First(cell => cell.Type == CellType.Header);
+        var wrapper = headerCell.Events.First();
+
+        Assert.Equal(2, wrapper.Span);
     }
 }

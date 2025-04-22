@@ -22,6 +22,7 @@ namespace Web.Components.Pages
                 CreateEvent("Chemistry Class", now.AddDays(8).AddHours(15), 2),
 
                 CreateEvent("Football Practice", now.AddDays(1).AddHours(16),152),
+                CreateEvent("Football Practice", now.AddDays(1).AddHours(16),72),
                 CreateEvent("Guitar Lesson", now.AddDays(-6).AddHours(2), 2),
                 CreateEvent("Yoga Session", now.AddDays(-3).AddHours(1), 1),
                 CreateEvent("Fuckup Session", now.AddDays(-3).AddHours(4), 2),

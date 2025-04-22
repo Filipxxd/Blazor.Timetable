@@ -16,7 +16,7 @@ public sealed class TimetableConfig
     /// <summary>
     /// Days shown in the timetable. Must be consecutive. First item treated as start of week day. Defaults to all days of the week.
     /// </summary>
-    public IEnumerable<DayOfWeek> Days { get; init; } = [
+    public IList<DayOfWeek> Days { get; init; } = [
         DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday,
         DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday
     ];
