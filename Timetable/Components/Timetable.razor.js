@@ -1,5 +1,4 @@
-﻿const timetableSelector = '.timetable-grid';
-const slotSelector = '.timetable-body-cell';
+﻿const slotSelector = '.timetable-body-cell';
 const eventSelector = '.movable-event';
 
 const eventArgument = 'data-event-id';
@@ -10,14 +9,6 @@ export const dragDrop = {
     init: function(objRef) {
         interact(eventSelector).draggable({
             inertia: false,
-
-            modifiers: [
-                interact.modifiers.restrict({
-                    restriction: timetableSelector,
-                    endOnly: true,
-                    elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
-                })
-            ],
 
             autoScroll: true,
 
