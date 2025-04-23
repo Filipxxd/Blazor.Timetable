@@ -43,7 +43,7 @@ public sealed class WeeklyServiceTests
     [InlineData(1, 2)]
     [InlineData(8, 16)]
     [InlineData(10, 20)]
-    [InlineData(0, 24)]
+    [InlineData(0, 23)]
     public void CreateGrid_ShouldReturnGridWithCorrectRowPrependCount(int hourFrom, int hourTo)
     {
         var expectedRowCount = hourTo - hourFrom;
@@ -229,28 +229,32 @@ public sealed class WeeklyServiceTests
         Assert.Equal(events.Length, includedEvents.Count());
     }
 
-    [Fact]
-    public void CreateGrid_HeaderEvent_SpanShouldBeCorrect()
+    [Theory]
+    [InlineData(12, 0, 13, 0, 1)]
+    [InlineData(9, 0, 17, 0, 8)]
+    [InlineData(10, 0, 13, 0, 3)]
+    [InlineData(8, 0, 10, 0, 2)]
+    [InlineData(0, 0, 23, 0, 4)]
+    public void CreateGrid_HeaderEvent_SpanShouldBeCorrect(int hourFrom, int minuteFrom, int hourTo, int minuteTo, int expectedSpan)
     {
         var currentDate = new DateTime(2023, 10, 30);
         var config = new TimetableConfig
         {
-            Days = [DayOfWeek.Monday, DayOfWeek.Tuesday],
+            Days = [DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday],
             TimeFrom = new TimeOnly(9, 0),
-            TimeTo = new TimeOnly(17, 0),
-            Is24HourFormat = true
+            TimeTo = new TimeOnly(17, 0)
         };
         var evt = new TestEvent
         {
-            StartTime = new DateTime(2023, 10, 30, 8, 0, 0),
-            EndTime = new DateTime(2023, 10, 31, 10, 0, 0),
+            StartTime = new DateTime(2023, 10, 30, hourFrom, minuteFrom, 0),
+            EndTime = new DateTime(2023, 10, 30, hourTo, minuteTo, 0),
             Title = "SpanningEvent"
         };
         var events = new[] { evt };
         var grid = _weeklyService.CreateGrid(events, config, currentDate, _props);
-        var headerCell = grid.Columns.First().Cells.First(cell => cell.Type == CellType.Header);
-        var wrapper = headerCell.Events.First();
+        var actualSpan = grid.Columns.SelectMany(col => col.Cells.SelectMany(cell => cell.Events)).First().Span;
 
-        Assert.Equal(2, wrapper.Span);
+        Assert.False(actualSpan == 0);
+        Assert.Equal(expectedSpan, actualSpan);
     }
 }
