@@ -2,17 +2,17 @@
 
 internal static class DateHelper
 {
-    public static DateTime GetStartOfWeekDate(DateTime currentDate, DayOfWeek firstDayOfWeek)
+    public static DateOnly GetStartOfWeekDate(DateOnly currentDate, DayOfWeek firstDayOfWeek)
     {
         var currentDayOfWeek = (int)currentDate.DayOfWeek;
         var targetDayOfWeek = (int)firstDayOfWeek;
 
         var diff = (7 + (currentDayOfWeek - targetDayOfWeek)) % 7;
 
-        return currentDate.AddDays(-diff).Date;
+        return currentDate.AddDays(-diff);
     }
 
-    public static DateTime GetDateForDay(DateTime currentDate, DayOfWeek targetDay, DayOfWeek firstDayOfWeek)
+    public static DateOnly GetDateForDay(DateOnly currentDate, DayOfWeek targetDay, DayOfWeek firstDayOfWeek)
     {
         var weekStartDate = GetStartOfWeekDate(currentDate, firstDayOfWeek);
 

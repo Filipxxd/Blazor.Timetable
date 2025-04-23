@@ -1,6 +1,6 @@
 ﻿<div class=@CssClass
-     data-slot-id=@SlotId?.ToString()
+     data-slot-id=@SlotId
      @onclick=HandleClick
-     style="grid-column: @(ColumnIndex); grid-row: @(RowIndex);">   
+     style="@GetGridStyle()">
     @ChildContent
 </div>

@@ -6,7 +6,7 @@
              CurrentDisplayType=@_timetableManager.DisplayType
              ExportConfig=@ExportConfig
              TimetableConfig=@TimetableConfig
-             OnCreateClicked=@(() => HandleOpenCreateModal(_timetableManager.CurrentDate))
+             OnCreateClicked=@(() => HandleOpenCreateModal(_timetableManager.CurrentDate.ToDateTimeMidnight()))
              OnDisplayTypeChanged=HandleDisplayTypeChanged />
 
     <div class="timetable">
@@ -20,27 +20,25 @@
         @{var isMonthView = _timetableManager.DisplayType == DisplayType.Month;}
 
         <div class="timetable-grid"
-                style="@(isMonthView
-                ? $"grid-auto-columns: 1fr; grid-template-rows: 40px; grid-auto-rows: 1fr;"
-                : $"grid-template-columns: 80px; grid-auto-columns: 1fr; grid-template-rows: 40px 80px; grid-auto-rows: 1fr;")">
+             style="@(isMonthView
+                    ? $"grid-auto-columns: 1fr; grid-template-rows: 40px; grid-auto-rows: 1fr;"
+                    : $"grid-template-columns: 80px; grid-auto-columns: 1fr; grid-template-rows: 40px 80px; grid-auto-rows: 1fr;")">
 
             @if (_timetableManager.Grid.HasRowTitles)
             {
-                for (var i = 1; i <= _timetableManager.Grid.RowTitles.Count + 1; i++)
-                {
-                    <GridItem CssClass="grid-border"
-                                RowIndex=@(i + 1)
-                                ColumnIndex=1 />
+                int rowSpan = 4;
 
-                    var index = i - 2;
-                    @if (index >= 0 && index < _timetableManager.Grid.RowTitles.Count)
-                    {
-                        <GridItem CssClass="timetable-row-title"
-                                    RowIndex=@(i + 1)
-                                    ColumnIndex=1>
-                            @_timetableManager.Grid.RowTitles[index]
-                        </GridItem>
-                    }
+                for (var i = 1; i <= _timetableManager.Grid.RowTitles.Count; i++)
+                {
+                    int startRow = i * rowSpan - 1;
+                    var title = _timetableManager.Grid.RowTitles[i - 1];
+                    <GridItem CssClass="timetable-row-title grid-border"
+                                RowIndex=@startRow
+                                ColumnIndex=1
+                                Direction=SpanDirection.Horizontal
+                                Span=@rowSpan>
+                        @title
+                    </GridItem>
                 }
             }
 

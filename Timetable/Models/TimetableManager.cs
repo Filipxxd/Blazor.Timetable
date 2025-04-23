@@ -8,10 +8,10 @@ internal sealed class TimetableManager<TEvent> where
     TEvent : class
 {
     public required CompiledProps<TEvent> Props { get; init; }
-    public IList<TEvent> Events { get; init; } = [];
+    public IList<TEvent> Events { get; set; } = [];
 
     public Grid<TEvent> Grid { get; set; } = default!;
-    public DateTime CurrentDate { get; set; }
+    public DateOnly CurrentDate { get; set; }
     public DisplayType DisplayType { get; set; }
 
     public void NextDate(TimetableConfig config)
@@ -71,7 +71,8 @@ internal sealed class TimetableManager<TEvent> where
 
         if (futureOnly)
         {
-            relatedEventsToUpdate = [.. relatedEventsToUpdate.Where(e => Props.GetDateFrom(e) > CurrentDate)];
+            // TODO
+            relatedEventsToUpdate = [.. relatedEventsToUpdate.Where(e => Props.GetDateFrom(e).ToDateOnly() >= CurrentDate)];
         }
 
         var updatedEvents = new List<TEvent> { timetableEvent.Event };

@@ -31,7 +31,7 @@
     min-height: 600px;
 }
 
-::deep .timetable-body-cell:hover {
+::deep .timetable-body-cell:not(.disabled):hover {
     background-color: #e0e0e0;
     cursor: pointer;
 }

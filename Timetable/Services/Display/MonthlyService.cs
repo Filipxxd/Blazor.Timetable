@@ -1,6 +1,5 @@
 ﻿using Timetable.Common.Enums;
 using Timetable.Common.Extensions;
-using Timetable.Common.Helpers;
 using Timetable.Configuration;
 using Timetable.Models;
 
@@ -13,7 +12,7 @@ internal sealed class MonthlyService : IDisplayService
     public Grid<TEvent> CreateGrid<TEvent>(
         IList<TEvent> events,
         TimetableConfig config,
-        DateTime currentDate,
+        DateOnly currentDate,
         CompiledProps<TEvent> props) where TEvent : class
     {
         var rows = CalculateMonthGridDates(currentDate, config.Days).ToList();
@@ -50,8 +49,8 @@ internal sealed class MonthlyService : IDisplayService
                 else
                 {
                     var cellEvents = events
-                        .Where(e => TimetableHelper.IsMonthValidEvent(e, props, cellDate, config))
-                        .Select(e => TimetableHelper.WrapEvent(e, props, isHeader: true))
+                        .Where(e => IsMonthValidEvent(e, props, cellDate))
+                        .Select(e => WrapEvent(e, props, isHeader: true))
                         .OrderByDescending(e => e.Span)
                         .ToList();
 
@@ -71,8 +70,34 @@ internal sealed class MonthlyService : IDisplayService
         };
     }
 
-    public static List<List<DateTime>> CalculateMonthGridDates(
-            DateTime currentDate,
+    private static bool IsMonthValidEvent<TEvent>(
+        TEvent e,
+        CompiledProps<TEvent> props,
+        DateTime cellDate) where TEvent : class
+    {
+        var dateFrom = props.GetDateFrom(e);
+        var dateTo = props.GetDateTo(e);
+        return (dateFrom.Date == cellDate.Date && dateTo.Date != dateFrom.Date) ||
+               (dateFrom.Date == cellDate.Date);
+    }
+
+    public static EventWrapper<TEvent> WrapEvent<TEvent>(
+        TEvent e,
+        CompiledProps<TEvent> props,
+        bool isHeader) where TEvent : class
+    {
+        return new EventWrapper<TEvent>
+        {
+            Props = props,
+            Event = e,
+            Span = isHeader
+                ? props.GetDateTo(e).Day - props.GetDateFrom(e).Day + 1
+                : (int)Math.Ceiling((props.GetDateTo(e) - props.GetDateFrom(e)).TotalHours)
+        };
+    }
+
+    private static List<List<DateTime>> CalculateMonthGridDates(
+            DateOnly currentDate,
             IEnumerable<DayOfWeek> configuredDays)
     {
         var orderedDays = configuredDays.ToList();
@@ -101,6 +126,7 @@ internal sealed class MonthlyService : IDisplayService
 
         return gridRows;
     }
+
     private static List<DateTime> CalculateRowDates(DateTime rowStart, IList<DayOfWeek> orderedDays)
     {
         var dates = new List<DateTime>();
@@ -111,7 +137,7 @@ internal sealed class MonthlyService : IDisplayService
         var previousDayValue = (int)orderedDays[0];
         foreach (var day in orderedDays.Skip(1))
         {
-            int diff = ((int)day - previousDayValue + 7) % 7;
+            var diff = ((int)day - previousDayValue + 7) % 7;
             diff = diff == 0 ? 7 : diff;
             current = current.AddDays(diff);
             dates.Add(current);

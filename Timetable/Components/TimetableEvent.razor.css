@@ -10,6 +10,7 @@
     touch-action: none;
     white-space: pre-wrap;
     overflow: hidden;
+    border: 1px solid #e0e0e0;
 }
 
 .timetable-event-pill:hover, .timetable-event-pill:active {

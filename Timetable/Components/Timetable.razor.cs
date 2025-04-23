@@ -2,6 +2,7 @@
 using Microsoft.JSInterop;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
+using Timetable.Common;
 using Timetable.Common.Enums;
 using Timetable.Common.Extensions;
 using Timetable.Common.Helpers;
@@ -83,15 +84,16 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         if (_firstRender)
         {
             _timetableManager.DisplayType = TimetableConfig.DefaultDisplayType;
-            _timetableManager.CurrentDate = DateTime.Now; // TODO: add option to provide custom via _firstRender prop;
+            _timetableManager.CurrentDate = DateTime.Now.ToDateOnly(); // TODO: add option to provide custom via _firstRender prop;
 
-            while (!_timetableManager.CurrentDate.IsValidDateTime(TimetableConfig.Days, TimetableConfig.Months))
+            while (!_timetableManager.CurrentDate.IsValidDate(TimetableConfig.Days, TimetableConfig.Months))
                 _timetableManager.CurrentDate = _timetableManager.CurrentDate.GetNextValidDate(TimetableConfig.Days, TimetableConfig.Months);
         }
 
         TimetableConfig.Validate();
         ExportConfig.Validate();
 
+        _timetableManager.Events = Events;
         _timetableManager.Grid = GenerateGrid();
     }
 
@@ -137,7 +139,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     {
         _timetableManager.DisplayType = displayType;
         // TODO: default via param
-        _timetableManager.CurrentDate = DateTime.Now;
+        _timetableManager.CurrentDate = DateTime.Now.ToDateOnly();
 
         await OnNextClicked.InvokeAsync();
     }
@@ -172,11 +174,14 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
     private void HandleOpenCreateModal(DateTime dateTime)
     {
+        if (_timetableManager.DisplayType == DisplayType.Month && dateTime.Month != _timetableManager.CurrentDate.Month)
+            return;
+
         var newEvent = Activator.CreateInstance<TEvent>();
 
         _eventProps.SetTitle(newEvent, string.Empty);
         _eventProps.SetDateFrom(newEvent, dateTime);
-        _eventProps.SetDateTo(newEvent, dateTime.AddHours(1));
+        _eventProps.SetDateTo(newEvent, dateTime.AddMinutes(TimetableConstants.TimeSlotInterval));
 
         var wrapper = new EventWrapper<TEvent>()
         {

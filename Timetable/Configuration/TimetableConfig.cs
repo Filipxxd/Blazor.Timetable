@@ -1,4 +1,5 @@
-﻿using Timetable.Common.Enums;
+﻿using Timetable.Common;
+using Timetable.Common.Enums;
 using Timetable.Common.Exceptions;
 
 namespace Timetable.Configuration;
@@ -53,10 +54,10 @@ public sealed class TimetableConfig
         if (TimeTo <= TimeFrom)
             throw new InvalidSetupException($"{nameof(TimeTo)} must be greater than ${nameof(TimeFrom)}.");
 
-        if (TimeFrom.Minute % 15 != 0)
+        if (TimeFrom.Minute % TimetableConstants.TimeSlotInterval != 0)
             throw new InvalidOperationException($"{nameof(TimeFrom)} must be a quarter-hour interval (0, 15, 30, 45 minutes).");
 
-        if (TimeTo.Minute % 15 != 0)
+        if (TimeTo.Minute % TimetableConstants.TimeSlotInterval != 0)
             throw new InvalidOperationException($"{nameof(TimeTo)} must be a quarter-hour interval (0, 15, 30, 45 minutes).");
 
         if (!DisplayTypes.Any())

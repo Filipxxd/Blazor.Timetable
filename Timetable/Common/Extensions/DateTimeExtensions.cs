@@ -4,12 +4,12 @@ namespace Timetable.Common.Extensions;
 
 internal static class DateTimeExtensions
 {
-    public static DateTime GetNextValidDate(this DateTime dateTime, IEnumerable<DayOfWeek> days, IEnumerable<Month> months)
+    public static DateOnly GetNextValidDate(this DateOnly date, IEnumerable<DayOfWeek> days, IEnumerable<Month> months)
     {
-        return GetValidDate(dateTime, DisplayType.Day, false, days, months);
+        return GetValidDate(date, DisplayType.Day, false, days, months);
     }
 
-    public static DateTime GetValidDate(this DateTime dateTime, DisplayType displayType, bool reverse, IEnumerable<DayOfWeek> days, IEnumerable<Month> months)
+    public static DateOnly GetValidDate(this DateOnly date, DisplayType displayType, bool reverse, IEnumerable<DayOfWeek> days, IEnumerable<Month> months)
     {
         int increment = reverse ? -1 : 1;
         int dayIncrement = (displayType == DisplayType.Week) ? 7 : 1;
@@ -18,18 +18,24 @@ internal static class DateTimeExtensions
         {
             do
             {
-                dateTime = dateTime.AddMonths(increment);
-            } while (!months.Contains((Month)dateTime.Month));
+                date = date.AddMonths(increment);
+            } while (!months.Contains((Month)date.Month));
         }
 
         do
         {
-            dateTime = dateTime.AddDays(dayIncrement * increment);
-        } while (!dateTime.IsValidDateTime(days, months));
+            date = date.AddDays(dayIncrement * increment);
+        } while (!date.IsValidDate(days, months));
 
-        return dateTime;
+        return date;
     }
 
-    public static bool IsValidDateTime(this DateTime dateTime, IEnumerable<DayOfWeek> days, IEnumerable<Month> months)
-        => days.Contains(dateTime.DayOfWeek) && months.Contains((Month)dateTime.Month);
+    public static bool IsValidDate(this DateOnly date, IEnumerable<DayOfWeek> days, IEnumerable<Month> months)
+        => days.Contains(date.DayOfWeek) && months.Contains((Month)date.Month);
+
+    public static DateTime ToDateTimeMidnight(this DateOnly dateOnly)
+        => new(dateOnly.Year, dateOnly.Month, dateOnly.Day, 0, 0, 0, DateTimeKind.Utc);
+
+    public static DateOnly ToDateOnly(this DateTime dateTime)
+        => new(dateTime.Year, dateTime.Month, dateTime.Day);
 }

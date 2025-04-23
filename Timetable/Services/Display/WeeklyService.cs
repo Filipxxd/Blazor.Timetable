@@ -1,4 +1,5 @@
-﻿using Timetable.Common.Enums;
+﻿using Timetable.Common;
+using Timetable.Common.Enums;
 using Timetable.Common.Extensions;
 using Timetable.Common.Helpers;
 using Timetable.Configuration;
@@ -13,7 +14,7 @@ internal sealed class WeeklyService : IDisplayService
     public Grid<TEvent> CreateGrid<TEvent>(
         IList<TEvent> events,
         TimetableConfig config,
-        DateTime currentDate,
+        DateOnly currentDate,
         CompiledProps<TEvent> props) where TEvent : class
     {
         var cellDates = CalculateGridDates(currentDate, config.Days);
@@ -29,19 +30,22 @@ internal sealed class WeeklyService : IDisplayService
             var cells = new List<Cell<TEvent>>
             {
                 new() {
-                    DateTime = cellDate,
+                    DateTime = cellDate.ToDateTimeMidnight(),
                     Type = CellType.Header,
                     RowIndex = 1,
                     Events = headerEvents
                 }
             };
 
-            var configHours = config.Hours.ToList();
-            for (var hourIndex = 0; hourIndex < configHours.Count; hourIndex++)
+            var timeSlots = GetTimeSlots(config.TimeFrom, config.TimeTo);
+
+            for (var i = 0; i < timeSlots.Count; i++)
             {
-                var hour = configHours[hourIndex];
-                var cellStartTime = cellDate.Date.AddHours(hour);
-                var cellEvents = events.Where(e => IsNormalCellEvent(e, cellDate, hour, config, props))
+                var timeSlot = timeSlots[i];
+
+                var cellStartTime = cellDate.ToDateTimeMidnight().AddHours(timeSlot.Hour).AddMinutes(timeSlot.Minute);
+
+                var cellEvents = events.Where(e => IsNormalCellEvent(e, cellDate, timeSlot, config, props))
                                        .Select(e => CreateNormalCellWrapper(e, config, props))
                                        .OrderByDescending(e => (e.DateTo - e.DateFrom).TotalHours).ToList();
 
@@ -49,7 +53,7 @@ internal sealed class WeeklyService : IDisplayService
                 {
                     DateTime = cellStartTime,
                     Type = CellType.Normal,
-                    RowIndex = hourIndex + 2,
+                    RowIndex = i + (timeSlot.Minute % TimetableConstants.TimeSlotInterval) + 2,
                     Events = cellEvents
                 });
             }
@@ -77,9 +81,9 @@ internal sealed class WeeklyService : IDisplayService
 
     private static bool IsHeaderEvent<TEvent>(
         TEvent e,
-        DateTime cellDate,
-        DateTime gridStart,
-        DateTime gridEndDate,
+        DateOnly cellDate,
+        DateOnly gridStart,
+        DateOnly gridEndDate,
         TimetableConfig config,
         CompiledProps<TEvent> props) where TEvent : class
     {
@@ -91,17 +95,17 @@ internal sealed class WeeklyService : IDisplayService
             (eventStart.Hour >= config.TimeTo.Hour && eventEnd.Hour >= config.TimeTo.Hour);
 
         var spansMultipleDays = eventStart.Day != eventEnd.Day;
-        var spansMultipleGrids = eventStart.Date < gridStart.Date;
+        var spansMultipleGrids = eventStart.ToDateOnly() < gridStart;
 
         var isFirstCellDateOfNewGrid =
             spansMultipleDays && spansMultipleGrids &&
-            cellDate.Date == gridStart.Date &&
-            eventStart.Date < gridStart.Date &&
-            eventEnd.Date <= gridEndDate.Date;
+            cellDate == gridStart &&
+            eventStart.ToDateOnly() < gridStart &&
+            eventEnd.ToDateOnly() <= gridEndDate;
 
-        var isFirstCellInNormalGrid = eventStart.Date == cellDate.Date;
+        var isFirstCellInNormalGrid = eventStart.ToDateOnly() == cellDate;
 
-        var isPastEndTime = (eventEnd.Hour == 0 && eventEnd.Minute == 0) || eventEnd <= gridStart; // TODO: Check seconds == 0?
+        var isPastEndTime = (eventEnd.Hour == 0 && eventEnd.Minute == 0) || eventEnd.ToDateOnly() <= gridStart;
 
         return (isFirstCellDateOfNewGrid && !isPastEndTime || isFirstCellInNormalGrid) &&
                (isOutsideDisplayedTimeRange || spansMultipleDays);
@@ -109,17 +113,17 @@ internal sealed class WeeklyService : IDisplayService
 
     private static EventWrapper<TEvent> CreateHeaderWrapper<TEvent>(
         TEvent e,
-        DateTime gridStart,
-        DateTime gridEndDate,
-        DateTime cellDate,
+        DateOnly gridStart,
+        DateOnly gridEndDate,
+        DateOnly cellDate,
         TimetableConfig config,
         CompiledProps<TEvent> props) where TEvent : class
     {
         var eventStart = props.GetDateFrom(e);
         var eventEnd = props.GetDateTo(e);
-        var overlapStart = eventStart > gridStart ? eventStart : gridStart;
-        var overlapEnd = eventEnd.Date < gridEndDate.Date.AddDays(1) ? eventEnd : gridEndDate.Date.AddDays(1);
-        var overlapDays = Math.Max((overlapEnd - overlapStart).Days + 1, 1);
+        var overlapStart = eventStart.ToDateOnly() > gridStart ? eventStart.ToDateOnly() : gridStart;
+        var overlapEnd = eventEnd.ToDateOnly() < gridEndDate.AddDays(1) ? eventEnd.ToDateOnly() : gridEndDate.AddDays(1);
+        var overlapDays = Math.Max((overlapEnd.Day - overlapStart.Day) + 1, 1);
         var currentDayIndex = config.Days.IndexOf(cellDate.DayOfWeek);
         var maxSpan = config.Days.Count - currentDayIndex;
 
@@ -133,19 +137,20 @@ internal sealed class WeeklyService : IDisplayService
 
     private static bool IsNormalCellEvent<TEvent>(
         TEvent e,
-        DateTime cellDate,
-        int hour,
+        DateOnly cellDate,
+        TimeOnly time,
         TimetableConfig config,
         CompiledProps<TEvent> props) where TEvent : class
     {
         var dateFrom = props.GetDateFrom(e);
         var dateTo = props.GetDateTo(e);
-        var isInTimeRange = dateFrom.Hour >= config.TimeFrom.Hour || dateTo.Hour <= config.TimeTo.Hour;
+
+        var isInTimeRange = dateFrom.Hour >= config.TimeFrom.Hour || (dateTo.Hour <= config.TimeTo.Hour && dateTo.Minute <= config.TimeTo.Minute);
         var isSameDay = dateFrom.Day == dateTo.Day;
-        var startHourMatches = dateFrom.Hour == hour;
+        var startMatches = dateFrom.Hour == time.Hour && dateFrom.Minute >= time.Minute && dateFrom.Minute < time.Minute + TimetableConstants.TimeSlotInterval;
         var isThisDay = dateFrom.Day == cellDate.Day;
 
-        return isInTimeRange && isSameDay && startHourMatches && isThisDay;
+        return isInTimeRange && isSameDay && startMatches && isThisDay;
     }
 
     private static EventWrapper<TEvent> CreateNormalCellWrapper<TEvent>(
@@ -155,21 +160,47 @@ internal sealed class WeeklyService : IDisplayService
     {
         var dateFrom = props.GetDateFrom(e);
         var dateTo = props.GetDateTo(e);
-        var toHour = dateTo.Hour > config.TimeTo.Hour ? config.TimeTo.Hour : dateTo.Hour;
+
+        var timeFrom = new TimeOnly(dateFrom.Hour, (dateFrom.Minute / TimetableConstants.TimeSlotInterval) * TimetableConstants.TimeSlotInterval);
+        var timeTo = new TimeOnly(dateTo.Hour, (dateTo.Minute / TimetableConstants.TimeSlotInterval) * TimetableConstants.TimeSlotInterval);
+        var span = 0;
+
+        while (timeFrom < config.TimeTo && timeFrom < timeTo)
+        {
+            timeFrom = timeFrom.AddMinutes(TimetableConstants.TimeSlotInterval);
+            span++;
+        }
 
         return new EventWrapper<TEvent>
         {
             Props = props,
             Event = e,
-            Span = toHour - dateFrom.Hour
+            Span = span
         };
     }
 
-    private static List<DateTime> CalculateGridDates(DateTime currentDate, IEnumerable<DayOfWeek> configuredDays)
+    private static List<TimeOnly> GetTimeSlots(TimeOnly start, TimeOnly end)
+    {
+        var timeSlots = new List<TimeOnly>();
+
+        var current = start;
+        while (current < end)
+        {
+            timeSlots.Add(current);
+            current = current.AddMinutes(TimetableConstants.TimeSlotInterval);
+
+            if (current > end)
+                break;
+        }
+
+        return timeSlots;
+    }
+
+    private static List<DateOnly> CalculateGridDates(DateOnly currentDate, IEnumerable<DayOfWeek> configuredDays)
     {
         var orderedDays = configuredDays.OrderBy(d => d);
         var startDate = DateHelper.GetStartOfWeekDate(currentDate, orderedDays.First());
-        var dates = new List<DateTime> { startDate };
+        var dates = new List<DateOnly> { startDate };
         var previousDate = startDate;
         var previousDayValue = (int)orderedDays.First();
 
