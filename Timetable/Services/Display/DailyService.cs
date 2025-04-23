@@ -42,9 +42,21 @@ internal sealed class DailyService : IDisplayService
 
             var cellDateTime = currentDate.ToDateTimeMidnight().AddHours(timeSlot.Hour).AddMinutes(timeSlot.Minute);
 
-            var cellEvents = events.Where(e => IsNormalCellEvent(e, cellDateTime, config, props))
-                                   .Select(e => CreateNormalCellWrapper(e, config, props))
-                                   .OrderByDescending(e => (e.DateTo - e.DateFrom).TotalHours).ToList();
+            var cellEvents = events.Where(e =>
+            {
+                var dateFrom = props.GetDateFrom(e);
+                var dateTo = props.GetDateTo(e);
+
+                var isInTimeRange = dateFrom.Hour >= config.TimeFrom.Hour || (dateTo.Hour <= config.TimeTo.Hour && dateTo.Minute <= config.TimeTo.Minute);
+                var isSameDay = dateFrom.Day == dateTo.Day;
+                var startMatches = dateFrom.Hour == cellDateTime.Hour && dateFrom.Minute == cellDateTime.Minute;
+                var isThisDay = dateFrom.Day == cellDateTime.Day;
+                var isFirstCell = timeSlot.Hour == config.TimeFrom.Hour && timeSlot.Minute == config.TimeFrom.Minute && timeSlot > new TimeOnly(dateFrom.Hour, dateFrom.Minute);
+
+                return isInTimeRange && isSameDay && (startMatches || isFirstCell) && isThisDay;
+            })
+            .Select(e => CreateNormalCellWrapper(e, config, props))
+            .OrderByDescending(e => (e.DateTo - e.DateFrom).TotalHours).ToList();
 
             cells.Add(new Cell<TEvent>
             {
@@ -101,23 +113,6 @@ internal sealed class DailyService : IDisplayService
 
         return (isFirstCellDateOfNewGrid && !isPastEndTime || isFirstCellInNormalGrid) &&
                (isOutsideDisplayedTimeRange || spansMultipleDays);
-    }
-
-    private static bool IsNormalCellEvent<TEvent>(
-        TEvent e,
-        DateTime cellDateTime,
-        TimetableConfig config,
-        CompiledProps<TEvent> props) where TEvent : class
-    {
-        var dateFrom = props.GetDateFrom(e);
-        var dateTo = props.GetDateTo(e);
-
-        var isInTimeRange = dateFrom.Hour >= config.TimeFrom.Hour || (dateTo.Hour <= config.TimeTo.Hour && dateTo.Minute <= config.TimeTo.Minute);
-        var isSameDay = dateFrom.Day == dateTo.Day;
-        var startMatches = dateFrom.Hour == cellDateTime.Hour && dateFrom.Minute == cellDateTime.Minute;
-        var isThisDay = dateFrom.Day == cellDateTime.Day;
-
-        return isInTimeRange && isSameDay && startMatches && isThisDay;
     }
 
     private static EventWrapper<TEvent> CreateNormalCellWrapper<TEvent>(

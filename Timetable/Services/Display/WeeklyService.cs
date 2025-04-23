@@ -45,9 +45,21 @@ internal sealed class WeeklyService : IDisplayService
 
                 var cellStartTime = cellDate.ToDateTimeMidnight().AddHours(timeSlot.Hour).AddMinutes(timeSlot.Minute);
 
-                var cellEvents = events.Where(e => IsNormalCellEvent(e, cellDate, timeSlot, config, props))
-                                       .Select(e => CreateNormalCellWrapper(e, config, props))
-                                       .OrderByDescending(e => (e.DateTo - e.DateFrom).TotalHours).ToList();
+                var cellEvents = events.Where(e =>
+                {
+                    var dateFrom = props.GetDateFrom(e);
+                    var dateTo = props.GetDateTo(e);
+
+                    var isInTimeRange = dateFrom.Hour >= config.TimeFrom.Hour || (dateTo.Hour <= config.TimeTo.Hour && dateTo.Minute <= config.TimeTo.Minute);
+                    var isSameDay = dateFrom.Day == dateTo.Day;
+                    var startMatches = dateFrom.Hour == timeSlot.Hour && dateFrom.Minute >= timeSlot.Minute && dateFrom.Minute < timeSlot.Minute + TimetableConstants.TimeSlotInterval;
+                    var isThisDay = dateFrom.Day == cellDate.Day;
+                    var isFirstCell = timeSlot.Hour == config.TimeFrom.Hour && timeSlot.Minute == config.TimeFrom.Minute && timeSlot > new TimeOnly(dateFrom.Hour, dateFrom.Minute);
+
+                    return isInTimeRange && isSameDay && isThisDay && (startMatches || isFirstCell);
+                })
+                .Select(e => CreateNormalCellWrapper(e, config, props))
+                .OrderByDescending(e => (e.DateTo - e.DateFrom).TotalHours).ToList();
 
                 cells.Add(new Cell<TEvent>
                 {
@@ -133,24 +145,6 @@ internal sealed class WeeklyService : IDisplayService
             Event = e,
             Span = Math.Min(overlapDays, maxSpan)
         };
-    }
-
-    private static bool IsNormalCellEvent<TEvent>(
-        TEvent e,
-        DateOnly cellDate,
-        TimeOnly time,
-        TimetableConfig config,
-        CompiledProps<TEvent> props) where TEvent : class
-    {
-        var dateFrom = props.GetDateFrom(e);
-        var dateTo = props.GetDateTo(e);
-
-        var isInTimeRange = dateFrom.Hour >= config.TimeFrom.Hour || (dateTo.Hour <= config.TimeTo.Hour && dateTo.Minute <= config.TimeTo.Minute);
-        var isSameDay = dateFrom.Day == dateTo.Day;
-        var startMatches = dateFrom.Hour == time.Hour && dateFrom.Minute >= time.Minute && dateFrom.Minute < time.Minute + TimetableConstants.TimeSlotInterval;
-        var isThisDay = dateFrom.Day == cellDate.Day;
-
-        return isInTimeRange && isSameDay && startMatches && isThisDay;
     }
 
     private static EventWrapper<TEvent> CreateNormalCellWrapper<TEvent>(

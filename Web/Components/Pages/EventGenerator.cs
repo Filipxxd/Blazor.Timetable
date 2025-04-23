@@ -23,7 +23,7 @@ public sealed class EventGenerator
 
             CreateEvent("Football Practice", now.AddDays(1).AddHours(16),152),
             CreateEvent("Football Practice", now.AddDays(1).AddHours(16),72),
-            CreateEvent("Guitar Lesson", now.AddDays(-6).AddHours(2),1),
+            CreateEvent("Guitar Lesson", now.AddDays(-6).AddHours(1),2),
             CreateEvent("Yoga Session", now.AddDays(-3).AddHours(1), 1),
             CreateEvent("Drums Session", now.AddDays(-3).AddHours(4), 1),
             CreateEvent("Other Session", now.AddDays(-3).AddHours(7), 2),
