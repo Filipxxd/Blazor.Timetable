@@ -16,6 +16,8 @@ internal sealed class MonthlyService : IDisplayService
         CompiledProps<TEvent> props) where TEvent : class
     {
         var rows = CalculateMonthGridDates(currentDate, config.Days).ToList();
+        var gridStartDate = rows.First().First();
+        var gridEndDate = rows.Last().Last();
 
         var columnsCount = rows.First().Count;
 
@@ -36,7 +38,7 @@ internal sealed class MonthlyService : IDisplayService
 
                 var cell = new Cell<TEvent>
                 {
-                    DateTime = cellDate,
+                    DateTime = cellDate.ToDateTimeMidnight(),
                     Title = $"{cellDate:dd}",
                     Type = CellType.Normal,
                     RowIndex = row + 1,
@@ -49,8 +51,32 @@ internal sealed class MonthlyService : IDisplayService
                 else
                 {
                     var cellEvents = events
-                        .Where(e => IsMonthValidEvent(e, props, cellDate))
-                        .Select(e => WrapEvent(e, props, isHeader: true))
+                        .Where(e =>
+                        {
+                            var dateFrom = props.GetDateFrom(e);
+                            var dateTo = props.GetDateTo(e);
+
+                            var isFirstGridCell = cellDate == gridStartDate; // TODO per row
+
+                            return dateFrom.ToDateOnly() == cellDate || ((dateFrom.Month == cellDate.Month || dateTo.Month == cellDate.Month) && isFirstGridCell);
+                        })
+                        .Select(e =>
+                        {
+                            var eventStart = props.GetDateFrom(e);
+                            var eventEnd = props.GetDateTo(e);
+                            var overlapStart = eventStart.ToDateOnly() >= cellDate ? eventStart.ToDateOnly() : gridStartDate;
+                            var overlapEnd = eventEnd.ToDateOnly() < gridEndDate ? eventEnd.ToDateOnly() : gridEndDate;
+                            var overlapDays = (int)Math.Max((overlapEnd.ToDateTimeMidnight() - overlapStart.ToDateTimeMidnight()).TotalDays + 1, 1);
+                            var currentDayIndex = config.Days.IndexOf(cellDate.DayOfWeek);
+                            var maxSpan = config.Days.Count - currentDayIndex - (overlapStart.Month != overlapEnd.Month ? overlapEnd.Day + 1 : 0);
+
+                            return new EventWrapper<TEvent>
+                            {
+                                Props = props,
+                                Event = e,
+                                Span = Math.Min(overlapDays, maxSpan)
+                            };
+                        })
                         .OrderByDescending(e => e.Span)
                         .ToList();
 
@@ -70,52 +96,22 @@ internal sealed class MonthlyService : IDisplayService
         };
     }
 
-    private static bool IsMonthValidEvent<TEvent>(
-        TEvent e,
-        CompiledProps<TEvent> props,
-        DateTime cellDate) where TEvent : class
-    {
-        var dateFrom = props.GetDateFrom(e);
-        var dateTo = props.GetDateTo(e);
-        return (dateFrom.Date == cellDate.Date && dateTo.Date != dateFrom.Date) ||
-               (dateFrom.Date == cellDate.Date);
-    }
-
-    public static EventWrapper<TEvent> WrapEvent<TEvent>(
-        TEvent e,
-        CompiledProps<TEvent> props,
-        bool isHeader) where TEvent : class
-    {
-        return new EventWrapper<TEvent>
-        {
-            Props = props,
-            Event = e,
-            Span = isHeader
-                ? props.GetDateTo(e).Day - props.GetDateFrom(e).Day + 1
-                : (int)Math.Ceiling((props.GetDateTo(e) - props.GetDateFrom(e)).TotalHours)
-        };
-    }
-
-    private static List<List<DateTime>> CalculateMonthGridDates(
+    private static List<List<DateOnly>> CalculateMonthGridDates(
             DateOnly currentDate,
-            IEnumerable<DayOfWeek> configuredDays)
+            IList<DayOfWeek> configuredDays)
     {
-        var orderedDays = configuredDays.ToList();
-        if (orderedDays.Count == 0)
-            throw new InvalidOperationException("Configured days cannot be empty.");
-
-        var firstOfMonth = new DateTime(currentDate.Year, currentDate.Month, 1);
+        var firstOfMonth = new DateOnly(currentDate.Year, currentDate.Month, 1);
         var lastOfMonth = firstOfMonth.AddMonths(1).AddDays(-1);
 
-        var gridStartDay = orderedDays.First();
+        var gridStartDay = configuredDays.First();
         var diff = (7 + ((int)firstOfMonth.DayOfWeek - (int)gridStartDay)) % 7;
         var gridStart = firstOfMonth.AddDays(-diff);
 
-        var gridRows = new List<List<DateTime>>();
+        var gridRows = new List<List<DateOnly>>();
 
         while (true)
         {
-            var row = CalculateRowDates(gridStart, orderedDays);
+            var row = CalculateRowDates(gridStart, configuredDays);
 
             gridRows.Add(row);
             if (row.Last() >= lastOfMonth)
@@ -127,20 +123,20 @@ internal sealed class MonthlyService : IDisplayService
         return gridRows;
     }
 
-    private static List<DateTime> CalculateRowDates(DateTime rowStart, IList<DayOfWeek> orderedDays)
+    private static List<DateOnly> CalculateRowDates(DateOnly date, IList<DayOfWeek> orderedDays)
     {
-        var dates = new List<DateTime>();
-        var current = rowStart.Date;
-
-        dates.Add(current);
+        var dates = new List<DateOnly>
+        {
+            date
+        };
 
         var previousDayValue = (int)orderedDays[0];
         foreach (var day in orderedDays.Skip(1))
         {
             var diff = ((int)day - previousDayValue + 7) % 7;
             diff = diff == 0 ? 7 : diff;
-            current = current.AddDays(diff);
-            dates.Add(current);
+            date = date.AddDays(diff);
+            dates.Add(date);
             previousDayValue = (int)day;
         }
 

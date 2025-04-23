@@ -123,7 +123,7 @@ internal sealed class WeeklyService : IDisplayService
         var eventEnd = props.GetDateTo(e);
         var overlapStart = eventStart.ToDateOnly() > gridStart ? eventStart.ToDateOnly() : gridStart;
         var overlapEnd = eventEnd.ToDateOnly() < gridEndDate.AddDays(1) ? eventEnd.ToDateOnly() : gridEndDate.AddDays(1);
-        var overlapDays = Math.Max((overlapEnd.Day - overlapStart.Day) + 1, 1);
+        var overlapDays = (int)Math.Max((overlapEnd.ToDateTimeMidnight() - overlapStart.ToDateTimeMidnight()).TotalDays + 1, 1);
         var currentDayIndex = config.Days.IndexOf(cellDate.DayOfWeek);
         var maxSpan = config.Days.Count - currentDayIndex;
 

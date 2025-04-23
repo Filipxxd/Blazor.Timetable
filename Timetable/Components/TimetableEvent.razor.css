@@ -10,17 +10,17 @@
     touch-action: none;
     white-space: pre-wrap;
     overflow: hidden;
-    border: 1px solid #e0e0e0;
+    border: 1.5px solid #e0e0e0;
 }
 
 .timetable-event-pill:hover, .timetable-event-pill:active {
     z-index: 3;
-    border: 2px solid blue;
+    border: 1.5px solid blue;
 }
 
 .timetable-event-title {
-    margin: .6em 0 0 .6em;
-    font-size: .7em;
+    margin: .2em 0 0 .6em;
+    font-size: .75em;
     color: #fff;
 }
 

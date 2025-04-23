@@ -68,11 +68,11 @@
                 {                            
                     foreach (var cellEvent in cell.Events)
                     {
-                        @*TODO month span*@
                         <TimetableEvent EventId=@cellEvent.Id
                                         Title=@cellEvent.Title
                                         Order=@cell.Events.IndexOf(cellEvent)
                                         IsHeaderEvent=@(cell.Type == CellType.Header)
+                                        Direction=@(_timetableManager.DisplayType == DisplayType.Month ? SpanDirection.Horizontal : null)
                                         Offset=@cell.Events.Count
                                         Span=@cellEvent.Span
                                         DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
