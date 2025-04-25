@@ -27,6 +27,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter, EditorRequired] public Expression<Func<TEvent, string>> Title { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, object?>> GroupId { get; set; } = default!;
     [Parameter] public TimetableConfig TimetableConfig { get; set; } = new();
+    [Parameter] public StyleConfig StyleConfig { get; set; } = new();
     [Parameter] public ExportConfig<TEvent> ExportConfig { get; set; } = default!;
 
     #region State Change

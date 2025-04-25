@@ -75,6 +75,7 @@
                                         Direction=@(_timetableManager.DisplayType == DisplayType.Month ? SpanDirection.Horizontal : null)
                                         Offset=@cell.Events.Count
                                         Span=@cellEvent.Span
+                                        BackgroundColor=@(cell.Type == CellType.Header ? StyleConfig.HeaderEventBgColor : StyleConfig.RegularEventBgColor)
                                         DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
                                         EditTemplate=@(builder => EditTemplate(cellEvent.Event)(builder))
                                         ColumnIndex=@(isMonthView ? column.Index - 1 : column.Index)

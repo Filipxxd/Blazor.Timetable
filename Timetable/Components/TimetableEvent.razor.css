@@ -1,5 +1,4 @@
 ﻿.timetable-event-pill {
-    background-color: #67b6ff;
     border-radius: 0.5rem;
     position: relative;
     z-index: 2;
@@ -22,8 +21,4 @@
     margin: .2em 0 0 .6em;
     font-size: .75em;
     color: #fff;
-}
-
-.whole-day-event {
-    background-color: #ff9966;
 }

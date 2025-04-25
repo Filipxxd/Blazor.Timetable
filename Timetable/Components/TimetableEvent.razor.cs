@@ -15,6 +15,7 @@ public partial class TimetableEvent
 
     [Parameter] public Guid EventId { get; set; }
     [Parameter] public string Title { get; set; } = default!;
+    [Parameter] public string BackgroundColor { get; set; } = default!;
     [Parameter] public int Span { get; set; }
     [Parameter] public bool IsHeaderEvent { get; set; }
     [Parameter] public SpanDirection? Direction { get; set; }
@@ -46,16 +47,17 @@ public partial class TimetableEvent
     {
         get
         {
+            string gridSetup;
             if (Direction.HasValue)
-                return Direction.Value == SpanDirection.Horizontal
+                gridSetup = Direction.Value == SpanDirection.Horizontal
+                    ? $"grid-row-start: {Order + 1};"
+                    : $"grid-column-start: {Order + 1};";
+            else
+                gridSetup = IsHeaderEvent
                     ? $"grid-row-start: {Order + 1};"
                     : $"grid-column-start: {Order + 1};";
 
-
-
-            return IsHeaderEvent
-                ? $"grid-row-start: {Order + 1};"
-                : $"grid-column-start: {Order + 1};";
+            return $"background-color: {BackgroundColor}; {gridSetup}";
         }
     }
 
