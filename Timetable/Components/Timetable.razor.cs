@@ -113,12 +113,12 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     public async Task MoveEvent(Guid eventId, Guid targetCellId)
     {
         var timetableEvent = _timetableManager.MoveEvent(eventId, targetCellId);
-        if (timetableEvent is null)
+        if (timetableEvent is not null)
         {
-            return;
+            await OnEventUpdated.InvokeAsync(timetableEvent);
         }
 
-        await OnEventUpdated.InvokeAsync(timetableEvent);
+        //_timetableManager.Grid = GenerateGrid();
         StateHasChanged();
     }
 

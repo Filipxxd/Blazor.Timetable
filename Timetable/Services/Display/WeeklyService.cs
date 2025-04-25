@@ -39,10 +39,15 @@ internal sealed class WeeklyService : IDisplayService
                 var isOutOfTimeRange = timeStart < config.TimeFrom && timeEnd <= config.TimeFrom;
                 var isMultiDay = eventStart.Day != eventEnd.Day;
 
-                var startsInPreviousView = isMultiDay && dateStart < currentDate && dateEnd <= currentDate;
+                var startsInPreviousView = isMultiDay && dateStart < currentDate && dateEnd <= currentDate && dateStart < gridStart;
                 var startsInthisCell = dateStart == cellDate;
 
                 var isInThisCell = eventEnd > cellDate.ToDateTimeMidnight();
+
+                if (props.GetTitle(e).StartsWith("Foot"))
+                {
+
+                }
 
                 return ((isOutOfTimeRange || isMultiDay) && startsInthisCell) || (isMultiDay && startsInPreviousView && isGridFirstCell && isInThisCell);
             })

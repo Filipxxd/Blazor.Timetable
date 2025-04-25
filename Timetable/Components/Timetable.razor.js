@@ -84,22 +84,18 @@ function resetPosition(element) {
 function findClosestSlot(draggedElement) {
     const slots = document.querySelectorAll(slotSelector);
     const draggedRect = draggedElement.getBoundingClientRect();
-
-    const draggedCenterX = draggedRect.left + draggedRect.width / 2;
-    const draggedCenterY = draggedRect.top;
-
+    const draggedTopLeftX = draggedRect.left;
+    const draggedTopLeftY = draggedRect.top;
     let closestSlot = null;
     let closestDistance = Infinity;
 
     slots.forEach(slot => {
         const slotRect = slot.getBoundingClientRect();
-
-        const slotCenterX = slotRect.left + slotRect.width / 2;
-        const slotCenterY = slotRect.top;
-
+        const slotTopLeftX = slotRect.left;
+        const slotTopLeftY = slotRect.top;
         const distance = Math.sqrt(
-            Math.pow(draggedCenterX - slotCenterX, 2) +
-            Math.pow(draggedCenterY - slotCenterY, 2)
+            Math.pow(draggedTopLeftX - slotTopLeftX, 2) +
+            Math.pow(draggedTopLeftY - slotTopLeftY, 2)
         );
 
         if (distance < closestDistance) {

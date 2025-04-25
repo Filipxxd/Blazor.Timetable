@@ -16,7 +16,6 @@ internal sealed class DailyService : IDisplayService
         DateOnly currentDate,
         CompiledProps<TEvent> props) where TEvent : class
     {
-        // TODO: test all variations of date & time, also then test with day events also
         var headerEvents = events.Where(e =>
         {
             var eventStart = props.GetDateFrom(e);
@@ -31,8 +30,7 @@ internal sealed class DailyService : IDisplayService
             var isOutOfTimeRange = timeStart < config.TimeFrom && timeEnd <= config.TimeFrom;
             var isMultiDay = eventStart.Day != eventEnd.Day;
 
-            var startsInPreviousView = isMultiDay && dateStart < currentDate && dateEnd <= currentDate;
-
+            var startsInPreviousView = isMultiDay && dateStart < currentDate;
             var startsInthisCell = dateStart == currentDate;
 
             return (startsInPreviousView || startsInthisCell) &&
@@ -42,7 +40,7 @@ internal sealed class DailyService : IDisplayService
             Props = props,
             Event = e,
             Span = 1
-        }).OrderByDescending(e => (e.DateTo - e.DateFrom).TotalHours).ToList(); // todo: test ordering by duration
+        }).OrderByDescending(e => (e.DateTo - e.DateFrom).TotalHours).ToList();
 
         var cells = new List<Cell<TEvent>>
         {

@@ -27,22 +27,43 @@ internal sealed class TimetableManager<TEvent> where
     public TEvent? MoveEvent(Guid eventId, Guid targetCellId)
     {
         var currentCell = FindCellByEventId(eventId);
-        if (currentCell is null) return null;
+        if (currentCell is null)
+            return null;
 
         var timetableEvent = currentCell.Events.FirstOrDefault(e => e.Id == eventId);
-        if (timetableEvent is null) return null;
+        if (timetableEvent is null)
+            return null;
 
         var targetCell = FindCellById(targetCellId);
-        if (targetCell is null || targetCell.Type != CellType.Normal) return null;
+        if (targetCell is null)
+            return null;
 
-        var duration = timetableEvent.DateTo - timetableEvent.DateFrom;
-        var newEndDate = targetCell.DateTime.Add(duration);
+        if (currentCell.Type != targetCell.Type || targetCell.Type == CellType.Disabled)
+            return null;
 
-        timetableEvent.DateFrom = targetCell.DateTime;
-        timetableEvent.DateTo = newEndDate;
+        if (currentCell.Type == CellType.Normal)
+        {
+            var duration = timetableEvent.DateTo - timetableEvent.DateFrom;
+            var newEndDate = targetCell.DateTime.Add(duration);
 
-        currentCell.Events.Remove(timetableEvent);
-        targetCell.Events.Add(timetableEvent);
+            timetableEvent.DateFrom = targetCell.DateTime;
+            timetableEvent.DateTo = newEndDate;
+
+            currentCell.Events.Remove(timetableEvent);
+            targetCell.Events.Add(timetableEvent);
+        }
+        else
+        {
+            var duration = timetableEvent.DateTo - timetableEvent.DateFrom;
+            var originalFrom = timetableEvent.DateFrom;
+            var newStartDate = new DateTime(targetCell.DateTime.Year, targetCell.DateTime.Month, targetCell.DateTime.Day, originalFrom.Hour, originalFrom.Minute, originalFrom.Second);
+            var newEndDate = newStartDate.Add(duration);
+
+            timetableEvent.DateFrom = newStartDate;
+            timetableEvent.DateTo = newEndDate;
+            currentCell.Events.Remove(timetableEvent);
+            targetCell.Events.Add(timetableEvent);
+        }
 
         return timetableEvent.Event;
     }
@@ -101,13 +122,13 @@ internal sealed class TimetableManager<TEvent> where
 
     private Cell<TEvent>? FindCellByEventId(Guid eventId)
     {
-        return Grid.Columns.SelectMany(col => col.Cells.Where(cell => cell.Type != CellType.Header))
+        return Grid.Columns.SelectMany(col => col.Cells)
                            .FirstOrDefault(cell => cell.Events.Any(e => e.Id == eventId));
     }
 
     private Cell<TEvent>? FindCellById(Guid cellId)
     {
-        return Grid.Columns.SelectMany(col => col.Cells.Where(cell => cell.Type != CellType.Header))
+        return Grid.Columns.SelectMany(col => col.Cells)
                            .FirstOrDefault(cell => cell.Id == cellId);
     }
 }
