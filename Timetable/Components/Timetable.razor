@@ -26,12 +26,12 @@
 
             @if (_timetableManager.Grid.HasRowTitles)
             {
-                int rowSpan = 4;
+                var rowSpan = 4;
 
-                for (var i = 1; i <= _timetableManager.Grid.RowTitles.Count; i++)
+                for (var i = 1; i <= _timetableManager.Grid.RowTitles.Count(); i++)
                 {
-                    int startRow = i * rowSpan - 1;
-                    var title = _timetableManager.Grid.RowTitles[i - 1];
+                    var startRow = i * rowSpan - 1;
+                    var title = _timetableManager.Grid.RowTitles.ElementAt(i - 1);
                     <GridItem CssClass="timetable-row-title grid-border"
                                 RowIndex=@startRow
                                 ColumnIndex=1

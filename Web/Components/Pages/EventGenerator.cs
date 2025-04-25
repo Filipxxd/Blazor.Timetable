@@ -14,7 +14,7 @@ public sealed class EventGenerator
             CreateEvent("Math Class", now.AddDays(-10).AddHours(9), 1),
             CreateEvent("Science Class", now.AddDays(-8).AddHours(14), 2),
 
-            CreateEvent("History Class", now.AddDays(-1).Date, 48),
+            CreateEvent("History Class", now.AddDays(-1).Date, 49),
             CreateEvent("Art Class", now.AddHours(3), 2),
 
             CreateEvent("English Class", now.AddDays(3).AddHours(11), 25),
@@ -34,6 +34,13 @@ public sealed class EventGenerator
                 Title = "test lesson",
                 StartTime = now.AddDays(-6).AddHours(2),
                 EndTime = now.AddDays(-6).AddHours(2).AddMinutes(15),
+                Description = "Hardcoded event"
+            },
+            new() {
+                Id = _currentEventId++,
+                Title = "HHHHH lesson",
+                StartTime = now.AddDays(-1).Date,
+                EndTime = now.AddDays(6).Date.AddMinutes(1),
                 Description = "Hardcoded event"
             }
         };

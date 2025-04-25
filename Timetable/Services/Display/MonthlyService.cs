@@ -74,7 +74,7 @@ internal sealed class MonthlyService : IDisplayService
                             {
                                 Props = props,
                                 Event = e,
-                                Span = Math.Min(overlapDays, maxSpan)
+                                Span = Math.Min(overlapDays, maxSpan + 1)
                             };
                         })
                         .OrderByDescending(e => e.Span)

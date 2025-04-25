@@ -16,13 +16,33 @@ internal sealed class DailyService : IDisplayService
         DateOnly currentDate,
         CompiledProps<TEvent> props) where TEvent : class
     {
-        var headerEvents = events.Where(e => IsHeaderEvent(e, currentDate, config, props))
-                                             .Select(e => new EventWrapper<TEvent>
-                                             {
-                                                 Props = props,
-                                                 Event = e,
-                                                 Span = 1
-                                             }).OrderByDescending(e => (e.DateTo - e.DateFrom).TotalHours).ToList();
+        // TODO: test all variations of date & time, also then test with day events also
+        var headerEvents = events.Where(e =>
+        {
+            var eventStart = props.GetDateFrom(e);
+            var eventEnd = props.GetDateTo(e);
+
+            var timeStart = new TimeOnly(eventStart.Hour, eventStart.Minute);
+            var timeEnd = new TimeOnly(eventEnd.Hour, eventEnd.Minute);
+
+            var dateStart = eventStart.ToDateOnly();
+            var dateEnd = eventEnd.ToDateOnly();
+
+            var isOutOfTimeRange = timeStart < config.TimeFrom && timeEnd <= config.TimeFrom;
+            var isMultiDay = eventStart.Day != eventEnd.Day;
+
+            var startsInPreviousView = isMultiDay && dateStart < currentDate && dateEnd <= currentDate;
+
+            var startsInthisCell = dateStart == currentDate;
+
+            return (startsInPreviousView || startsInthisCell) &&
+                   (isOutOfTimeRange || isMultiDay);
+        }).Select(e => new EventWrapper<TEvent>
+        {
+            Props = props,
+            Event = e,
+            Span = 1
+        }).OrderByDescending(e => (e.DateTo - e.DateFrom).TotalHours).ToList(); // todo: test ordering by duration
 
         var cells = new List<Cell<TEvent>>
         {
@@ -42,21 +62,32 @@ internal sealed class DailyService : IDisplayService
 
             var cellDateTime = currentDate.ToDateTimeMidnight().AddHours(timeSlot.Hour).AddMinutes(timeSlot.Minute);
 
+            // TODO: test all variations of date & time, also then test with header events also
             var cellEvents = events.Where(e =>
             {
-                var dateFrom = props.GetDateFrom(e);
-                var dateTo = props.GetDateTo(e);
+                var eventStart = props.GetDateFrom(e);
+                var eventEnd = props.GetDateTo(e);
 
-                var isInTimeRange = dateFrom.Hour >= config.TimeFrom.Hour || (dateTo.Hour <= config.TimeTo.Hour && dateTo.Minute <= config.TimeTo.Minute);
-                var isSameDay = dateFrom.Day == dateTo.Day;
-                var startMatches = dateFrom.Hour == cellDateTime.Hour && dateFrom.Minute == cellDateTime.Minute;
-                var isThisDay = dateFrom.Day == cellDateTime.Day;
-                var isFirstCell = timeSlot.Hour == config.TimeFrom.Hour && timeSlot.Minute == config.TimeFrom.Minute && timeSlot > new TimeOnly(dateFrom.Hour, dateFrom.Minute);
+                var timeStart = new TimeOnly(eventStart.Hour, eventStart.Minute);
+                var timeEnd = new TimeOnly(eventEnd.Hour, eventEnd.Minute);
 
-                return isInTimeRange && isSameDay && (startMatches || isFirstCell) && isThisDay;
+                var dateStart = eventStart.ToDateOnly();
+                var dateEnd = eventEnd.ToDateOnly();
+
+                var isInTimeRange = timeStart >= config.TimeFrom && timeEnd <= config.TimeTo;
+                var isSameDay = dateStart.Day == dateStart.Day;
+                var fitsCellDateTime = timeStart.Hour == cellDateTime.Hour && timeStart.Minute == cellDateTime.Minute && dateStart.Day == cellDateTime.Day;
+
+                return isInTimeRange && isSameDay && fitsCellDateTime;
             })
-            .Select(e => CreateNormalCellWrapper(e, config, props))
-            .OrderByDescending(e => (e.DateTo - e.DateFrom).TotalHours).ToList();
+            .Select(e =>
+                   new EventWrapper<TEvent>
+                   {
+                       Props = props,
+                       Event = e,
+                       Span = GetEventSpan(e, config, props)
+                   }
+            ).OrderByDescending(e => (e.DateTo - e.DateFrom).TotalHours).ToList();  // todo: test ordering by duration
 
             cells.Add(new Cell<TEvent>
             {
@@ -76,8 +107,8 @@ internal sealed class DailyService : IDisplayService
 
         var rowTitles = config.Hours.Select(hour =>
             config.Is24HourFormat
-                ? TimeSpan.FromHours(hour).ToString(@"hh\:mm")
-                : DateTime.Today.AddHours(hour).ToString("h tt")).ToList();
+                ? $"{hour}:00"
+                : $"{hour % 12} {(hour / 12 < 1 ? "AM" : "PM")}");
 
         return new Grid<TEvent>
         {
@@ -87,61 +118,29 @@ internal sealed class DailyService : IDisplayService
         };
     }
 
-    private static bool IsHeaderEvent<TEvent>(
+    private static int GetEventSpan<TEvent>(
         TEvent e,
-        DateOnly cellDate,
         TimetableConfig config,
         CompiledProps<TEvent> props) where TEvent : class
     {
         var eventStart = props.GetDateFrom(e);
         var eventEnd = props.GetDateTo(e);
 
-        var isOutsideDisplayedTimeRange =
-            (eventStart.Hour <= config.TimeFrom.Hour && eventEnd.Hour <= config.TimeFrom.Hour) ||
-            (eventStart.Hour >= config.TimeTo.Hour && eventEnd.Hour >= config.TimeTo.Hour);
+        var timeStart = new TimeOnly(eventStart.Hour, eventStart.Minute);
+        var timeEnd = new TimeOnly(eventEnd.Hour, eventEnd.Minute);
 
-        var spansMultipleDays = eventStart.Day != eventEnd.Day;
-        var notStartThisDate = eventStart.Date.ToDateOnly() < cellDate;
-
-        var isFirstCellDateOfNewGrid =
-            spansMultipleDays && notStartThisDate &&
-            eventEnd.Date.ToDateOnly() <= cellDate;
-
-        var isFirstCellInNormalGrid = eventStart.Date.ToDateOnly() == cellDate;
-
-        var isPastEndTime = (eventEnd.Hour == 0 && eventEnd.Minute == 0) || eventEnd.ToDateOnly() <= cellDate;
-
-        return (isFirstCellDateOfNewGrid && !isPastEndTime || isFirstCellInNormalGrid) &&
-               (isOutsideDisplayedTimeRange || spansMultipleDays);
-    }
-
-    private static EventWrapper<TEvent> CreateNormalCellWrapper<TEvent>(
-        TEvent e,
-        TimetableConfig config,
-        CompiledProps<TEvent> props) where TEvent : class
-    {
-        var dateFrom = props.GetDateFrom(e);
-        var dateTo = props.GetDateTo(e);
-
-        var timeFrom = new TimeOnly(dateFrom.Hour, (dateFrom.Minute / TimetableConstants.TimeSlotInterval) * TimetableConstants.TimeSlotInterval);
-        var timeTo = new TimeOnly(dateTo.Hour, (dateTo.Minute / TimetableConstants.TimeSlotInterval) * TimetableConstants.TimeSlotInterval);
         var span = 0;
 
-        while (timeFrom < config.TimeTo && timeFrom < timeTo)
+        while (timeStart < config.TimeTo && timeStart < timeEnd)
         {
-            timeFrom = timeFrom.AddMinutes(TimetableConstants.TimeSlotInterval);
+            timeStart = timeStart.AddMinutes(TimetableConstants.TimeSlotInterval);
             span++;
         }
 
-        return new EventWrapper<TEvent>
-        {
-            Props = props,
-            Event = e,
-            Span = span
-        };
+        return span;
     }
 
-    private static List<TimeOnly> GetTimeSlots(TimeOnly start, TimeOnly end)
+    private static List<TimeOnly> GetTimeSlots(TimeOnly start, TimeOnly end) // test
     {
         var timeSlots = new List<TimeOnly>();
 
