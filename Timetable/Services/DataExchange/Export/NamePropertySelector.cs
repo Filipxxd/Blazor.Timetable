@@ -12,19 +12,20 @@ public interface INamePropertySelector<in TEvent>
 internal sealed class NamePropertySelector<TEvent, TProperty> : INamePropertySelector<TEvent>
     where TEvent : class
 {
+    private readonly Func<TProperty, string> _toStringConverter;
     public string Name { get; init; }
     public Func<TEvent, TProperty> Getter { get; init; }
 
-    public NamePropertySelector(string name, Expression<Func<TEvent, TProperty>> selector)
+    public NamePropertySelector(string name, Expression<Func<TEvent, TProperty>> selector, Func<TProperty, string>? toStringConverter = null)
     {
         Name = name;
         Getter = PropertyHelper.CreateGetter(selector!)!;
+        _toStringConverter = toStringConverter ?? (value => value?.ToString() ?? string.Empty);
     }
 
     public string GetStringValue(TEvent entity)
     {
         var value = Getter(entity);
-
-        return value?.ToString() ?? string.Empty;
+        return _toStringConverter(value);
     }
 }

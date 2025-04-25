@@ -8,7 +8,7 @@ public sealed class EventGenerator
 
     public ObservableCollection<TimetableEvent> GenerateHardcodedEvents()
     {
-        var now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day + 4, 6, 0, 0);
+        var now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day + 3, 6, 0, 0);
         var events = new ObservableCollection<TimetableEvent>
         {
             CreateEvent("Math Class", now.AddDays(-10).AddHours(9), 1),
