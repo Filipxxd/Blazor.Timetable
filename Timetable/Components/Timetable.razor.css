@@ -28,7 +28,17 @@
 .timetable-grid {
     display: grid;
     position: relative;
-    min-height: 600px;
+    height: 600px;
+    max-height: 600px;
+    overflow-y: scroll;
+    scrollbar-width: thin;
+    scrollbar-color: #a9a7a7 #F5F5F5;
+}
+
+.timetable-grid::-webkit-scrollbar-button {
+    display: none;
+    height: 0;
+    width: 0
 }
 
 ::deep .timetable-body-cell:not(.disabled):hover {
@@ -50,6 +60,10 @@
     cursor: pointer;
     font-weight: bold;
     font-size: .8em;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: white;
 }
 
 ::deep .timetable-row-title {
