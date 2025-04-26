@@ -26,6 +26,9 @@ public sealed class StyleConfig
 
     private static bool IsValidHex(string color)
     {
+        if (!color.StartsWith('#'))
+            return false;
+
         if (int.TryParse(color[1..], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var _))
             return true;
 
