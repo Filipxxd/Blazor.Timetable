@@ -33,10 +33,10 @@
                     var startRow = i * rowSpan - 1;
                     var title = _timetableManager.Grid.RowTitles.ElementAt(i - 1);
                     <GridItem CssClass="timetable-row-title grid-border"
-                                RowIndex=@startRow
-                                ColumnIndex=1
-                                Direction=SpanDirection.Horizontal
-                                Span=@rowSpan>
+                              RowIndex=@startRow
+                              ColumnIndex=1
+                              Direction=SpanDirection.Vertical
+                              Span=@rowSpan>
                         @title
                     </GridItem>
                 }
@@ -47,20 +47,22 @@
                 foreach (var cell in column.Cells)
                 {
                     var style = "timetable-body-cell grid-border" + (cell.Type == CellType.Disabled ? " disabled" : "");
-                    <GridItem CssClass="@style"
-                                RowIndex=@(cell.RowIndex + 1)
-                                SlotId=@(cell.Type != CellType.Disabled ? cell.Id : null)
-                                OnClick="@(() => HandleOpenCreateModal(cell.DateTime))"
-                                ColumnIndex=@(!isMonthView ? column.Index + 1 : column.Index) />
+                    <GridItem CssClass=@style
+                              Direction=SpanDirection.Vertical
+                              RowIndex=@(cell.RowIndex + 1)
+                              SlotId=@(cell.Type != CellType.Disabled ? cell.Id : null)
+                              OnClick="@(() => HandleOpenCreateModal(cell.DateTime))"
+                              ColumnIndex=@(!isMonthView ? column.Index + 1 : column.Index) />
                 }
             }
 
             @foreach (var column in _timetableManager.Grid.Columns)
             {
                 <GridItem CssClass="timetable-head-title grid-border"
-                            RowIndex=1
-                            OnClick=@(() => HandleChangedToDay(column.DayOfWeek))
-                            ColumnIndex=@(isMonthView ? column.Index : column.Index + 1)>
+                          Direction=SpanDirection.Horizontal  
+                          RowIndex=1
+                          OnClick=@(() => HandleChangedToDay(column.DayOfWeek))
+                          ColumnIndex=@(isMonthView ? column.Index : column.Index + 1)>
                     @(DateHelper.GetLocalizedName(column.DayOfWeek).Capitalize())
                 </GridItem>
 
@@ -68,17 +70,19 @@
                 {                            
                     foreach (var cellEvent in cell.Events)
                     {
-                        <TimetableEvent EventWrapper=@cellEvent
-                                        OnEventUpdated="(TEvent ev) => HandleEventUpdated(ev)"
-                                        AdditionalProps="@AdditionalFields"
-                                        Order=@cell.Events.IndexOf(cellEvent)
-                                        IsHeaderEvent=@(cell.Type == CellType.Header)
-                                        Direction=@(_timetableManager.DisplayType == DisplayType.Month ? SpanDirection.Horizontal : null)
-                                        Offset=@cell.Events.Count
-                                        BackgroundColor=@(cell.Type == CellType.Header ? StyleConfig.HeaderEventBgColor : StyleConfig.RegularEventBgColor)
-                                        DetailTemplate=@(builder => DetailTemplate(cellEvent.Event)(builder))
-                                        ColumnIndex=@(isMonthView ? column.Index - 1 : column.Index)
-                                        RowIndex=@(cell.RowIndex + 1) />
+                        var direction = _timetableManager.DisplayType == DisplayType.Month || cell.Type == CellType.Header ? SpanDirection.Horizontal : SpanDirection.Vertical;
+                        <GridItem Offset=@cell.Events.Count
+                                  Direction=@direction
+                                  ColumnIndex=@(isMonthView ? column.Index : column.Index + 1)
+                                  RowIndex=@(cell.Type == CellType.Header ? 2 : cell.RowIndex + 1)
+                                  Span=@cellEvent.Span>
+                            <TimetableEvent EventWrapper=@cellEvent
+                                            OnEventUpdated="(TEvent ev) => HandleEventUpdated(ev)"
+                                            AdditionalProps="@AdditionalFields"
+                                            Order=@cell.Events.IndexOf(cellEvent)
+                                            Direction=@direction
+                                            BackgroundColor=@(cell.Type == CellType.Header ? StyleConfig.HeaderEventBgColor : StyleConfig.RegularEventBgColor) />
+                        </GridItem>
                     }
                 }
             }

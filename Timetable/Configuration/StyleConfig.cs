@@ -26,7 +26,7 @@ public sealed class StyleConfig
 
     private static bool IsValidHex(string color)
     {
-        if (int.TryParse(color, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var _))
+        if (int.TryParse(color[1..], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var _))
             return true;
 
         return false;

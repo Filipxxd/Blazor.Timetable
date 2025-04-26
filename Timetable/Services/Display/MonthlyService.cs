@@ -56,7 +56,7 @@ internal sealed class MonthlyService : IDisplayService
                             var dateFrom = props.GetDateFrom(e);
                             var dateTo = props.GetDateTo(e);
 
-                            var isFirstGridCell = cellDate == gridStartDate; // TODO per row
+                            var isFirstGridCell = cellDate == gridStartDate;
 
                             return dateFrom.ToDateOnly() == cellDate || ((dateFrom.Month == cellDate.Month || dateTo.Month == cellDate.Month) && isFirstGridCell);
                         })
@@ -68,7 +68,7 @@ internal sealed class MonthlyService : IDisplayService
                             var overlapEnd = eventEnd.ToDateOnly() < gridEndDate ? eventEnd.ToDateOnly() : gridEndDate;
                             var overlapDays = (int)Math.Max((overlapEnd.ToDateTimeMidnight() - overlapStart.ToDateTimeMidnight()).TotalDays + 1, 1);
                             var currentDayIndex = config.Days.IndexOf(cellDate.DayOfWeek);
-                            var maxSpan = config.Days.Count - currentDayIndex - (overlapStart.Month != overlapEnd.Month ? overlapEnd.Day + 1 : 0);
+                            var maxSpan = config.Days.Count - currentDayIndex - (overlapStart.Month != overlapEnd.Month ? overlapEnd.Day : 0);
 
                             return new EventWrapper<TEvent>
                             {

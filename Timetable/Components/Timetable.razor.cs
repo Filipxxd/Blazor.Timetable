@@ -43,10 +43,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter] public EventCallback<DayOfWeek> OnChangedToDay { get; set; } = default!;
     #endregion
 
-    #region Templates
     [Parameter] public RenderFragment<TEvent> AdditionalFields { get; set; } = default!;
-    [Parameter] public RenderFragment<TEvent> DetailTemplate { get; set; } = default!;
-    #endregion
 
     #region Private Fields
     private bool _firstRender = false;
@@ -92,6 +89,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
         TimetableConfig.Validate();
         ExportConfig.Validate();
+        StyleConfig.Validate();
 
         _timetableManager.Events = Events;
         _timetableManager.Grid = GenerateGrid();
