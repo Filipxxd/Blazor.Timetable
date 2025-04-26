@@ -1,8 +1,9 @@
-﻿@typeparam TType
+﻿@typeparam TEvent where TEvent : class
+@typeparam TType
 
 <div class="dropdown-container">
     <label>@Label:</label>
-    <select @bind="BoundValue">
+    <select @bind="BindProperty">
         @foreach (var option in Options)
         {
             <option value="@option?.ToString()">@option</option>

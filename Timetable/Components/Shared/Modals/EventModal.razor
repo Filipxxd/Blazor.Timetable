@@ -1,0 +1,36 @@
+﻿@typeparam TEvent where TEvent : class
+
+<div class="modal-container">
+    <div style="display: flex; flex-direction: column;">
+        <Input Model=EventWrapper Label="Title" Selector="x => x.Title" />
+        <Input Model=EventWrapper Label="Start DateTime" Selector="x => x.DateFrom" />
+        <Input Model=EventWrapper Label="End DateTime" Selector="x => x.DateTo" />
+    </div>
+
+    <Dropdown Model=this Label="Repeat" Selector="x => x.RepeatOption" Options=@((RepeatOption[])Enum.GetValues(typeof(RepeatOption))) ValueChanged="(RepeatOption opt) => OnRepeatOptionChanged(opt)" />
+
+    @if (RepeatOption != RepeatOption.Once)
+    {
+        <div style="margin-top: 0.5rem;">
+            <label>Repeat until:</label>
+            <input type="date" @bind="RepeatUntil" />
+        </div>
+    }
+
+    @if (RepeatOption == RepeatOption.Custom)
+    {
+        <div style="margin-top: 0.5rem;">
+            <label>Every (days):</label>
+            <input type="number" class="form-control" @bind="RepeatDays" min="1" />
+        </div>
+    }
+
+    @if (AdditionalFields != null)
+    {
+        @AdditionalFields.Invoke(EventWrapper.Event)
+    }
+
+    <div>
+        <button @onclick=Save>Save Event</button>
+    </div>
+</div>

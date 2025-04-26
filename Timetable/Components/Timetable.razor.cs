@@ -44,8 +44,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     #endregion
 
     #region Templates
-    [Parameter] public RenderFragment<TEvent> CreateTemplate { get; set; } = default!;
-    [Parameter] public RenderFragment<TEvent> EditTemplate { get; set; } = default!;
+    [Parameter] public RenderFragment<TEvent> AdditionalFields { get; set; } = default!;
     [Parameter] public RenderFragment<TEvent> DetailTemplate { get; set; } = default!;
     #endregion
 
@@ -192,12 +191,6 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             Span = 1
         };
 
-        var createFields = (RenderFragment<TEvent>)(tEvent =>
-            builder =>
-            {
-                CreateTemplate?.Invoke(tEvent)(builder);
-            });
-
         var onSaveCallback = EventCallback.Factory.Create(this, async (IList<TEvent> ev) =>
         {
             foreach (var e in ev)
@@ -222,9 +215,9 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             { "EventWrapper", wrapper },
             { "Props", _eventProps },
             { "OnSave", onSaveCallback },
-            { "CreateFields", createFields }
+            { "AdditionalFields", AdditionalFields }
         };
 
-        ModalService.Show<CreateEventModal<TEvent>>("Create New Event", parameters);
+        ModalService.Show<EventModal<TEvent>>("Create New Event", parameters);
     }
 }

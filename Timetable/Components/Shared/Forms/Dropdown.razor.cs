@@ -1,24 +1,49 @@
 ﻿using Microsoft.AspNetCore.Components;
+using System.Linq.Expressions;
+using Timetable.Common.Exceptions;
+using Timetable.Common.Helpers;
 
 namespace Timetable.Components.Shared.Forms;
 
-public partial class Dropdown<TType>
+public partial class Dropdown<TEvent, TType>
 {
-    [Parameter, EditorRequired] public TType[] Options { get; set; } = [];
-    [Parameter, EditorRequired] public TType Value { get; set; } = default!;
-    [Parameter, EditorRequired] public EventCallback<TType> ValueChanged { get; set; }
+    private Func<TEvent, TType?> _getter = default!;
+    private Action<TEvent, TType?> _setter = default!;
+
+    [Parameter, EditorRequired] public TEvent Model { get; set; } = default!;
+    [Parameter, EditorRequired] public Expression<Func<TEvent, TType>> Selector { get; set; } = default!;
     [Parameter, EditorRequired] public string Label { get; set; } = default!;
+    [Parameter, EditorRequired] public TType[] Options { get; set; } = [];
+    [Parameter] public EventCallback<TType> ValueChanged { get; set; }
     [Parameter] public string? ErrorMessage { get; set; }
 
-    private TType BoundValue
+    protected override void OnParametersSet()
     {
-        get => Value;
+        if (Selector is null)
+            throw new InvalidSetupException("Selector is not set");
+
+        _getter = PropertyHelper.CreateGetter(Selector!);
+        _setter = PropertyHelper.CreateSetter(Selector!);
+    }
+
+
+    private TType BindProperty
+    {
+        get
+        {
+            return _getter(Model) ?? default!;
+        }
         set
         {
-            if (EqualityComparer<TType>.Default.Equals(Value, value)) return;
-
-            Value = value;
-            ValueChanged.InvokeAsync(value);
+            try
+            {
+                _setter(Model, value);
+                if (ValueChanged.HasDelegate)
+                    ValueChanged.InvokeAsync(value);
+            }
+            catch (Exception ex)
+            {
+            }
         }
     }
 }

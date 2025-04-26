@@ -1,11 +1,13 @@
-﻿@typeparam TType
+﻿@typeparam TEvent where TEvent : class
+@typeparam TType
 
-<div class="input-container">
-    <label for="@Id">@Label:</label>
-    <input id="@Id" @bind="FormattedValue" type="@InputType" required="@Required" />
+<label>@Label</label>
 
-    @if (!string.IsNullOrEmpty(ErrorMessage))
-    {
-        <div class="error-message">@ErrorMessage</div>
-    }
-</div>
+@if(typeof(TType) == typeof(DateTime))
+{
+    <InputDate Type="InputDateType.DateTimeLocal" @bind-Value:format="dd/MM/yyyy hh:mm" @bind-Value=BindProperty />
+}
+else
+{
+    <input type="@GetInputType()" @bind=BindProperty />
+}
