@@ -74,7 +74,7 @@ internal sealed class DailyService : IDisplayService
 
                 var isInTimeRange = timeStart >= config.TimeFrom && timeEnd <= config.TimeTo;
                 var isSameDay = dateStart.Day == dateStart.Day;
-                var fitsCellDateTime = timeStart.Hour == cellDateTime.Hour && timeStart.Minute == cellDateTime.Minute && dateStart.Day == cellDateTime.Day;
+                var fitsCellDateTime = timeStart.Hour == timeSlot.Hour && timeStart.Minute == timeSlot.Minute && dateStart.Day == cellDateTime.Day && dateStart.Month == cellDateTime.Month && dateStart.Year == cellDateTime.Year;
 
                 return isInTimeRange && isSameDay && fitsCellDateTime;
             })

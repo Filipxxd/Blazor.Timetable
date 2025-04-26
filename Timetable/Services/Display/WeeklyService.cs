@@ -106,7 +106,7 @@ internal sealed class WeeklyService : IDisplayService
 
                     var isInTimeRange = timeStart >= config.TimeFrom && timeEnd <= config.TimeTo;
                     var isSameDay = dateStart.Day == dateStart.Day;
-                    var fitsCellDateTime = timeStart.Hour == timeSlot.Hour && timeStart.Minute == timeSlot.Minute && dateStart.Day == cellStartTime.Day;
+                    var fitsCellDateTime = timeStart.Hour == timeSlot.Hour && timeStart.Minute == timeSlot.Minute && dateStart.Day == cellStartTime.Day && dateStart.Month == cellStartTime.Month && dateStart.Year == cellStartTime.Year;
 
                     return isInTimeRange && isSameDay && fitsCellDateTime;
                 })
