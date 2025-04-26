@@ -16,11 +16,8 @@ public partial class EventModal<TEvent> where TEvent : class
 
     [Parameter] public EventWrapper<TEvent> EventWrapper { get; set; } = default!;
     [Parameter] public EventCallback<IList<TEvent>> OnSave { get; set; }
-    [Parameter] public CompiledProps<TEvent> Props { get; set; } = default!;
     [Parameter] public RenderFragment<TEvent> AdditionalFields { get; set; } = default!;
-
-    public bool IsEdit;
-    // groupId -> if isedit and datefrom & to changes -> apply all/future/single
+    [Parameter] public bool IsEdit { get; set; } = false;
 
     protected override void OnParametersSet()
     {
@@ -35,15 +32,15 @@ public partial class EventModal<TEvent> where TEvent : class
     private async Task Save()
     {
         var eventsToCreate = new List<TEvent>();
-        var baseStart = Props.GetDateFrom(EventWrapper.Event);
-        var baseEnd = Props.GetDateTo(EventWrapper.Event);
+        var baseStart = EventWrapper.DateFrom;
+        var baseEnd = EventWrapper.DateTo;
 
         eventsToCreate.Add(EventWrapper.Event);
 
         if (RepeatOption != RepeatOption.Once)
         {
             var groupId = Guid.NewGuid().ToString();
-            Props.SetGroupId(EventWrapper.Event, groupId);
+            EventWrapper.Props.SetGroupId(EventWrapper.Event, groupId);
 
             var i = 1;
             while (true)
@@ -77,10 +74,10 @@ public partial class EventModal<TEvent> where TEvent : class
                     break;
 
                 TEvent newEvent = Activator.CreateInstance<TEvent>();
-                Props.SetTitle(newEvent, Props.GetTitle(EventWrapper.Event));
-                Props.SetDateFrom(newEvent, offsetStart);
-                Props.SetDateTo(newEvent, offsetEnd);
-                Props.SetGroupId(newEvent, groupId);
+                EventWrapper.Props.SetTitle(newEvent, EventWrapper.Title);
+                EventWrapper.Props.SetDateFrom(newEvent, offsetStart);
+                EventWrapper.Props.SetDateTo(newEvent, offsetEnd);
+                EventWrapper.Props.SetGroupId(newEvent, groupId);
 
                 eventsToCreate.Add(newEvent);
                 i++;

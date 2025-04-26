@@ -1,12 +1,14 @@
-﻿<div style="display: grid; @WrapperStyle">
+﻿@typeparam TEvent where TEvent : class
+
+<div style="display: grid; @WrapperStyle">
     <div class="timetable-event-pill movable-event"
-         data-event-id="@EventId"
+         data-event-id="@EventWrapper.Id"
          style="@EventStyle"
-         @key="EventId"
+         @key="EventWrapper.Id"
          @onmousedown=OnMouseDown
          @onmouseup=OnMouseUp>
          <div class="timetable-event-title">
-            @Title
+            @EventWrapper.Title
          </div>
     </div>
 </div>

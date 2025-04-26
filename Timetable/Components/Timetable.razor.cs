@@ -128,6 +128,12 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         _timetableManager.Grid = GenerateGrid();
     }
 
+    private async Task HandleEventUpdated(TEvent timetableEvent)
+    {
+        await OnEventUpdated.InvokeAsync(timetableEvent);
+        _timetableManager.Grid = GenerateGrid();
+    }
+
     private async Task HandlePreviousClicked()
     {
         _timetableManager.PreviousDate(TimetableConfig);
@@ -159,17 +165,6 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             ?? throw new NotSupportedException($"Implementation for {nameof(DisplayType)}: '{_timetableManager.DisplayType}' not found.");
 
         return displayService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps);
-    }
-
-    async ValueTask IAsyncDisposable.DisposeAsync()
-    {
-        if (_jsModule is null) return;
-
-        try
-        {
-            await _jsModule.DisposeAsync();
-        }
-        catch (JSDisconnectedException) { }
     }
 
     private void HandleOpenCreateModal(DateTime dateTime)
@@ -213,11 +208,21 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         var parameters = new Dictionary<string, object>
         {
             { "EventWrapper", wrapper },
-            { "Props", _eventProps },
             { "OnSave", onSaveCallback },
             { "AdditionalFields", AdditionalFields }
         };
 
         ModalService.Show<EventModal<TEvent>>("Create New Event", parameters);
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (_jsModule is null) return;
+
+        try
+        {
+            await _jsModule.DisposeAsync();
+        }
+        catch (JSDisconnectedException) { }
     }
 }
