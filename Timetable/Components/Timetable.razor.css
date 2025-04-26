@@ -30,6 +30,9 @@
     position: relative;
     height: 600px;
     max-height: 600px;
+}
+
+.scrollable {
     overflow-y: scroll;
     scrollbar-width: thin;
     scrollbar-color: #a9a7a7 #F5F5F5;

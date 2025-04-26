@@ -19,9 +19,9 @@
 
         @{var isMonthView = _timetableManager.DisplayType == DisplayType.Month;}
 
-        <div class="timetable-grid"
+        <div class="timetable-grid @(isMonthView ? "" : "scrollable")"
              style="@(isMonthView
-                    ? $"grid-auto-columns: 1fr; grid-template-rows: 40px; grid-auto-rows: 15px;"
+                    ? $"grid-auto-columns: 1fr; grid-template-rows: 40px; grid-auto-rows: 1fr;"
                     : $"grid-template-columns: 80px; grid-auto-columns: 1fr; grid-template-rows: 40px 60px; grid-auto-rows: 15px;")">
 
             @if (_timetableManager.Grid.HasRowTitles)
@@ -70,7 +70,7 @@
                 {                            
                     foreach (var cellEvent in cell.Events)
                     {
-                        var direction = _timetableManager.DisplayType == DisplayType.Month || cell.Type == CellType.Header ? SpanDirection.Horizontal : SpanDirection.Vertical;
+                        var direction = isMonthView || cell.Type == CellType.Header ? SpanDirection.Horizontal : SpanDirection.Vertical;
                         <GridItem Offset=@cell.Events.Count
                                   Direction=@direction
                                   ColumnIndex=@(isMonthView ? column.Index : column.Index + 1)

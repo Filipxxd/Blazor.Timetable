@@ -3,8 +3,8 @@
 <div class="modal-container">
     <div style="display: flex; flex-direction: column;">
         <Input Model=EventWrapper Label="Title" Selector="x => x.Title" />
-        <Input Model=EventWrapper Label="Start DateTime" Selector="x => x.DateFrom" />
-        <Input Model=EventWrapper Label="End DateTime" Selector="x => x.DateTo" />
+        <InputDateTime Model=EventWrapper Label="Start" Selector="x => x.DateFrom" />
+        <InputDateTime Model=EventWrapper Label="End" Selector="x => x.DateTo" />
     </div>
 
     @if (!IsEdit)

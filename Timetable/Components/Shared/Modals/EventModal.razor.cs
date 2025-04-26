@@ -35,52 +35,55 @@ public partial class EventModal<TEvent> where TEvent : class
         var baseStart = EventWrapper.DateFrom;
         var baseEnd = EventWrapper.DateTo;
 
-        eventsToCreate.Add(EventWrapper.Event);
-
-        if (RepeatOption != RepeatOption.Once)
+        if (!IsEdit)
         {
-            var groupId = Guid.NewGuid().ToString();
-            EventWrapper.Props.SetGroupId(EventWrapper.Event, groupId);
+            eventsToCreate.Add(EventWrapper.Event);
 
-            var i = 1;
-            while (true)
+            if (RepeatOption != RepeatOption.Once)
             {
-                DateTime offsetStart, offsetEnd;
-                switch (RepeatOption)
+                var groupId = Guid.NewGuid().ToString();
+                EventWrapper.Props.SetGroupId(EventWrapper.Event, groupId);
+
+                var i = 1;
+                while (true)
                 {
-                    case RepeatOption.Daily:
-                        offsetStart = baseStart.AddDays(1 * i);
-                        offsetEnd = baseEnd.AddDays(1 * i);
+                    DateTime offsetStart, offsetEnd;
+                    switch (RepeatOption)
+                    {
+                        case RepeatOption.Daily:
+                            offsetStart = baseStart.AddDays(1 * i);
+                            offsetEnd = baseEnd.AddDays(1 * i);
+                            break;
+                        case RepeatOption.Weekly:
+                            offsetStart = baseStart.AddDays(7 * i);
+                            offsetEnd = baseEnd.AddDays(7 * i);
+                            break;
+                        case RepeatOption.Monthly:
+                            offsetStart = baseStart.AddMonths(i);
+                            offsetEnd = baseEnd.AddMonths(i);
+                            break;
+                        case RepeatOption.Custom:
+                            offsetStart = baseStart.AddDays(RepeatDays * i);
+                            offsetEnd = baseEnd.AddDays(RepeatDays * i);
+                            break;
+                        default:
+                            offsetStart = baseStart;
+                            offsetEnd = baseEnd;
+                            break;
+                    }
+
+                    if (offsetStart.ToDateOnly() > RepeatUntil)
                         break;
-                    case RepeatOption.Weekly:
-                        offsetStart = baseStart.AddDays(7 * i);
-                        offsetEnd = baseEnd.AddDays(7 * i);
-                        break;
-                    case RepeatOption.Monthly:
-                        offsetStart = baseStart.AddMonths(i);
-                        offsetEnd = baseEnd.AddMonths(i);
-                        break;
-                    case RepeatOption.Custom:
-                        offsetStart = baseStart.AddDays(RepeatDays * i);
-                        offsetEnd = baseEnd.AddDays(RepeatDays * i);
-                        break;
-                    default:
-                        offsetStart = baseStart;
-                        offsetEnd = baseEnd;
-                        break;
+
+                    TEvent newEvent = Activator.CreateInstance<TEvent>();
+                    EventWrapper.Props.SetTitle(newEvent, EventWrapper.Title);
+                    EventWrapper.Props.SetDateFrom(newEvent, offsetStart);
+                    EventWrapper.Props.SetDateTo(newEvent, offsetEnd);
+                    EventWrapper.Props.SetGroupId(newEvent, groupId);
+
+                    eventsToCreate.Add(newEvent);
+                    i++;
                 }
-
-                if (offsetStart.ToDateOnly() > RepeatUntil)
-                    break;
-
-                TEvent newEvent = Activator.CreateInstance<TEvent>();
-                EventWrapper.Props.SetTitle(newEvent, EventWrapper.Title);
-                EventWrapper.Props.SetDateFrom(newEvent, offsetStart);
-                EventWrapper.Props.SetDateTo(newEvent, offsetEnd);
-                EventWrapper.Props.SetGroupId(newEvent, groupId);
-
-                eventsToCreate.Add(newEvent);
-                i++;
             }
         }
 

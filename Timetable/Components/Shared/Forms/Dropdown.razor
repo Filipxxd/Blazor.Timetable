@@ -1,16 +1,14 @@
 ﻿@typeparam TEvent where TEvent : class
 @typeparam TType
+@inherits BaseInput<TEvent, TType>
 
-<div class="dropdown-container">
-    <label>@Label:</label>
-    <select @bind="BindProperty">
+<div class="selectfield">
+    <select id=@_id required=@Required @bind=BindProperty>
         @foreach (var option in Options)
         {
             <option value="@option?.ToString()">@option</option>
         }
     </select>
-    @if (!string.IsNullOrEmpty(ErrorMessage))
-    {
-        <div class="text-danger">@ErrorMessage</div>
-    }
+    <label for=@_id>@Label</label>
+    <div class="underline"></div>
 </div>

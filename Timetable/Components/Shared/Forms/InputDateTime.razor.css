@@ -1,9 +1,9 @@
-﻿.textfield {
+﻿.datefield {
     position: relative;
-    margin: 15px 0 10px 0;
+    margin: 20px 0;
 }
 
-.textfield input {
+.datefield ::deep input {
     width: 100%;
     font-size: 16px;
     padding: 8px 0;
@@ -14,11 +14,11 @@
     transition: border-color 0.3s;
 }
 
-.textfield input:focus {
+.datefield ::deep input:focus {
     border-bottom-color: #3f51b5;
 }
 
-.textfield label {
+.datefield label {
     position: absolute;
     top: 8px;
     left: 0;
@@ -28,14 +28,14 @@
     transition: all 0.2s ease-out;
 }
 
-.textfield input:focus + label,
-.textfield input:not(:placeholder-shown) + label {
+.datefield ::deep input:focus + label,
+.datefield ::deep input:not(:placeholder-shown) + label {
     top: -12px;
     font-size: 12px;
     color: #3f51b5;
 }
 
-.textfield .underline {
+.datefield .underline {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -45,6 +45,6 @@
     transition: width 0.2s ease-out;
 }
 
-.textfield input:focus ~ .underline {
+.datefield ::deep input:focus ~ .underline {
     width: 100%;
 }

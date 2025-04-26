@@ -1,0 +1,13 @@
+﻿@typeparam TEvent where TEvent : class
+@typeparam TType
+@inherits BaseInput<TEvent, TType>
+
+<div class="datefield">
+    <InputDate id=@_id
+               Type="InputDateType.DateTimeLocal"
+               @bind-Value="BindProperty"
+               @bind-Value:format="dd/MM/yyyy HH:mm"
+               placeholder=" " />
+    <label for=@_id>@Label</label>
+    <div class="underline"></div>
+</div>
