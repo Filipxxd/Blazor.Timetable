@@ -29,16 +29,33 @@ public partial class EventModal<TEvent> where TEvent : class
         StateHasChanged();
     }
 
+    private void Test()
+    {
+        // TODO: Make state enum
+        // change state -> show tri radio button -> change all / future / this only
+        // show delete / cancel
+    }
+
+    public enum State
+    {
+        Create,
+        Edit,
+        EditGroupConfirm,
+        Delete
+    }
+
+    private ActionScope ActionScope { get; set; } = ActionScope.Current;
+
     private async Task Save()
     {
         var eventsToCreate = new List<TEvent>();
         var baseStart = EventWrapper.DateFrom;
         var baseEnd = EventWrapper.DateTo;
 
+        eventsToCreate.Add(EventWrapper.Event);
+
         if (!IsEdit)
         {
-            eventsToCreate.Add(EventWrapper.Event);
-
             if (RepeatOption != RepeatOption.Once)
             {
                 var groupId = Guid.NewGuid().ToString();

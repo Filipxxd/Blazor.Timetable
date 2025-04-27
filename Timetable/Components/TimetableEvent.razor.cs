@@ -20,7 +20,7 @@ public partial class TimetableEvent<TEvent>
     [Parameter] public SpanDirection Direction { get; set; }
     [Parameter] public int Order { get; set; }
     [Parameter] public RenderFragment<TEvent> AdditionalProps { get; set; } = default!;
-    [Parameter] public EventCallback<TEvent> OnEventUpdated { get; set; } = default!;
+    [Parameter] public EventCallback<UpdateProps<TEvent>> OnEventUpdated { get; set; } = default!;
 
     private string EventStyle =>
         $"background-color: {BackgroundColor}; " +
@@ -44,19 +44,13 @@ public partial class TimetableEvent<TEvent>
 
     private void TogglePopover()
     {
-        var onSaveCallback = EventCallback.Factory.Create(this, async (IList<TEvent> events) =>
-        {
-            await OnEventUpdated.InvokeAsync(events[0]);
-        });
-
         var parameters = new Dictionary<string, object>
         {
             { "EventWrapper", EventWrapper },
-            { "OnSave", onSaveCallback },
-            { "IsEdit", true },
+            { "OnSubmit", OnEventUpdated },
             { "AdditionalFields", AdditionalProps }
         };
 
-        ModalService.Show<EventModal<TEvent>>("Edit", parameters);
+        ModalService.Show<UpdateEventModal<TEvent>>("Edit", parameters);
     }
 }

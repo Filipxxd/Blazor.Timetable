@@ -1,15 +1,13 @@
-﻿using System.Collections.ObjectModel;
-
-namespace Web.Components.Pages;
+﻿namespace Web.Components.Pages;
 
 public sealed class EventGenerator
 {
     private int _currentEventId = 1;
 
-    public ObservableCollection<TimetableEvent> GenerateHardcodedEvents()
+    public List<TimetableEvent> GenerateHardcodedEvents()
     {
         var now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day + 3, 6, 0, 0);
-        var events = new ObservableCollection<TimetableEvent>
+        var events = new List<TimetableEvent>
         {
             CreateEvent("Math Class", now.AddDays(-10).AddHours(9), 1),
             CreateEvent("Science Class", now.AddDays(-8).AddHours(14), 2),
@@ -44,6 +42,14 @@ public sealed class EventGenerator
                 Description = "Hardcoded event"
             }
         };
+
+        // preformance test
+        //var i = 0;
+        //while (i < 10_000)
+        //{
+        //    events.Add(CreateEvent("test lesson", now.AddDays(-6).AddHours(2), 1));
+        //    i++;
+        //}
 
         return events;
     }

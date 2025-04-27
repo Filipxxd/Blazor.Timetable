@@ -77,7 +77,7 @@
                                   RowIndex=@(cell.Type == CellType.Header ? 2 : cell.RowIndex + 1)
                                   Span=@cellEvent.Span>
                             <TimetableEvent EventWrapper=@cellEvent
-                                            OnEventUpdated="(TEvent ev) => HandleEventUpdated(ev)"
+                                            OnEventUpdated="(UpdateProps<TEvent> props) => HandleEventUpdated(props)"
                                             AdditionalProps="@AdditionalFields"
                                             Order=@cell.Events.IndexOf(cellEvent)
                                             Direction=@direction

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using Timetable.Common;
 using Timetable.Common.Enums;
@@ -17,40 +16,38 @@ namespace Timetable.Components;
 
 public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 {
+    private bool _firstRender = false;
+    private DotNetObjectReference<Timetable<TEvent>> _objectReference = default!;
+    private TimetableManager<TEvent> _timetableManager = default!;
+    private CompiledProps<TEvent> _eventProps = default!;
+    private IJSObjectReference _jsModule = default!;
+
     [Inject] internal IJSRuntime JsRuntime { get; set; } = default!;
     [Inject] internal IEnumerable<IDisplayService> DisplayServices { get; set; } = default!;
     [Inject] internal ModalService ModalService { get; set; } = default!;
 
-    [Parameter, EditorRequired] public ObservableCollection<TEvent> Events { get; set; } = [];
+    [Parameter, EditorRequired] public IList<TEvent> Events { get; set; } = default!;
+    [Parameter, EditorRequired] public EventCallback<IList<TEvent>> EventsChanged { get; set; } = default!;
+
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateFrom { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateTo { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, string>> Title { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, object?>> GroupId { get; set; } = default!;
+
     [Parameter] public TimetableConfig TimetableConfig { get; set; } = new();
     [Parameter] public StyleConfig StyleConfig { get; set; } = new();
     [Parameter] public ExportConfig<TEvent> ExportConfig { get; set; } = default!;
+
+    [Parameter] public RenderFragment<TEvent> AdditionalFields { get; set; } = default!;
 
     #region State Change
     [Parameter] public EventCallback OnPreviousClicked { get; set; } = default!;
     [Parameter] public EventCallback OnNextClicked { get; set; } = default!;
     [Parameter] public EventCallback<TEvent> OnTitleClicked { get; set; } = default!;
     [Parameter] public EventCallback<DisplayType> OnDisplayTypeChanged { get; set; }
-    [Parameter] public EventCallback<TEvent> OnEventUpdated { get; set; } = default!;
-    [Parameter] public EventCallback<TEvent> OnEventCreated { get; set; } = default!;
-    [Parameter] public EventCallback<IList<TEvent>> OnGroupEventCreated { get; set; } = default!;
-    [Parameter] public EventCallback<TEvent> OnEventDeleted { get; set; } = default!;
-    [Parameter] public EventCallback<IList<TEvent>> OnGroupEventsChanged { get; set; } = default!;
+    [Parameter] public EventCallback<TEvent> OnEventChanged { get; set; } = default!;
+    [Parameter] public EventCallback<IList<TEvent>> OnGroupEventChanged { get; set; } = default!;
     [Parameter] public EventCallback<DayOfWeek> OnChangedToDay { get; set; } = default!;
-    #endregion
-
-    [Parameter] public RenderFragment<TEvent> AdditionalFields { get; set; } = default!;
-
-    #region Private Fields
-    private bool _firstRender = false;
-    private DotNetObjectReference<Timetable<TEvent>> _objectReference = default!;
-    private TimetableManager<TEvent> _timetableManager = default!;
-    private CompiledProps<TEvent> _eventProps = default!;
-    private IJSObjectReference _jsModule = default!;
     #endregion
 
     protected override void OnInitialized()
@@ -112,10 +109,10 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         var timetableEvent = _timetableManager.MoveEvent(eventId, targetCellId);
         if (timetableEvent is not null)
         {
-            await OnEventUpdated.InvokeAsync(timetableEvent);
+            await OnEventChanged.InvokeAsync(timetableEvent);
         }
 
-        //_timetableManager.Grid = GenerateGrid();
+        _timetableManager.Grid = GenerateGrid();
         StateHasChanged();
     }
 
@@ -126,9 +123,23 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         _timetableManager.Grid = GenerateGrid();
     }
 
-    private async Task HandleEventUpdated(TEvent timetableEvent)
+    private async Task HandleEventUpdated(UpdateProps<TEvent> props)
     {
-        await OnEventUpdated.InvokeAsync(timetableEvent);
+        if (props.Scope != ActionScope.Current)
+        {
+            //var timetableEvent = _timetableManager.UpdateEvent(props.EventWrapper);
+            //await OnEventChanged.InvokeAsync(timetableEvent);
+        }
+        else
+        {
+            if (props.EventWrapper.HasGroupdAssigned)
+                props.EventWrapper.GroupIdentifier = null;
+
+            var timetableEvent = _timetableManager.UpdateEvent(props);
+
+            await OnEventChanged.InvokeAsync(timetableEvent);
+        }
+        StateHasChanged();
         _timetableManager.Grid = GenerateGrid();
     }
 
@@ -193,11 +204,11 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
             if (ev.Count == 1)
             {
-                await OnEventCreated.InvokeAsync(ev[0]);
+                await OnEventChanged.InvokeAsync(ev[0]);
             }
             else
             {
-                await OnGroupEventCreated.InvokeAsync(ev);
+                await OnGroupEventChanged.InvokeAsync(ev);
             }
 
             _timetableManager.Grid = GenerateGrid();

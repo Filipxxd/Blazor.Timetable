@@ -34,6 +34,7 @@ public abstract class BaseInput<TEvent, TType> : ComponentBase where TEvent : cl
         }
         set
         {
+            var test = _getter(Model);
             if (EqualityComparer<TType>.Default.Equals(_getter(Model), value))
                 return;
 

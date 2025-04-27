@@ -7,33 +7,32 @@
 
 <PageTitle>Example page</PageTitle>
 
-<Timetable TEvent=TimetableEvent 
-        Events=Events
-                    
-        Title="e => e.Title"
-        DateFrom="e => e.StartTime"
-        DateTo="e => e.EndTime"
-        GroupId="e => e.GroupId"
+<Timetable @bind-Events=Events 
+           TEvent=TimetableEvent
+           Title="e => e.Title"
+           DateFrom="e => e.StartTime"
+           DateTo="e => e.EndTime"
+           GroupId="e => e.GroupId"
 
-        TimetableConfig="new(){
-            DefaultDisplayType=DisplayType.Week,
-            DisplayTypes=[DisplayType.Week, DisplayType.Month, DisplayType.Day],
-            Days=[ DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday],
-            TimeFrom=new(8, 0),
-            TimeTo=new(22, 0),
-            Is24HourFormat=true
-        }"
+           TimetableConfig="new(){
+                DefaultDisplayType=DisplayType.Week,
+                DisplayTypes=[DisplayType.Week, DisplayType.Month, DisplayType.Day],
+                Days=[ DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday],
+                TimeFrom=new(8, 0),
+                TimeTo=new(22, 0),
+                Is24HourFormat=true
+            }"
 
-        OnEventUpdated=HandleEventUpdated
-        OnPreviousClicked=HandlePreviousClicked 
-        OnNextClicked=HandleNextClicked>
+            OnEventChanged=HandleEventChanged
+            OnPreviousClicked=HandlePreviousClicked 
+            OnNextClicked=HandleNextClicked>
     <AdditionalFields>
         <Input Model=@context Label="Description" Selector="x => x.Description" />
     </AdditionalFields>
 </Timetable>
 
 @code{
-    public ObservableCollection<TimetableEvent> Events { get; set; } = new EventGenerator().GenerateHardcodedEvents();
+    public IList<TimetableEvent> Events { get; set; } = new EventGenerator().GenerateHardcodedEvents();
 
     public void HandleNextClicked()
     {
@@ -45,7 +44,7 @@
         // TODO: Custom behaviour
     }
     
-    public void HandleEventUpdated(TimetableEvent timetableEvent){
+    public void HandleEventChanged(TimetableEvent timetableEvent){
         // TODO: Update the event in the database
     }
 }

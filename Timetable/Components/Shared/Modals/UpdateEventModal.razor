@@ -1,0 +1,27 @@
+﻿@typeparam TEvent where TEvent : class
+
+<div class="modal-container">
+    <div style="display: flex; flex-direction: column;">
+        <!-- Core inputs bound to the deep copy -->
+        <Input Model="editEvent" Label="Title" Selector="x => x.Title" />
+        <InputDateTime Model="editEvent" Label="Start" Selector="x => x.DateFrom" />
+        <InputDateTime Model="editEvent" Label="End" Selector="x => x.DateTo" />
+    </div>
+
+    <!-- Provide this instance as a cascading value for additional inputs -->
+    <CascadingValue Value="this">
+        @if (AdditionalFields != null)
+        {
+            @AdditionalFields.Invoke(editEvent.Event)
+        }
+    </CascadingValue>
+
+    @if (EventWrapper.HasGroupdAssigned)
+    {
+        <Dropdown Model="this" Label="Apply Changes To" Selector="x => x.Scope" Options="@((ActionScope[])Enum.GetValues(typeof(ActionScope)))" />
+    }
+    <div>
+        <button @onclick="Submit">Submit</button>
+    </div>
+</div>
+
