@@ -24,7 +24,7 @@
                     ? $"grid-auto-columns: 1fr; grid-template-rows: 40px; grid-auto-rows: 1fr;"
                     : $"grid-template-columns: 80px; grid-auto-columns: 1fr; grid-template-rows: 40px 60px; grid-auto-rows: 15px;")">
 
-            @if (_timetableManager.Grid.HasRowTitles)
+            @if (_timetableManager.Grid.RowTitles.Any())
             {
                 var rowSpan = 4;
 
@@ -78,7 +78,7 @@
                                   Span=@cellEvent.Span>
                             <TimetableEvent EventWrapper=@cellEvent
                                             OnEventUpdated="(UpdateProps<TEvent> props) => HandleEventUpdated(props)"
-                                            AdditionalProps="@AdditionalFields"
+                                            AdditionalFields="@AdditionalFields"
                                             Order=@cell.Events.IndexOf(cellEvent)
                                             Direction=@direction
                                             BackgroundColor=@(cell.Type == CellType.Header ? StyleConfig.HeaderEventBgColor : StyleConfig.RegularEventBgColor) />

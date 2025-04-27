@@ -1,8 +1,10 @@
 ﻿@page "/"
 @using System.Collections.ObjectModel
+@using System.Linq.Expressions
 @using Timetable.Components
 @using Timetable.Common.Enums
 @using Timetable.Components.Shared.Forms
+@using Timetable.Models
 @rendermode InteractiveServer
 
 <PageTitle>Example page</PageTitle>
@@ -13,6 +15,7 @@
            DateFrom="e => e.StartTime"
            DateTo="e => e.EndTime"
            GroupId="e => e.GroupId"
+           AdditionalProps=@([new EventProperty<TimetableEvent>(x => x.Description)])
 
            TimetableConfig="new(){
                 DefaultDisplayType=DisplayType.Week,
@@ -27,7 +30,7 @@
             OnPreviousClicked=HandlePreviousClicked 
             OnNextClicked=HandleNextClicked>
     <AdditionalFields>
-        <Input Model=@context Label="Description" Selector="x => x.Description" />
+        <Input Model="@context" Label="Description" Selector="x => x.Description" />
     </AdditionalFields>
 </Timetable>
 

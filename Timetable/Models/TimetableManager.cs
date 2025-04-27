@@ -1,17 +1,10 @@
-﻿using System.Linq.Expressions;
-using Timetable.Common.Enums;
+﻿using Timetable.Common.Enums;
 using Timetable.Common.Extensions;
-using Timetable.Components.Shared.Modals;
 using Timetable.Configuration;
+using Timetable.Models.Props;
 
 namespace Timetable.Models;
-public class AdditionalFieldInfo<TEvent>
-{
-    // The selector expression (e.g. x => x.Description)
-    public Expression<Func<TEvent, object?>> Selector { get; set; } = default!;
-    // Optionally, you could store a property name for convenience.
-    public string PropertyName { get; set; } = string.Empty;
-}
+
 internal sealed class TimetableManager<TEvent> where
     TEvent : class
 {
@@ -34,7 +27,7 @@ internal sealed class TimetableManager<TEvent> where
 
     public TEvent? MoveEvent(Guid eventId, Guid targetCellId)
     {
-        var currentCell = FindCellByEventId(eventId);
+        var currentCell = Grid.FindCellByEventId(eventId);
         if (currentCell is null)
             return null;
 
@@ -42,7 +35,7 @@ internal sealed class TimetableManager<TEvent> where
         if (timetableEvent is null)
             return null;
 
-        var targetCell = FindCellById(targetCellId);
+        var targetCell = Grid.FindCellById(targetCellId);
         if (targetCell is null)
             return null;
 
@@ -76,150 +69,69 @@ internal sealed class TimetableManager<TEvent> where
         return timetableEvent.Event;
     }
 
+    public IList<TEvent> UpdateEvents(UpdateProps<TEvent> props)
+    {
+        var originalGroup = props.Original.GroupIdentifier;
+        if (originalGroup is null)
+            return [];
+
+        var originalDateFrom = props.Original.Props.GetDateFrom(props.Original.Event);
+        var originalDateTo = props.Original.Props.GetDateTo(props.Original.Event);
+        var newDateFromCore = props.Original.Props.GetDateFrom(props.New.Event);
+        var newDateToCore = props.Original.Props.GetDateTo(props.New.Event);
+
+        var startOffset = newDateFromCore - originalDateFrom;
+        var endOffset = newDateToCore - originalDateTo;
+        var newTitle = props.Original.Props.GetTitle(props.New.Event);
+
+        var relatedEventsToUpdate = Events.Where(e =>
+        {
+            var eGroup = props.Original.Props.GetGroupId(e);
+            return eGroup != null && eGroup.Equals(originalGroup);
+        });
+
+        if (props.Scope == ActionScope.Future)
+        {
+            relatedEventsToUpdate = relatedEventsToUpdate.Where(e =>
+                props.Original.Props.GetDateFrom(e).ToDateOnly() >= CurrentDate);
+        }
+
+        var updatedEvents = new List<TEvent>();
+        foreach (var evt in relatedEventsToUpdate)
+        {
+            var eventOriginalFrom = props.Original.Props.GetDateFrom(evt);
+            var eventOriginalTo = props.Original.Props.GetDateTo(evt);
+
+            var newEventFrom = eventOriginalFrom + startOffset;
+            var newEventTo = eventOriginalTo + endOffset;
+
+            props.Original.Props.SetTitle(evt, newTitle);
+            props.Original.Props.SetDateFrom(evt, newEventFrom);
+            props.Original.Props.SetDateTo(evt, newEventTo);
+
+            foreach (var (getter, setter) in props.New.Props.AdditionalProperties)
+            {
+                var updatedValue = getter(props.New.Event);
+                setter(evt, updatedValue);
+            }
+            updatedEvents.Add(evt);
+        }
+
+        return updatedEvents;
+    }
+
     public TEvent UpdateEvent(UpdateProps<TEvent> props)
     {
-        var newEvent = props.EventWrapper;
+        var timetableEvent = Grid.FindCellByEventId(props.Original.Id).Events.FirstOrDefault(e => e.Id == props.Original.Id);
 
-        var timetableEvent = FindCellByEventId(newEvent.Id).Events.FirstOrDefault(e => e.Id == newEvent.Id);
         if (timetableEvent is null)
-            return newEvent.Event;
+            return default!;
 
-        timetableEvent.Title = newEvent.Title;
-        timetableEvent.DateFrom = newEvent.DateFrom;
-        timetableEvent.DateTo = newEvent.DateTo;
-        timetableEvent.GroupIdentifier = newEvent.GroupIdentifier;
+        if (props.Original.HasGroupdAssigned)
+            props.New.GroupIdentifier = null;
 
-        foreach (var field in props.AdditionalFieldInfos)
-        {
-            // Use reflection to copy the value from the original event to the deep copy.
-            var prop = GetPropertyInfo(field.Selector);
-            if (prop != null && prop.CanRead && prop.CanWrite)
-            {
-                var originalValue = prop.GetValue(newEvent.Event);
-                prop.SetValue(timetableEvent, originalValue);
-            }
-        }
-        // TODO: other props
-        return timetableEvent.Event;
-    }
-    private System.Reflection.PropertyInfo? GetPropertyInfo(Expression selector)
-    {
-        if (selector is LambdaExpression lambda &&
-            lambda.Body is MemberExpression member &&
-            member.Member is System.Reflection.PropertyInfo prop)
-        {
-            return prop;
-        }
-        return null;
-    }
-    public IList<TEvent>? ChangeGroupEvent(Guid eventId, bool futureOnly = false)
-    {
-        if (Props.GetGroupId is null) return null;
+        props.New.MapTo(props.Original.Event);
 
-        var timetableEvent = FindCellByEventId(eventId).Events.FirstOrDefault(e => e.Id == eventId);
-
-        if (timetableEvent is null || timetableEvent.GroupIdentifier is null) return null;
-
-        var groupId = timetableEvent.GroupIdentifier;
-
-        var relatedEventsToUpdate = Events
-            .Where(e =>
-            {
-                var groupId = Props.GetGroupId(e);
-                return groupId?.Equals(groupId) == true && groupId != timetableEvent.GroupIdentifier;
-            });
-
-        if (futureOnly)
-        {
-            relatedEventsToUpdate = [.. relatedEventsToUpdate.Where(e => Props.GetDateFrom(e).ToDateOnly() >= CurrentDate)];
-        }
-
-        var updatedEvents = new List<TEvent> { timetableEvent.Event };
-
-        foreach (var evt in relatedEventsToUpdate)
-        {
-            var groupIdentifier = Props.GetGroupId(evt);
-
-            if (groupIdentifier is null || !groupIdentifier.Equals(groupId)) continue;
-
-            var originalDateFrom = Props.GetDateFrom(evt);
-            var originalDateTo = Props.GetDateTo(evt);
-            var duration = originalDateTo - originalDateFrom;
-
-            var newDateFrom = timetableEvent.DateFrom;
-            var newDateTo = newDateFrom.Add(duration);
-
-            Props.SetTitle(evt, timetableEvent.Title);
-            Props.SetDateFrom(evt, newDateFrom);
-            Props.SetDateTo(evt, newDateTo);
-
-            updatedEvents.Add(evt);
-        }
-
-        return updatedEvents;
-    }
-
-    public IList<TEvent>? MoveGroupEvents(Guid eventId, Guid targetCellId, bool futureOnly = false)
-    {
-        if (Props.GetGroupId is null) return null;
-
-        var currentCell = FindCellByEventId(eventId);
-        if (currentCell is null) return null;
-
-        var timetableEvent = currentCell.Events.FirstOrDefault(e => e.Id == eventId);
-        if (timetableEvent is null || timetableEvent.GroupIdentifier is null) return null;
-
-        var groupId = timetableEvent.GroupIdentifier;
-
-        var targetCell = FindCellById(targetCellId);
-        if (targetCell is null) return null;
-
-        var relatedEventsToUpdate = Events
-            .Where(e =>
-            {
-                var groupId = Props.GetGroupId(e);
-                return groupId?.Equals(groupId) == true && groupId != timetableEvent.GroupIdentifier;
-            });
-
-        if (futureOnly)
-        {
-            // TODO
-            relatedEventsToUpdate = [.. relatedEventsToUpdate.Where(e => Props.GetDateFrom(e).ToDateOnly() >= CurrentDate)];
-        }
-
-        var updatedEvents = new List<TEvent> { timetableEvent.Event };
-
-        foreach (var evt in relatedEventsToUpdate)
-        {
-            var groupIdentifier = Props.GetGroupId(evt);
-
-            if (groupIdentifier is null || !groupIdentifier.Equals(groupId)) continue;
-
-            var originalDateFrom = Props.GetDateFrom(evt);
-            var originalDateTo = Props.GetDateTo(evt);
-            var duration = originalDateTo - originalDateFrom;
-
-            var newDateFrom = targetCell.DateTime;
-            var newDateTo = newDateFrom.Add(duration);
-
-            Props.SetDateFrom(evt, newDateFrom);
-            Props.SetDateTo(evt, newDateTo);
-
-            updatedEvents.Add(evt);
-        }
-
-        return updatedEvents;
-    }
-
-    private Cell<TEvent>? FindCellByEventId(Guid eventId)
-    {
-        return Grid.Columns.SelectMany(col => col.Cells)
-                           .FirstOrDefault(cell => cell.Events.Any(e => e.Id == eventId));
-    }
-
-    private Cell<TEvent>? FindCellById(Guid cellId)
-    {
-        return Grid.Columns.SelectMany(col => col.Cells)
-                           .FirstOrDefault(cell => cell.Id == cellId);
+        return props.Original.Event;
     }
 }

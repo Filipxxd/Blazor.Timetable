@@ -10,11 +10,15 @@ public sealed class DailyServiceTests
     private readonly DailyService _dailyService = new();
     private class TestEvent
     {
-        public DateTime StartTime { get; init; }
-        public DateTime EndTime { get; init; }
-        public string Title { get; init; } = default!;
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string? GroupId { get; set; }
     }
-    private readonly CompiledProps<TestEvent> _props = new(e => e.StartTime, e => e.EndTime, e => e.Title);
+
+    private readonly CompiledProps<TestEvent> _props =
+        new(e => e.StartTime, e => e.EndTime, e => e.Title, e => e.GroupId, []);
+
     private readonly DateOnly _currentDate = new(2023, 10, 30);
 
     [Theory]

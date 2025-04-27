@@ -8,6 +8,7 @@ using Timetable.Common.Helpers;
 using Timetable.Components.Shared.Modals;
 using Timetable.Configuration;
 using Timetable.Models;
+using Timetable.Models.Props;
 using Timetable.Services;
 using Timetable.Services.DataExchange.Export;
 using Timetable.Services.Display;
@@ -33,6 +34,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateTo { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, string>> Title { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, object?>> GroupId { get; set; } = default!;
+    [Parameter] public IList<EventProperty<TEvent>> AdditionalProps { get; set; } = [];
 
     [Parameter] public TimetableConfig TimetableConfig { get; set; } = new();
     [Parameter] public StyleConfig StyleConfig { get; set; } = new();
@@ -55,7 +57,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         _firstRender = true;
         _objectReference = DotNetObjectReference.Create(this);
 
-        _eventProps = new CompiledProps<TEvent>(DateFrom, DateTo, Title, GroupId);
+        _eventProps = new CompiledProps<TEvent>(DateFrom, DateTo, Title, GroupId, AdditionalProps);
         _timetableManager = new TimetableManager<TEvent>()
         {
             Props = _eventProps
@@ -88,8 +90,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         ExportConfig.Validate();
         StyleConfig.Validate();
 
-        _timetableManager.Events = Events;
-        _timetableManager.Grid = GenerateGrid();
+        UpdateGrid();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -112,42 +113,37 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             await OnEventChanged.InvokeAsync(timetableEvent);
         }
 
-        _timetableManager.Grid = GenerateGrid();
-        StateHasChanged();
+        UpdateGrid();
     }
 
     private async Task HandleNextClicked()
     {
         _timetableManager.NextDate(TimetableConfig);
         await OnNextClicked.InvokeAsync();
-        _timetableManager.Grid = GenerateGrid();
+        UpdateGrid();
     }
 
     private async Task HandleEventUpdated(UpdateProps<TEvent> props)
     {
         if (props.Scope != ActionScope.Current)
         {
-            //var timetableEvent = _timetableManager.UpdateEvent(props.EventWrapper);
-            //await OnEventChanged.InvokeAsync(timetableEvent);
+            var updatedEvents = _timetableManager.UpdateEvents(props);
+            await OnGroupEventChanged.InvokeAsync(updatedEvents);
         }
         else
         {
-            if (props.EventWrapper.HasGroupdAssigned)
-                props.EventWrapper.GroupIdentifier = null;
-
-            var timetableEvent = _timetableManager.UpdateEvent(props);
-
-            await OnEventChanged.InvokeAsync(timetableEvent);
+            var updatedEvent = _timetableManager.UpdateEvent(props);
+            await OnEventChanged.InvokeAsync(updatedEvent);
         }
-        StateHasChanged();
-        _timetableManager.Grid = GenerateGrid();
+
+        UpdateGrid();
     }
 
     private async Task HandlePreviousClicked()
     {
         _timetableManager.PreviousDate(TimetableConfig);
         await OnPreviousClicked.InvokeAsync();
-        _timetableManager.Grid = GenerateGrid();
+        UpdateGrid();
     }
 
     private async Task HandleDisplayTypeChanged(DisplayType displayType)
@@ -165,15 +161,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         _timetableManager.DisplayType = DisplayType.Day;
         await OnChangedToDay.InvokeAsync(dayOfWeek);
         await OnDisplayTypeChanged.InvokeAsync(DisplayType.Day);
-        _timetableManager.Grid = GenerateGrid();
-    }
-
-    private Grid<TEvent> GenerateGrid()
-    {
-        var displayService = DisplayServices.FirstOrDefault(s => s.DisplayType == _timetableManager.DisplayType)
-            ?? throw new NotSupportedException($"Implementation for {nameof(DisplayType)}: '{_timetableManager.DisplayType}' not found.");
-
-        return displayService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps);
+        UpdateGrid();
     }
 
     private void HandleOpenCreateModal(DateTime dateTime)
@@ -192,7 +180,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             Event = newEvent,
             GroupIdentifier = null,
             Props = _eventProps,
-            Span = 1
+            Span = 0
         };
 
         var onSaveCallback = EventCallback.Factory.Create(this, async (IList<TEvent> ev) =>
@@ -211,7 +199,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
                 await OnGroupEventChanged.InvokeAsync(ev);
             }
 
-            _timetableManager.Grid = GenerateGrid();
+            UpdateGrid();
         });
 
         var parameters = new Dictionary<string, object>
@@ -221,7 +209,17 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             { "AdditionalFields", AdditionalFields }
         };
 
-        ModalService.Show<EventModal<TEvent>>("Create New Event", parameters);
+        ModalService.Show<CreateEventModal<TEvent>>("Add", parameters);
+    }
+
+    private void UpdateGrid()
+    {
+        var displayService = DisplayServices.FirstOrDefault(s => s.DisplayType == _timetableManager.DisplayType)
+            ?? throw new NotSupportedException($"Implementation for {nameof(DisplayType)}: '{_timetableManager.DisplayType}' not found.");
+
+        _timetableManager.Events = Events;
+        _timetableManager.Grid = displayService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps);
+        StateHasChanged();
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
