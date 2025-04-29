@@ -1,6 +1,5 @@
 ﻿using Timetable.Common.Enums;
 using Timetable.Common.Extensions;
-using Timetable.Configuration;
 using Timetable.Models.Props;
 
 namespace Timetable.Models;
@@ -15,16 +14,6 @@ internal sealed class TimetableManager<TEvent> where
     public DateOnly OriginalDate { get; set; }
     public DateOnly CurrentDate { get; set; }
     public DisplayType DisplayType { get; set; }
-
-    public void NextDate(TimetableConfig config)
-    {
-        CurrentDate = CurrentDate.GetValidDate(DisplayType, false, config.Days, config.Months);
-    }
-
-    public void PreviousDate(TimetableConfig config)
-    {
-        CurrentDate = CurrentDate.GetValidDate(DisplayType, true, config.Days, config.Months);
-    }
 
     public TEvent? MoveEvent(Guid eventId, Guid targetCellId)
     {

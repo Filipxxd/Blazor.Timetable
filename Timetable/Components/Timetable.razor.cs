@@ -131,9 +131,8 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
                 break;
 
             case DisplayType.Month:
-                // Calculate the next month and adjust the year if necessary
-                int nextMonth = _timetableManager.CurrentDate.Month + 1;
-                int nextYear = _timetableManager.CurrentDate.Year;
+                var nextMonth = _timetableManager.CurrentDate.Month + 1;
+                var nextYear = _timetableManager.CurrentDate.Year;
 
                 if (nextMonth > 12)
                 {
@@ -141,12 +140,10 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
                     nextYear++;
                 }
 
-                // Start from the first day of the next month
                 _timetableManager.CurrentDate = new DateOnly(nextYear, nextMonth, 1);
                 break;
         }
 
-        // Ensure the date is on an allowed day and in an allowed month
         while (!TimetableConfig.Days.Contains(_timetableManager.CurrentDate.DayOfWeek) ||
                !TimetableConfig.Months.Contains((Month)_timetableManager.CurrentDate.Month))
         {
@@ -159,36 +156,37 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
     private async Task HandlePreviousClicked()
     {
-        if (_timetableManager.DisplayType == DisplayType.Day)
+        switch (_timetableManager.DisplayType)
         {
-            do
-            {
+            case DisplayType.Day:
                 _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(-1);
-            } while (!TimetableConfig.Days.Contains(_timetableManager.CurrentDate.DayOfWeek) && !TimetableConfig.Months.Contains((Month)_timetableManager.CurrentDate.Month));
-        }
-        else if (_timetableManager.DisplayType == DisplayType.Week)
-        {
-            _timetableManager.CurrentDate = _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(-TimetableConfig.Days.Count);
+                break;
+            case DisplayType.Week:
+                _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(-TimetableConfig.Days.Count);
+                break;
+            case DisplayType.Month:
+                var previousMonth = _timetableManager.CurrentDate.Month - 1;
+                var previousYear = _timetableManager.CurrentDate.Year;
 
-            do
-            {
-                _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(-1);
-            } while (!TimetableConfig.Days.Contains(_timetableManager.CurrentDate.DayOfWeek) && !TimetableConfig.Months.Contains((Month)_timetableManager.CurrentDate.Month));
-        }
-        else
-        {
-            _timetableManager.CurrentDate = new DateOnly(_timetableManager.CurrentDate.Year, _timetableManager.CurrentDate.Month - 1, _timetableManager.CurrentDate.Day);
+                if (previousMonth < 1)
+                {
+                    previousMonth = 12;
+                    previousYear--;
+                }
 
-            do
-            {
-                _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(-1);
-            } while (!TimetableConfig.Days.Contains(_timetableManager.CurrentDate.DayOfWeek) && !TimetableConfig.Months.Contains((Month)_timetableManager.CurrentDate.Month));
+                _timetableManager.CurrentDate = new DateOnly(previousYear, previousMonth, DateTime.DaysInMonth(previousYear, previousMonth));
+                break;
+        }
+
+        while (!TimetableConfig.Days.Contains(_timetableManager.CurrentDate.DayOfWeek) ||
+               !TimetableConfig.Months.Contains((Month)_timetableManager.CurrentDate.Month))
+        {
+            _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(-1);
         }
 
         await OnPreviousClicked.InvokeAsync();
         UpdateGrid();
     }
-
 
     private async Task HandleEventUpdated(UpdateProps<TEvent> props)
     {
