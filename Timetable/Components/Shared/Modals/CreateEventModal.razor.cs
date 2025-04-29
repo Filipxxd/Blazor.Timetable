@@ -13,7 +13,6 @@ public partial class CreateEventModal<TEvent> where TEvent : class
     private RepeatOption RepeatOption { get; set; } = RepeatOption.Once;
     private DateOnly RepeatUntil { get; set; }
     private int RepeatDays { get; set; } = 1;
-    private ActionScope ActionScope { get; set; } = ActionScope.Current;
 
     [Parameter] public EventWrapper<TEvent> EventWrapper { get; set; } = default!;
     [Parameter] public EventCallback<IList<TEvent>> OnSave { get; set; }

@@ -1,6 +1,7 @@
 ﻿using Timetable.Common;
 using Timetable.Common.Enums;
 using Timetable.Common.Exceptions;
+using Timetable.Common.Extensions;
 
 namespace Timetable.Configuration;
 
@@ -9,7 +10,7 @@ public sealed class TimetableConfig
     /// <summary>
     /// Months shown in the timetable. Must be consecutive. First item treated as start of year month. Defaults to all months of the year.
     /// </summary>
-    public IEnumerable<Month> Months { get; init; } = [
+    public ICollection<Month> Months { get; init; } = [
         Month.January, Month.February, Month.March, Month.April, Month.May, Month.June,
         Month.July, Month.August, Month.September, Month.October, Month.November, Month.December
     ];
@@ -46,6 +47,11 @@ public sealed class TimetableConfig
     /// Initial display type of the timetable. Defaults to <see cref="DisplayType.Week"/>.
     /// </summary>
     public DisplayType DefaultDisplayType { get; set; } = DisplayType.Week;
+
+    /// <summary>
+    /// Default date for the timetable. Defaults to <see cref="DateTime.Now"/>.
+    /// </summary>
+    public DateOnly DefaultDate { get; set; } = DateTime.Now.ToDateOnly();
 
     internal IEnumerable<int> Hours => Enumerable.Range(TimeFrom.Hour, TimeTo.Hour - TimeFrom.Hour);
 

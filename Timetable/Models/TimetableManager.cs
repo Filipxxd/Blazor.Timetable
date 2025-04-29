@@ -12,6 +12,7 @@ internal sealed class TimetableManager<TEvent> where
     public IList<TEvent> Events { get; set; } = [];
 
     public Grid<TEvent> Grid { get; set; } = default!;
+    public DateOnly OriginalDate { get; set; }
     public DateOnly CurrentDate { get; set; }
     public DisplayType DisplayType { get; set; }
 

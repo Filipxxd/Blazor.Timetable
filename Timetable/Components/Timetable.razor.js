@@ -12,13 +12,13 @@ export const dragDrop = {
             inertia: false,
             autoScroll: true,
 
-            modifiers: [
-                interact.modifiers.restrict({
-                    restriction: timetableSelector,
-                    endOnly: true,
-                    elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
-                })
-            ],
+            ////modifiers: [
+            ////    interact.modifiers.restrict({
+            ////        restriction: timetableSelector,
+            ////        endOnly: true,
+            ////        elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
+            ////    })
+            ////],
 
             listeners: {
                 start(event) {

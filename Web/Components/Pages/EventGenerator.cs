@@ -6,7 +6,7 @@ public sealed class EventGenerator
 
     public List<TimetableEvent> GenerateHardcodedEvents()
     {
-        var now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day + 3, 6, 0, 0);
+        var now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 6, 0, 0);
         var events = new List<TimetableEvent>
         {
             CreateEvent("Math Class", now.AddDays(-10).AddHours(9), 1),
