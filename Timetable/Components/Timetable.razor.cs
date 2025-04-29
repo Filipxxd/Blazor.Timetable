@@ -192,7 +192,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     {
         if (props.Scope != ActionScope.Current)
         {
-            var updatedEvents = _timetableManager.UpdateEvents(props);
+            var updatedEvents = _timetableManager.UpdateEvents(Events, props);
             await OnGroupEventChanged.InvokeAsync(updatedEvents);
         }
         else
@@ -275,7 +275,6 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         var displayService = DisplayServices.FirstOrDefault(s => s.DisplayType == _timetableManager.DisplayType)
             ?? throw new NotSupportedException($"Implementation for {nameof(DisplayType)}: '{_timetableManager.DisplayType}' not found.");
 
-        _timetableManager.Events = Events;
         _timetableManager.Grid = displayService.CreateGrid(Events, TimetableConfig, _timetableManager.CurrentDate, _eventProps);
         StateHasChanged();
     }

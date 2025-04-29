@@ -84,11 +84,6 @@ internal sealed class MonthlyService : IDisplayService
 
                         var overlapDays = (int)Math.Floor((overlapEnd.ToDateTimeMidnight() - overlapStart.ToDateTimeMidnight()).TotalDays + 1);
 
-                        if (props.GetTitle(e).StartsWith("Histo"))
-                        {
-                            var t = columnsCount - (col + 1) + 1;
-                        }
-
                         return new EventWrapper<TEvent>
                         {
                             Props = props,

@@ -8,7 +8,6 @@ internal sealed class TimetableManager<TEvent> where
     TEvent : class
 {
     public required CompiledProps<TEvent> Props { get; init; }
-    public IList<TEvent> Events { get; set; } = [];
 
     public Grid<TEvent> Grid { get; set; } = default!;
     public DateOnly OriginalDate { get; set; }
@@ -59,11 +58,11 @@ internal sealed class TimetableManager<TEvent> where
         return timetableEvent.Event;
     }
 
-    public IList<TEvent> UpdateEvents(UpdateProps<TEvent> props)
+    public IList<TEvent> UpdateEvents(IList<TEvent> events, UpdateProps<TEvent> props)
     {
         var originalGroup = props.Original.GroupIdentifier;
         if (originalGroup is null)
-            return [];
+            throw new InvalidOperationException("Cannot update grouped events without group identifier.");
 
         var originalDateFrom = props.Original.Props.GetDateFrom(props.Original.Event);
         var originalDateTo = props.Original.Props.GetDateTo(props.Original.Event);
@@ -74,7 +73,7 @@ internal sealed class TimetableManager<TEvent> where
         var endOffset = newDateToCore - originalDateTo;
         var newTitle = props.Original.Props.GetTitle(props.New.Event);
 
-        var relatedEventsToUpdate = Events.Where(e =>
+        var relatedEventsToUpdate = events.Where(e =>
         {
             var eGroup = props.Original.Props.GetGroupId(e);
             return eGroup != null && eGroup.Equals(originalGroup);

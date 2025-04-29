@@ -18,6 +18,9 @@ public partial class UpdateEventModal<TEvent> where TEvent : class
 
     protected override void OnParametersSet()
     {
+        if (EventWrapper.GroupIdentifier is null)
+            Scope = ActionScope.Current;
+
         editEvent = EventWrapper.Copy();
     }
 
