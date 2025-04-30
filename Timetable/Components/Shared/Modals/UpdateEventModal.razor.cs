@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Timetable.Common.Enums;
-using Timetable.Models;
+using Timetable.Models.Grid;
 using Timetable.Models.Props;
 using Timetable.Services;
 
@@ -61,13 +61,7 @@ public partial class UpdateEventModal<TEvent> where TEvent : class
         {
             Scope = Scope,
             Original = EventWrapper,
-            New = new EventWrapper<TEvent>
-            {
-                Props = EventWrapper.Props,
-                Event = editEvent.Event,
-                Span = 0,
-                Id = EventWrapper.Id
-            }
+            New = editEvent
         };
 
         await OnSubmit.InvokeAsync(updateProps);

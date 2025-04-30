@@ -1,6 +1,7 @@
 ﻿using Timetable.Common.Enums;
 using Timetable.Configuration;
 using Timetable.Models;
+using Timetable.Models.Grid;
 
 namespace Timetable.Services.Display;
 
@@ -12,5 +13,5 @@ internal interface IDisplayService
         IList<TEvent> events,
         TimetableConfig config,
         DateOnly currentDate,
-        CompiledProps<TEvent> props) where TEvent : class;
+        PropertyAccessors<TEvent> props) where TEvent : class;
 }

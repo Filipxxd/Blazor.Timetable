@@ -1,5 +1,6 @@
 ﻿using Timetable.Common.Enums;
 using Timetable.Common.Extensions;
+using Timetable.Models.Grid;
 using Timetable.Models.Props;
 
 namespace Timetable.Models;
@@ -7,10 +8,9 @@ namespace Timetable.Models;
 internal sealed class TimetableManager<TEvent> where
     TEvent : class
 {
-    public required CompiledProps<TEvent> Props { get; init; }
+    public required PropertyAccessors<TEvent> Props { get; init; }
 
     public Grid<TEvent> Grid { get; set; } = default!;
-    public DateOnly OriginalDate { get; set; }
     public DateOnly CurrentDate { get; set; }
     public DisplayType DisplayType { get; set; }
 
@@ -22,7 +22,7 @@ internal sealed class TimetableManager<TEvent> where
             return [deleteProps.EventWrapper.Event];
         }
 
-        if (deleteProps.EventWrapper.GroupIdentifier is null)
+        if (!deleteProps.EventWrapper.HasGroupdAssigned)
             throw new InvalidOperationException("Cannot delete grouped events without group identifier.");
 
 
@@ -44,12 +44,13 @@ internal sealed class TimetableManager<TEvent> where
 
     public TEvent? MoveEvent(Guid eventId, Guid targetCellId)
     {
+        // TODO: Group move
         var currentCell = Grid.FindCellByEventId(eventId);
         if (currentCell is null)
             return null;
 
-        var timetableEvent = currentCell.Events.FirstOrDefault(e => e.Id == eventId);
-        if (timetableEvent is null)
+        var cellItem = currentCell.Items.FirstOrDefault(e => e.Id == eventId);
+        if (cellItem is null)
             return null;
 
         var targetCell = Grid.FindCellById(targetCellId);
@@ -61,29 +62,29 @@ internal sealed class TimetableManager<TEvent> where
 
         if (currentCell.Type == CellType.Normal)
         {
-            var duration = timetableEvent.DateTo - timetableEvent.DateFrom;
+            var duration = cellItem.EventWrapper.DateTo - cellItem.EventWrapper.DateFrom;
             var newEndDate = targetCell.DateTime.Add(duration);
 
-            timetableEvent.DateFrom = targetCell.DateTime;
-            timetableEvent.DateTo = newEndDate;
+            cellItem.EventWrapper.DateFrom = targetCell.DateTime;
+            cellItem.EventWrapper.DateTo = newEndDate;
 
-            currentCell.Events.Remove(timetableEvent);
-            targetCell.Events.Add(timetableEvent);
+            currentCell.Items.Remove(cellItem);
+            targetCell.Items.Add(cellItem);
         }
         else
         {
-            var duration = timetableEvent.DateTo - timetableEvent.DateFrom;
-            var originalFrom = timetableEvent.DateFrom;
+            var duration = cellItem.EventWrapper.DateTo - cellItem.EventWrapper.DateFrom;
+            var originalFrom = cellItem.EventWrapper.DateFrom;
             var newStartDate = new DateTime(targetCell.DateTime.Year, targetCell.DateTime.Month, targetCell.DateTime.Day, originalFrom.Hour, originalFrom.Minute, originalFrom.Second);
             var newEndDate = newStartDate.Add(duration);
 
-            timetableEvent.DateFrom = newStartDate;
-            timetableEvent.DateTo = newEndDate;
-            currentCell.Events.Remove(timetableEvent);
-            targetCell.Events.Add(timetableEvent);
+            cellItem.EventWrapper.DateFrom = newStartDate;
+            cellItem.EventWrapper.DateTo = newEndDate;
+            currentCell.Items.Remove(cellItem);
+            targetCell.Items.Add(cellItem);
         }
 
-        return timetableEvent.Event;
+        return cellItem.EventWrapper.Event;
     }
 
     public IList<TEvent> UpdateEvents(IList<TEvent> events, UpdateProps<TEvent> props)

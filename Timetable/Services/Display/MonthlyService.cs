@@ -2,6 +2,7 @@
 using Timetable.Common.Extensions;
 using Timetable.Configuration;
 using Timetable.Models;
+using Timetable.Models.Grid;
 
 namespace Timetable.Services.Display;
 
@@ -13,7 +14,7 @@ internal sealed class MonthlyService : IDisplayService
         IList<TEvent> events,
         TimetableConfig config,
         DateOnly currentDate,
-        CompiledProps<TEvent> props) where TEvent : class
+        PropertyAccessors<TEvent> props) where TEvent : class
     {
         var rows = CalculateMonthGridDates(currentDate, config.Days);
         var gridStartDate = rows.First().First();
@@ -45,7 +46,7 @@ internal sealed class MonthlyService : IDisplayService
                     Title = $"{cellDate:dd}",
                     Type = CellType.Normal,
                     RowIndex = row + 1,
-                    Events = []
+                    Items = []
                 };
 
                 column.Cells.Add(cell);
@@ -84,16 +85,15 @@ internal sealed class MonthlyService : IDisplayService
 
                         var overlapDays = (int)Math.Floor((overlapEnd.ToDateTimeMidnight() - overlapStart.ToDateTimeMidnight()).TotalDays + 1);
 
-                        return new EventWrapper<TEvent>
+                        return new CellItem<TEvent>
                         {
-                            Props = props,
-                            Event = e,
+                            EventWrapper = new EventWrapper<TEvent>(e, props),
                             Span = Math.Min(overlapDays, maxSpan)
                         };
-                    }).OrderByDescending(e => e.Span)
+                    }).OrderByDescending(ci => ci.Span)
                     .ToList();
 
-                cell.Events = cellEvents;
+                cell.Items = cellEvents;
             }
 
             columns.Add(column);

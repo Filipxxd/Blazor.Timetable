@@ -1,13 +1,16 @@
-﻿namespace Timetable.Models;
+﻿namespace Timetable.Models.Grid;
 
 public sealed class EventWrapper<TEvent> where
     TEvent : class
 {
-    public required CompiledProps<TEvent> Props { get; init; }
+    public EventWrapper(TEvent timetableEvent, PropertyAccessors<TEvent> props)
+    {
+        Event = timetableEvent;
+        Props = props;
+    }
 
-    public Guid Id { get; init; } = Guid.NewGuid();
-    public required TEvent Event { get; init; }
-    public required int Span { get; init; }
+    public PropertyAccessors<TEvent> Props { get; init; }
+    public TEvent Event { get; init; }
 
     public bool HasGroupdAssigned => GroupIdentifier != null;
 
@@ -53,13 +56,7 @@ public sealed class EventWrapper<TEvent> where
             setter(eventCopy, originalValue);
         }
 
-        return new EventWrapper<TEvent>()
-        {
-            Props = Props,
-            Event = eventCopy,
-            Span = 0,
-            Id = Id
-        };
+        return new EventWrapper<TEvent>(eventCopy, Props);
     }
 
     public TEvent MapTo(TEvent timetableEvent)

@@ -1,4 +1,5 @@
-﻿@typeparam TEvent where TEvent : class
+﻿@using Timetable.Models.Grid
+@typeparam TEvent where TEvent : class
 @attribute [type: RenderModeInteractiveServer]
 
 <div class="timetable-wrapper">
@@ -69,19 +70,19 @@
 
                 @foreach (var cell in column.Cells)
                 {                            
-                    foreach (var cellEvent in cell.Events)
+                    foreach (var cellItem in cell.Items)
                     {
                         var direction = isMonthView || cell.Type == CellType.Header ? SpanDirection.Horizontal : SpanDirection.Vertical;
-                        <GridItem Offset=@cell.Events.Count
+                        <GridItem Offset=@cell.Items.Count
                                   Direction=@direction
                                   ColumnIndex=@(isMonthView ? column.Index : column.Index + 1)
                                   RowIndex=@(cell.Type == CellType.Header ? 2 : cell.RowIndex + 1)
-                                  Span=@cellEvent.Span>
-                            <TimetableEvent EventWrapper=@cellEvent
+                                  Span=@cellItem.Span>
+                            <TimetableEvent CellItem=@cellItem
                                             OnEventUpdated="(UpdateProps<TEvent> props) => HandleEventUpdated(props)"
                                             OnEventDelete="(DeleteProps<TEvent> props) => HandleEventDeleted(props)"
                                             AdditionalFields="@AdditionalFields"
-                                            Order=@cell.Events.IndexOf(cellEvent)
+                                            Order=@cell.Items.IndexOf(cellItem)
                                             Direction=@direction
                                             BackgroundColor=@(cell.Type == CellType.Header ? StyleConfig.HeaderEventBgColor : StyleConfig.RegularEventBgColor) />
                         </GridItem>

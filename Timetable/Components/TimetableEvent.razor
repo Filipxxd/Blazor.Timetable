@@ -1,12 +1,12 @@
 ﻿@typeparam TEvent where TEvent : class
 
 <div class="timetable-event-pill movable-event"
-        data-event-id="@EventWrapper.Id"
-        style="@EventStyle"
-        @key="EventWrapper.Id"
-        @onmousedown=OnMouseDown
-        @onmouseup=OnMouseUp>
-        <div class="timetable-event-title">
-            @EventWrapper.Title
-        </div>
+     data-event-id="@CellItem.Id"
+     style="@EventStyle"
+     @key="CellItem.Id"
+     @onmousedown=OnMouseDown
+     @onmouseup=OnMouseUp>
+    <div class="timetable-event-title">
+    @CellItem.EventWrapper.Title
+    </div>
 </div>

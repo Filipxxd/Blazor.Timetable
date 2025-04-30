@@ -3,6 +3,7 @@ using Timetable.Common.Enums;
 using Timetable.Common.Extensions;
 using Timetable.Configuration;
 using Timetable.Models;
+using Timetable.Models.Grid;
 
 namespace Timetable.Services.Display;
 
@@ -14,7 +15,7 @@ internal sealed class DailyService : IDisplayService
         IList<TEvent> events,
         TimetableConfig config,
         DateOnly currentDate,
-        CompiledProps<TEvent> props) where TEvent : class
+        PropertyAccessors<TEvent> props) where TEvent : class
     {
         var headerEvents = events.Where(e =>
         {
@@ -35,12 +36,11 @@ internal sealed class DailyService : IDisplayService
 
             return (startsInPreviousView || startsInthisCell) &&
                    (isOutOfTimeRange || isMultiDay);
-        }).Select(e => new EventWrapper<TEvent>
+        }).Select(e => new CellItem<TEvent>
         {
-            Props = props,
-            Event = e,
+            EventWrapper = new EventWrapper<TEvent>(e, props),
             Span = 1
-        }).OrderByDescending(e => (e.DateTo - e.DateFrom).TotalHours).ToList();
+        }).OrderByDescending(ci => (ci.EventWrapper.DateTo - ci.EventWrapper.DateFrom).TotalHours).ToList();
 
         var cells = new List<Cell<TEvent>>
         {
@@ -48,7 +48,7 @@ internal sealed class DailyService : IDisplayService
                 DateTime = currentDate.ToDateTimeMidnight(),
                 Type = CellType.Header,
                 RowIndex = 1,
-                Events = headerEvents
+                Items = headerEvents
             }
         };
 
@@ -77,21 +77,18 @@ internal sealed class DailyService : IDisplayService
 
                 return isInTimeRange && isSameDay && fitsCellDateTime;
             })
-            .Select(e =>
-                   new EventWrapper<TEvent>
-                   {
-                       Props = props,
-                       Event = e,
-                       Span = GetEventSpan(e, config, props)
-                   }
-            ).OrderByDescending(e => (e.DateTo - e.DateFrom).TotalHours).ToList();
+            .Select(e => new CellItem<TEvent>()
+            {
+                EventWrapper = new EventWrapper<TEvent>(e, props),
+                Span = GetEventSpan(e, config, props)
+            }).OrderByDescending(ci => (ci.EventWrapper.DateTo - ci.EventWrapper.DateFrom).TotalHours).ToList();
 
             cells.Add(new Cell<TEvent>
             {
                 DateTime = cellDateTime,
                 Type = CellType.Normal,
                 RowIndex = i + (timeSlot.Minute % TimetableConstants.TimeSlotInterval) + 2,
-                Events = cellEvents
+                Items = cellEvents
             });
         }
 
@@ -118,7 +115,7 @@ internal sealed class DailyService : IDisplayService
     private static int GetEventSpan<TEvent>(
         TEvent e,
         TimetableConfig config,
-        CompiledProps<TEvent> props) where TEvent : class
+        PropertyAccessors<TEvent> props) where TEvent : class
     {
         var eventStart = props.GetDateFrom(e);
         var eventEnd = props.GetDateTo(e);

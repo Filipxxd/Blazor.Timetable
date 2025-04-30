@@ -17,7 +17,7 @@ public sealed class WeeklyServiceTests
         public string? GroupId { get; set; }
     }
 
-    private readonly CompiledProps<TestEvent> _props =
+    private readonly PropertyAccessors<TestEvent> _props =
         new(e => e.StartTime, e => e.EndTime, e => e.Title, e => e.GroupId, []);
 
     private readonly DateOnly _currentDate = new(2023, 10, 30);
@@ -104,8 +104,8 @@ public sealed class WeeklyServiceTests
         };
         var grid = _weeklyService.CreateGrid(events, config, _currentDate, _props);
         var includedEvents = grid.Columns
-                                  .SelectMany(col => col.Cells.SelectMany(cell => cell.Events))
-                                  .Select(wrapper => wrapper.Event)
+                                  .SelectMany(col => col.Cells.SelectMany(cell => cell.Items))
+                                  .Select(i => i.EventWrapper.Event)
                                   .ToList();
         Assert.Single(includedEvents);
         Assert.Equal(events[0], includedEvents[0]);
@@ -143,8 +143,8 @@ public sealed class WeeklyServiceTests
         var grid = _weeklyService.CreateGrid(events, config, _currentDate, _props);
         var headerEvents = grid.Columns
                                .SelectMany(col => col.Cells.Where(cell => cell.Type == CellType.Header)
-                                                           .SelectMany(cell => cell.Events)
-                                                           .Select(wrapper => wrapper.Event));
+                                                           .SelectMany(cell => cell.Items)
+                                                           .Select(i => i.EventWrapper.Event));
 
         Assert.Equal(4, headerEvents.Count());
         Assert.Contains(events[0], headerEvents);
@@ -168,8 +168,8 @@ public sealed class WeeklyServiceTests
         var grid = _weeklyService.CreateGrid(events, config, _currentDate, _props);
         var headerEvents = grid.Columns
                                .SelectMany(col => col.Cells.Where(cell => cell.Type == CellType.Header)
-                                                           .SelectMany(cell => cell.Events)
-                                                           .Select(wrapper => wrapper.Event));
+                                                           .SelectMany(cell => cell.Items)
+                                                           .Select(i => i.EventWrapper.Event));
         Assert.Single(headerEvents);
         Assert.Equal(events[0], headerEvents.First());
     }
@@ -192,8 +192,8 @@ public sealed class WeeklyServiceTests
         var grid = _weeklyService.CreateGrid(events, config, _currentDate, _props);
         var includedEvents = grid.Columns
                                   .SelectMany(col => col.Cells)
-                                  .SelectMany(cell => cell.Events)
-                                  .Select(wrapper => wrapper.Event)
+                                  .SelectMany(cell => cell.Items)
+                                  .Select(i => i.EventWrapper.Event)
                                   .ToArray();
         Assert.Equal(events.Length, includedEvents.Length);
     }
@@ -217,8 +217,8 @@ public sealed class WeeklyServiceTests
         var grid = _weeklyService.CreateGrid(events, config, _currentDate, _props);
         var includedEvents = grid.Columns
                                   .SelectMany(col => col.Cells.Where(cell => cell.DateTime.Hour < config.TimeTo.Hour))
-                                  .SelectMany(cell => cell.Events)
-                                  .Select(wrapper => wrapper.Event);
+                                  .SelectMany(cell => cell.Items)
+                                  .Select(i => i.EventWrapper.Event);
 
         Assert.Equal(events.Length, includedEvents.Count());
     }
@@ -245,7 +245,7 @@ public sealed class WeeklyServiceTests
         };
         var events = new[] { evt };
         var grid = _weeklyService.CreateGrid(events, config, _currentDate, _props);
-        var actualSpan = grid.Columns.SelectMany(col => col.Cells.SelectMany(cell => cell.Events)).First().Span;
+        var actualSpan = grid.Columns.SelectMany(col => col.Cells.SelectMany(cell => cell.Items)).First().Span;
 
         Assert.False(actualSpan == 0);
         Assert.Equal(expectedSpan, actualSpan);

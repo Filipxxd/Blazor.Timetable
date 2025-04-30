@@ -4,7 +4,7 @@ using System.Diagnostics;
 using Timetable.Common;
 using Timetable.Common.Enums;
 using Timetable.Components.Shared.Modals;
-using Timetable.Models;
+using Timetable.Models.Grid;
 using Timetable.Models.Props;
 using Timetable.Services;
 
@@ -16,7 +16,7 @@ public partial class TimetableEvent<TEvent>
 
     [Inject] private ModalService ModalService { get; set; } = default!;
 
-    [Parameter] public EventWrapper<TEvent> EventWrapper { get; set; } = default!;
+    [Parameter] public CellItem<TEvent> CellItem { get; set; } = default!;
     [Parameter] public string BackgroundColor { get; set; } = default!;
     [Parameter] public SpanDirection Direction { get; set; }
     [Parameter] public int Order { get; set; }
@@ -48,7 +48,7 @@ public partial class TimetableEvent<TEvent>
     {
         var parameters = new Dictionary<string, object>
         {
-            { "EventWrapper", EventWrapper },
+            { "EventWrapper", CellItem.EventWrapper },
             { "OnSubmit", OnEventUpdated },
             { "OnDelete", OnEventDelete },
             { "AdditionalFields", AdditionalFields }

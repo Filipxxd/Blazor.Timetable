@@ -16,7 +16,7 @@ public sealed class DailyServiceTests
         public string? GroupId { get; set; }
     }
 
-    private readonly CompiledProps<TestEvent> _props =
+    private readonly PropertyAccessors<TestEvent> _props =
         new(e => e.StartTime, e => e.EndTime, e => e.Title, e => e.GroupId, []);
 
     private readonly DateOnly _currentDate = new(2023, 10, 30);
@@ -143,21 +143,21 @@ public sealed class DailyServiceTests
         var result = _dailyService.CreateGrid(events, mockConfig, _currentDate, _props);
         var regularEvents = result.Columns
             .SelectMany(col => col.Cells.Where(cell => cell.Type != CellType.Header)
-            .SelectMany(cell => cell.Events))
-            .Select(e => e.Event)
+            .SelectMany(cell => cell.Items))
+            .Select(e => e.EventWrapper.Event)
             .ToList();
         Assert.Single(regularEvents);
         Assert.Equal("Event 2", regularEvents[0].Title);
         var headerEvents = result.Columns
             .SelectMany(col => col.Cells.Where(cell => cell.Type == CellType.Header)
-            .SelectMany(cell => cell.Events))
-            .Select(e => e.Event)
+            .SelectMany(cell => cell.Items))
+            .Select(e => e.EventWrapper.Event)
             .ToList();
         Assert.Single(headerEvents);
         Assert.Equal("Event 1", headerEvents[0].Title);
         var allEvents = result.Columns
-            .SelectMany(col => col.Cells.SelectMany(cell => cell.Events))
-            .Select(e => e.Event)
+            .SelectMany(col => col.Cells.SelectMany(cell => cell.Items))
+            .Select(e => e.EventWrapper.Event)
             .ToList();
         Assert.DoesNotContain(allEvents, e => e.Title == "Event 3");
     }
@@ -180,7 +180,7 @@ public sealed class DailyServiceTests
         var events = new List<TestEvent> { wholeDayEvent };
         var result = _dailyService.CreateGrid(events, mockConfig, _currentDate, _props);
         var headerCell = result.Columns.SelectMany(x => x.Cells).First(cell => cell.Type == CellType.Header);
-        Assert.Contains(headerCell.Events, e => e.Event.Title == wholeDayEvent.Title);
+        Assert.Contains(headerCell.Items, e => e.EventWrapper.Event.Title == wholeDayEvent.Title);
     }
 
     [Fact]
@@ -209,8 +209,8 @@ public sealed class DailyServiceTests
         };
         var result = _dailyService.CreateGrid(events, mockConfig, _currentDate, _props);
         var allTitles = result.Columns
-            .SelectMany(col => col.Cells.SelectMany(cell => cell.Events))
-            .Select(e => e.Event.Title)
+            .SelectMany(col => col.Cells.SelectMany(cell => cell.Items))
+            .Select(e => e.EventWrapper.Event.Title)
             .ToList();
         Assert.Contains("Event 1", allTitles);
         Assert.Contains("Event 2", allTitles);
@@ -243,11 +243,11 @@ public sealed class DailyServiceTests
         var result = _dailyService.CreateGrid(events, mockConfig, _currentDate, _props);
         var startIncluded = result.Columns
             .SelectMany(col => col.Cells)
-            .Any(cell => cell.Events.Any(e => e.Event.Title == "Start Boundary Event"));
+            .Any(cell => cell.Items.Any(e => e.EventWrapper.Event.Title == "Start Boundary Event"));
         Assert.True(startIncluded);
         var endIncluded = result.Columns
             .SelectMany(col => col.Cells)
-            .Any(cell => cell.Events.Any(e => e.Event.Title == "End Boundary Event"));
+            .Any(cell => cell.Items.Any(e => e.EventWrapper.Event.Title == "End Boundary Event"));
         Assert.False(endIncluded);
     }
 }

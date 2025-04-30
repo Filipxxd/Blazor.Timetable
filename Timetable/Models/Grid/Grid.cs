@@ -1,4 +1,4 @@
-﻿namespace Timetable.Models;
+﻿namespace Timetable.Models.Grid;
 
 internal sealed class Grid<TEvent> where
     TEvent : class
@@ -10,7 +10,7 @@ internal sealed class Grid<TEvent> where
     public Cell<TEvent>? FindCellByEventId(Guid eventId)
     {
         return Columns.SelectMany(col => col.Cells)
-                           .FirstOrDefault(cell => cell.Events.Any(e => e.Id == eventId));
+                           .FirstOrDefault(cell => cell.Items.Any(e => e.Id == eventId));
     }
 
     public Cell<TEvent>? FindCellById(Guid cellId)

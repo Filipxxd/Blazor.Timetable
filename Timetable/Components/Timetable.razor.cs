@@ -8,6 +8,7 @@ using Timetable.Common.Helpers;
 using Timetable.Components.Shared.Modals;
 using Timetable.Configuration;
 using Timetable.Models;
+using Timetable.Models.Grid;
 using Timetable.Models.Props;
 using Timetable.Services;
 using Timetable.Services.DataExchange.Export;
@@ -21,7 +22,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     private bool _firstRender = false;
     private DotNetObjectReference<Timetable<TEvent>> _objectReference = default!;
     private TimetableManager<TEvent> _timetableManager = default!;
-    private CompiledProps<TEvent> _eventProps = default!;
+    private PropertyAccessors<TEvent> _eventProps = default!;
     private IJSObjectReference _jsModule = default!;
 
     [Inject] internal IJSRuntime JsRuntime { get; set; } = default!;
@@ -59,7 +60,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         _firstRender = true;
         _objectReference = DotNetObjectReference.Create(this);
 
-        _eventProps = new CompiledProps<TEvent>(DateFrom, DateTo, Title, GroupId, AdditionalProps);
+        _eventProps = new PropertyAccessors<TEvent>(DateFrom, DateTo, Title, GroupId, AdditionalProps);
         _timetableManager = new TimetableManager<TEvent>()
         {
             Props = _eventProps
@@ -76,18 +77,15 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             ]
         };
 
-        var mappers = new List<INamePropertyMapper<TEvent>>
-        {
-          new NamePropertyMapper<TEvent,DateTime>(   "DateFrom",   DateFrom),
-          new NamePropertyMapper<TEvent,DateTime>("DateTo", DateTo),
-          new NamePropertyMapper<TEvent,string>("Title", Title)
-        };
-
         ImportConfig = new ImportConfig<TEvent>
         {
             AllowedExtensions = ["csv"],
             MaxFileSizeBytes = 5_000_000,
-            Transformer = new CsvImportTransformer<TEvent>(mappers)
+            Transformer = new CsvImportTransformer<TEvent>([
+              new NamePropertyMapper<TEvent,DateTime>("DateFrom", DateFrom),
+              new NamePropertyMapper<TEvent,DateTime>("DateTo", DateTo),
+              new NamePropertyMapper<TEvent,string>("Title", Title)
+            ])
         };
     }
 
@@ -96,11 +94,11 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         if (_firstRender)
         {
             _timetableManager.DisplayType = TimetableConfig.DefaultDisplayType;
-            _timetableManager.CurrentDate = _timetableManager.OriginalDate = TimetableConfig.DefaultDate;
+            _timetableManager.CurrentDate = TimetableConfig.DefaultDate;
 
             while (!_timetableManager.CurrentDate.IsValidFor(TimetableConfig.Days, TimetableConfig.Months))
             {
-                _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(7); // todo: based on displaytype;
+                _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(1);
             }
         }
 
@@ -174,8 +172,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     private async Task HandleDisplayTypeChanged(DisplayType displayType)
     {
         _timetableManager.DisplayType = displayType;
-        // TODO: default via param
-        _timetableManager.CurrentDate = DateTime.Now.ToDateOnly();
+        _timetableManager.CurrentDate = TimetableConfig.DefaultDate;
 
         await OnNextClicked.InvokeAsync();
     }
@@ -200,12 +197,9 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         _eventProps.SetDateFrom(newEvent, dateTime);
         _eventProps.SetDateTo(newEvent, dateTime.AddMinutes(TimetableConstants.TimeSlotInterval));
 
-        var wrapper = new EventWrapper<TEvent>()
+        var wrapper = new EventWrapper<TEvent>(newEvent, _eventProps)
         {
-            Event = newEvent,
-            GroupIdentifier = null,
-            Props = _eventProps,
-            Span = 0
+            GroupIdentifier = null
         };
 
         var onSaveCallback = EventCallback.Factory.Create(this, async (IList<TEvent> ev) =>

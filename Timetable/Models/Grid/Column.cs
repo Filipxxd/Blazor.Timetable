@@ -1,4 +1,4 @@
-﻿namespace Timetable.Models;
+﻿namespace Timetable.Models.Grid;
 
 internal sealed class Column<TEvent> where
     TEvent : class

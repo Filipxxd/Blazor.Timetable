@@ -3,7 +3,7 @@ using Timetable.Common.Helpers;
 
 namespace Timetable.Models;
 
-public sealed class CompiledProps<TEvent> where TEvent : class
+public sealed class PropertyAccessors<TEvent> where TEvent : class
 {
     internal Func<TEvent, DateTime> GetDateFrom { get; }
     internal Action<TEvent, DateTime> SetDateFrom { get; }
@@ -17,7 +17,7 @@ public sealed class CompiledProps<TEvent> where TEvent : class
     internal IList<(Func<TEvent, object?> Getter, Action<TEvent, object?> Setter)> AdditionalProperties { get; } = [];
 
 
-    internal CompiledProps(Expression<Func<TEvent, DateTime>> dateFromSelector,
+    internal PropertyAccessors(Expression<Func<TEvent, DateTime>> dateFromSelector,
         Expression<Func<TEvent, DateTime>> dateToSelector, Expression<Func<TEvent, string>> titleSelector,
         Expression<Func<TEvent, object?>> groupIdSelector, IEnumerable<EventProperty<TEvent>> additionalProps)
     {

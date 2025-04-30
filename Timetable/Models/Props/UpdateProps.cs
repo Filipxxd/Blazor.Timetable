@@ -1,4 +1,5 @@
 ﻿using Timetable.Common.Enums;
+using Timetable.Models.Grid;
 
 namespace Timetable.Models.Props;
 

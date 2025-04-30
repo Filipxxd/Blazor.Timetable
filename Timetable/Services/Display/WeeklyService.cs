@@ -4,6 +4,7 @@ using Timetable.Common.Extensions;
 using Timetable.Common.Helpers;
 using Timetable.Configuration;
 using Timetable.Models;
+using Timetable.Models.Grid;
 
 namespace Timetable.Services.Display;
 
@@ -15,7 +16,7 @@ internal sealed class WeeklyService : IDisplayService
         IList<TEvent> events,
         TimetableConfig config,
         DateOnly currentDate,
-        CompiledProps<TEvent> props) where TEvent : class
+        PropertyAccessors<TEvent> props) where TEvent : class
     {
         var cellDates = CalculateGridDates(currentDate, config.Days);
         var gridStart = cellDates.First();
@@ -66,14 +67,13 @@ internal sealed class WeeklyService : IDisplayService
                 var currentDayIndex = config.Days.IndexOf(cellDate.DayOfWeek);
                 var maxSpan = config.Days.Count - currentDayIndex;
 
-                return new EventWrapper<TEvent>
+                return new CellItem<TEvent>
                 {
-                    Props = props,
-                    Event = e,
+                    EventWrapper = new EventWrapper<TEvent>(e, props),
                     Span = Math.Min(overlapDays, maxSpan)
                 };
             })
-            .OrderByDescending(e => e.Span).ToList();
+            .OrderByDescending(ci => ci.Span).ToList();
 
             var cells = new List<Cell<TEvent>>
             {
@@ -81,7 +81,7 @@ internal sealed class WeeklyService : IDisplayService
                     DateTime = cellDate.ToDateTimeMidnight(),
                     Type = CellType.Header,
                     RowIndex = 1,
-                    Events = headerEvents
+                    Items = headerEvents
                 }
             };
 
@@ -126,21 +126,20 @@ internal sealed class WeeklyService : IDisplayService
                         span++;
                     }
 
-                    return new EventWrapper<TEvent>
+                    return new CellItem<TEvent>
                     {
-                        Props = props,
-                        Event = e,
+                        EventWrapper = new EventWrapper<TEvent>(e, props),
                         Span = span
                     };
                 })
-                .OrderByDescending(e => (e.DateTo - e.DateFrom).TotalHours).ToList();
+                .OrderByDescending(ci => (ci.EventWrapper.DateTo - ci.EventWrapper.DateFrom).TotalHours).ToList();
 
                 cells.Add(new Cell<TEvent>
                 {
                     DateTime = cellStartTime,
                     Type = CellType.Normal,
                     RowIndex = i + (timeSlot.Minute % TimetableConstants.TimeSlotInterval) + 2,
-                    Events = cellEvents
+                    Items = cellEvents
                 });
             }
 
