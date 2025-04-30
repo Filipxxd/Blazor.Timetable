@@ -7,10 +7,14 @@ const slotArgument = 'data-slot-id';
 const originalSlotArgument = 'data-original-slot-id';
 
 export const dragDrop = {
-    init: function(objRef) {
+    init: function (objRef) {
         interact(eventSelector).draggable({
             inertia: false,
-            autoScroll: true,
+            autoScroll: {
+                container: document.querySelector(timetableSelector),
+                margin: 50,
+                speed: 300
+            },
 
             ////modifiers: [
             ////    interact.modifiers.restrict({
@@ -26,9 +30,8 @@ export const dragDrop = {
                     target.style.zIndex = '1000';
                     target.style.cursor = 'move';
                     const originalSlot = target.closest(slotSelector);
-                    
-                    if (originalSlot)
-                    {
+
+                    if (originalSlot) {
                         target.setAttribute(originalSlotArgument, originalSlot.getAttribute(slotArgument));
                     }
                 },
@@ -49,9 +52,8 @@ export const dragDrop = {
                     const closestSlot = findClosestSlot(target);
                     target.style.zIndex = '';
                     target.style.cursor = 'pointer';
-                    
-                    if (!closestSlot)
-                    {
+
+                    if (!closestSlot) {
                         resetPosition(target);
                         return;
                     }
