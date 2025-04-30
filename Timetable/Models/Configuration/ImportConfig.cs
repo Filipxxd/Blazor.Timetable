@@ -1,6 +1,6 @@
 ﻿using Timetable.Services.DataExchange.Import;
 
-namespace Timetable.Configuration;
+namespace Timetable.Models.Configuration;
 
 public sealed class ImportConfig<TEvent>
   where TEvent : class

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
-using Timetable.Configuration;
+using Timetable.Models.Configuration;
 using Timetable.Services;
 using Timetable.Services.Display;
 

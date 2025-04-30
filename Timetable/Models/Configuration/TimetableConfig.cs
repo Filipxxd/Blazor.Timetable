@@ -3,7 +3,7 @@ using Timetable.Common.Enums;
 using Timetable.Common.Exceptions;
 using Timetable.Common.Extensions;
 
-namespace Timetable.Configuration;
+namespace Timetable.Models.Configuration;
 
 public sealed class TimetableConfig
 {

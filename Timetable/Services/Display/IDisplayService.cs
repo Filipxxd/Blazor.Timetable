@@ -1,6 +1,6 @@
 ﻿using Timetable.Common.Enums;
-using Timetable.Configuration;
 using Timetable.Models;
+using Timetable.Models.Configuration;
 using Timetable.Models.Grid;
 
 namespace Timetable.Services.Display;

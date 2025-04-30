@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using Timetable.Common.Exceptions;
 
-namespace Timetable.Configuration;
+namespace Timetable.Models.Configuration;
 
 public sealed class StyleConfig
 {

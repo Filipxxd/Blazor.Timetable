@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace Timetable.Configuration;
+namespace Timetable.Models.Configuration;
 
 internal static class CultureConfig
 {

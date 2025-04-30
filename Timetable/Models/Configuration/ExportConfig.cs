@@ -1,7 +1,7 @@
 ﻿using Timetable.Common.Exceptions;
 using Timetable.Services.DataExchange.Export;
 
-namespace Timetable.Configuration;
+namespace Timetable.Models.Configuration;
 
 public sealed class ExportConfig<TEvent> where TEvent : class
 {

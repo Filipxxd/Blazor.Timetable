@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Timetable.Configuration;
+using Timetable.Models.Configuration;
 
 namespace Timetable.Components;
 
