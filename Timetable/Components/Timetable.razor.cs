@@ -36,7 +36,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateTo { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, string>> Title { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, object?>> GroupId { get; set; } = default!;
-    [Parameter] public IList<EventProperty<TEvent>> AdditionalProps { get; set; } = [];
+    [Parameter] public IEnumerable<Expression<Func<TEvent, object?>>> AdditionalProps { get; set; } = [];
 
     [Parameter] public TimetableConfig TimetableConfig { get; set; } = new();
     [Parameter] public StyleConfig StyleConfig { get; set; } = new();

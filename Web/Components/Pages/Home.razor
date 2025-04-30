@@ -15,7 +15,7 @@
            DateFrom="e => e.StartTime"
            DateTo="e => e.EndTime"
            GroupId="e => e.GroupId"
-           AdditionalProps=@([new EventProperty<TimetableEvent>(x => x.Description)])
+           AdditionalProps=@([x => x.Description])
 
            TimetableConfig="new(){
                 DefaultDisplayType=DisplayType.Week,

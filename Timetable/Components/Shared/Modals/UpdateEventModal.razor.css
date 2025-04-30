@@ -16,3 +16,8 @@
 .modal-container button:hover {
     background-color: #2bb82b;
 }
+
+.required-props {
+    display: flex;
+    flex-direction: column;
+}

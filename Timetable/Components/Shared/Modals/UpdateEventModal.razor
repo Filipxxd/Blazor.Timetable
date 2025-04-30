@@ -1,11 +1,11 @@
 ﻿@typeparam TEvent where TEvent : class
 
 <div class="modal-container">
-    @if(CurrentState == State.Normal)
+    @if (State == UpdateState.Normal)
     {        
         <button @onclick=TryDelete />
 
-        <div style="display: flex; flex-direction: column;">
+        <div style="required-props">
             <Input Model="editEvent" Label="Title" Selector="x => x.Title" />
             <InputDateTime Model="editEvent" Label="Start" Selector="x => x.DateFrom" />
             <InputDateTime Model="editEvent" Label="End" Selector="x => x.DateTo" />
@@ -36,6 +36,4 @@
             <button @onclick=Delete>Delete</button>
         </div>
     }
-
 </div>
-

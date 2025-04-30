@@ -16,13 +16,7 @@ public partial class UpdateEventModal<TEvent> where TEvent : class
     [Parameter] public EventCallback<UpdateProps<TEvent>> OnSubmit { get; set; }
     [Parameter] public EventCallback<DeleteProps<TEvent>> OnDelete { get; set; }
     public ActionScope Scope { get; set; } = ActionScope.All;
-    public State CurrentState { get; set; } = State.Normal;
-
-    public enum State
-    {
-        Normal,
-        Confirm,
-    }
+    public UpdateState State { get; set; } = UpdateState.Normal;
 
     protected override void OnParametersSet()
     {
@@ -36,7 +30,7 @@ public partial class UpdateEventModal<TEvent> where TEvent : class
     {
         if (EventWrapper.HasGroupdAssigned)
         {
-            CurrentState = State.Confirm;
+            State = UpdateState.Confirm;
             return;
         }
 

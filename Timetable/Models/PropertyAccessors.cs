@@ -19,7 +19,7 @@ public sealed class PropertyAccessors<TEvent> where TEvent : class
 
     internal PropertyAccessors(Expression<Func<TEvent, DateTime>> dateFromSelector,
         Expression<Func<TEvent, DateTime>> dateToSelector, Expression<Func<TEvent, string>> titleSelector,
-        Expression<Func<TEvent, object?>> groupIdSelector, IEnumerable<EventProperty<TEvent>> additionalProps)
+        Expression<Func<TEvent, object?>> groupIdSelector, IEnumerable<Expression<Func<TEvent, object?>>> additionalProps)
     {
         GetTitle = PropertyHelper.CreateGetter(titleSelector!)!;
         SetTitle = PropertyHelper.CreateSetter(titleSelector!);
@@ -30,10 +30,10 @@ public sealed class PropertyAccessors<TEvent> where TEvent : class
         GetGroupId = PropertyHelper.CreateGetter(groupIdSelector);
         SetGroupId = PropertyHelper.CreateSetter(groupIdSelector);
 
-        foreach (var expr in additionalProps)
+        foreach (var expression in additionalProps)
         {
-            var getter = PropertyHelper.CreateGetter(expr.Selector);
-            var setter = PropertyHelper.CreateSetter(expr.Selector);
+            var getter = PropertyHelper.CreateGetter(expression);
+            var setter = PropertyHelper.CreateSetter(expression);
 
             AdditionalProperties.Add((getter, setter));
         }
