@@ -40,7 +40,7 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
         if (_jsModule is null || _dotNetRef is null) return;
         await _jsModule.InvokeVoidAsync("promptFileSelect",
            _dotNetRef,
-           ImportConfig.MaxFileSize,
+           ImportConfig.MaxFileSizeBytes,
            ImportConfig.AllowedExtensions);
     }
 
@@ -50,7 +50,8 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
         var content = Convert.FromBase64String(base64);
         var ms = new MemoryStream(content, writable: false);
         var items = ImportConfig.Transformer.Transform(ms);
-        ms.Dispose();
+
+        await ms.DisposeAsync();
         //await OnImported.InvokeAsync(items);
     }
 

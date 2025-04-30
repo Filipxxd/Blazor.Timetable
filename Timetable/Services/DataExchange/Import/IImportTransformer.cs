@@ -22,11 +22,10 @@ public sealed class NamePropertyMapper<TEvent, TProperty>
 
     public NamePropertyMapper(
       string name,
-      Expression<Func<TEvent, TProperty>> selector,
+      Expression<Func<TEvent, TProperty?>> selector,
       Func<string, TProperty>? parser = null)
     {
         Name = name;
-        // you’ll need your own PropertyHelper.CreateSetter(...)
         _setter = PropertyHelper.CreateSetter(selector);
         _parser = parser ?? (s => (TProperty)Convert.ChangeType(s, typeof(TProperty)));
     }

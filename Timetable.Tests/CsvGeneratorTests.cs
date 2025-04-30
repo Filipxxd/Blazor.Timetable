@@ -8,8 +8,8 @@ public sealed class CsvGeneratorTests
 {
     private class TestEvent
     {
-        public string Property1 { get; set; }
-        public string Property2 { get; set; }
+        public string Property1 { get; set; } = default!;
+        public string Property2 { get; set; } = default!;
         public int IntegerProperty { get; set; }
         public double DoubleProperty { get; set; }
         public bool BooleanProperty { get; set; }

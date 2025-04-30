@@ -60,7 +60,6 @@ internal sealed class DailyService : IDisplayService
 
             var cellDateTime = currentDate.ToDateTimeMidnight().AddHours(timeSlot.Hour).AddMinutes(timeSlot.Minute);
 
-            // TODO: test all variations of date & time, also then test with header events also
             var cellEvents = events.Where(e =>
             {
                 var eventStart = props.GetDateFrom(e);
@@ -85,7 +84,7 @@ internal sealed class DailyService : IDisplayService
                        Event = e,
                        Span = GetEventSpan(e, config, props)
                    }
-            ).OrderByDescending(e => (e.DateTo - e.DateFrom).TotalHours).ToList();  // todo: test ordering by duration
+            ).OrderByDescending(e => (e.DateTo - e.DateFrom).TotalHours).ToList();
 
             cells.Add(new Cell<TEvent>
             {
@@ -138,7 +137,7 @@ internal sealed class DailyService : IDisplayService
         return span;
     }
 
-    private static List<TimeOnly> GetTimeSlots(TimeOnly start, TimeOnly end) // test
+    private static List<TimeOnly> GetTimeSlots(TimeOnly start, TimeOnly end)
     {
         var timeSlots = new List<TimeOnly>();
 

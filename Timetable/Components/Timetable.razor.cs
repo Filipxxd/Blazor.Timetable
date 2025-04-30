@@ -77,17 +77,16 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         };
 
         var mappers = new List<INamePropertyMapper<TEvent>>
-{
-  new NamePropertyMapper<TEvent,DateTime>(   "DateFrom",   DateFrom),
-  new NamePropertyMapper<TEvent,DateTime>("DateTo", DateTo),
-  new NamePropertyMapper<TEvent,string>("Title", Title),
-  // …
-};
+        {
+          new NamePropertyMapper<TEvent,DateTime>(   "DateFrom",   DateFrom),
+          new NamePropertyMapper<TEvent,DateTime>("DateTo", DateTo),
+          new NamePropertyMapper<TEvent,string>("Title", Title)
+        };
 
         ImportConfig = new ImportConfig<TEvent>
         {
-            AllowedExtensions = new[] { "csv" },
-            MaxFileSize = 5_000_000,
+            AllowedExtensions = ["csv"],
+            MaxFileSizeBytes = 5_000_000,
             Transformer = new CsvImportTransformer<TEvent>(mappers)
         };
     }
@@ -99,10 +98,10 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             _timetableManager.DisplayType = TimetableConfig.DefaultDisplayType;
             _timetableManager.CurrentDate = _timetableManager.OriginalDate = TimetableConfig.DefaultDate;
 
-            _timetableManager.CurrentDate = _timetableManager.CurrentDate.EnsureValidDate(
-                _timetableManager.DisplayType,
-                TimetableConfig.Days,
-                TimetableConfig.Months);
+            while (!_timetableManager.CurrentDate.IsValidFor(TimetableConfig.Days, TimetableConfig.Months))
+            {
+                _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(7); // todo: based on displaytype;
+            }
         }
 
         TimetableConfig.Validate();
@@ -137,70 +136,14 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
     private async Task HandleNextClicked()
     {
-        switch (_timetableManager.DisplayType)
-        {
-            case DisplayType.Day:
-                _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(1);
-                break;
-
-            case DisplayType.Week:
-                _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(TimetableConfig.Days.Count);
-                break;
-
-            case DisplayType.Month:
-                var nextMonth = _timetableManager.CurrentDate.Month + 1;
-                var nextYear = _timetableManager.CurrentDate.Year;
-
-                if (nextMonth > 12)
-                {
-                    nextMonth = 1;
-                    nextYear++;
-                }
-
-                _timetableManager.CurrentDate = new DateOnly(nextYear, nextMonth, 1);
-                break;
-        }
-
-        while (!TimetableConfig.Days.Contains(_timetableManager.CurrentDate.DayOfWeek) ||
-               !TimetableConfig.Months.Contains((Month)_timetableManager.CurrentDate.Month))
-        {
-            _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(1);
-        }
-
+        _timetableManager.CurrentDate = _timetableManager.CurrentDate.GetDate(_timetableManager.DisplayType, TimetableConfig.Days, TimetableConfig.Months, true);
         await OnNextClicked.InvokeAsync();
         UpdateGrid();
     }
 
     private async Task HandlePreviousClicked()
     {
-        switch (_timetableManager.DisplayType)
-        {
-            case DisplayType.Day:
-                _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(-1);
-                break;
-            case DisplayType.Week:
-                _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(-TimetableConfig.Days.Count);
-                break;
-            case DisplayType.Month:
-                var previousMonth = _timetableManager.CurrentDate.Month - 1;
-                var previousYear = _timetableManager.CurrentDate.Year;
-
-                if (previousMonth < 1)
-                {
-                    previousMonth = 12;
-                    previousYear--;
-                }
-
-                _timetableManager.CurrentDate = new DateOnly(previousYear, previousMonth, DateTime.DaysInMonth(previousYear, previousMonth));
-                break;
-        }
-
-        while (!TimetableConfig.Days.Contains(_timetableManager.CurrentDate.DayOfWeek) ||
-               !TimetableConfig.Months.Contains((Month)_timetableManager.CurrentDate.Month))
-        {
-            _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(-1);
-        }
-
+        _timetableManager.CurrentDate = _timetableManager.CurrentDate.GetDate(_timetableManager.DisplayType, TimetableConfig.Days, TimetableConfig.Months, false);
         await OnPreviousClicked.InvokeAsync();
         UpdateGrid();
     }
@@ -221,9 +164,10 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         UpdateGrid();
     }
 
-    private async Task HandleEventDeleted(DeleteProps<TEvent> deleteProps)
+    private void HandleEventDeleted(DeleteProps<TEvent> deleteProps)
     {
         var deleted = _timetableManager.DeleteEvent(Events, deleteProps);
+        // TODO: OnDeleted callback
         UpdateGrid();
     }
 

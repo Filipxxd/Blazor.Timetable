@@ -1,6 +1,5 @@
 ﻿using Timetable.Common.Enums;
 using Timetable.Common.Extensions;
-using Timetable.Common.Helpers;
 using Timetable.Configuration;
 using Timetable.Models;
 
@@ -16,7 +15,7 @@ internal sealed class MonthlyService : IDisplayService
         DateOnly currentDate,
         CompiledProps<TEvent> props) where TEvent : class
     {
-        var rows = CalendarHelper.CalculateMonthGridDates(currentDate, config.Days);
+        var rows = CalculateMonthGridDates(currentDate, config.Days);
         var gridStartDate = rows.First().First();
         var gridEndDate = rows.Last().Last();
 
@@ -59,7 +58,8 @@ internal sealed class MonthlyService : IDisplayService
 
                 var maxSpan = columnsCount - (col + 1) + 1;
 
-                if (rows[row].Any(d => d.Month != currentDate.Month && rows[row].First().Month == currentDate.Month)) // eg if is lastrow where possible filling of next month days from right!
+                // eg if is lastrow where possible filling of next month days from right!
+                if (rows[row].Any(d => d.Month != currentDate.Month && rows[row].First().Month == currentDate.Month))
                 {
                     maxSpan -= rows[row].Count(d => d.Month != currentDate.Month);
                 }
@@ -104,5 +104,40 @@ internal sealed class MonthlyService : IDisplayService
             Title = $"{currentDate:MMMM yyyy}".CapitalizeWords(),
             Columns = columns
         };
+    }
+
+    public static List<List<DateOnly>> CalculateMonthGridDates(DateOnly date, IList<DayOfWeek> days)
+    {
+        if (days == null || days.Count == 0)
+            throw new ArgumentException("configuredDays must contain at least one element.");
+
+        var firstOfMonth = new DateOnly(date.Year, date.Month, 1);
+        var lastOfMonth = firstOfMonth.AddMonths(1).AddDays(-1);
+        var startDiff = ((int)firstOfMonth.DayOfWeek - (int)days[0] + 7) % 7;
+        var gridStartBase = firstOfMonth.AddDays(-startDiff);
+        var offsets = days
+                              .Select(d => ((int)d - (int)days[0] + 7) % 7)
+                              .ToArray();
+
+        var maxWeekIndex = (lastOfMonth.DayNumber - gridStartBase.DayNumber) / 7;
+
+        var firstWeekIndex = 0;
+        while (firstWeekIndex <= maxWeekIndex)
+        {
+            var ws = gridStartBase.AddDays(firstWeekIndex * 7);
+            if (offsets.Any(off => ws.AddDays(off).Month == date.Month))
+                break;
+            firstWeekIndex++;
+        }
+
+        var rows = new List<List<DateOnly>>();
+        for (var wi = firstWeekIndex; wi <= maxWeekIndex; wi++)
+        {
+            var ws = gridStartBase.AddDays(wi * 7);
+            var row = offsets.Select(off => ws.AddDays(off)).ToList();
+            rows.Add(row);
+        }
+
+        return rows;
     }
 }

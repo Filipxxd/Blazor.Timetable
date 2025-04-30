@@ -139,11 +139,6 @@ internal sealed class TimetableManager<TEvent> where
 
     public TEvent UpdateEvent(UpdateProps<TEvent> props)
     {
-        var timetableEvent = Grid.FindCellByEventId(props.Original.Id).Events.FirstOrDefault(e => e.Id == props.Original.Id);
-
-        if (timetableEvent is null)
-            return default!;
-
         if (props.Original.HasGroupdAssigned)
             props.New.GroupIdentifier = null;
 
