@@ -5,6 +5,7 @@
     <Options Events=@Events
              CurrentDisplayType=@_timetableManager.DisplayType
              ExportConfig=@ExportConfig
+             ImportConfig=@ImportConfig
              TimetableConfig=@TimetableConfig
              OnCreateClicked=@(() => HandleOpenCreateModal(_timetableManager.CurrentDate.ToDateTimeMidnight()))
              OnDisplayTypeChanged=HandleDisplayTypeChanged />

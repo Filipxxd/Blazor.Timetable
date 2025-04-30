@@ -35,6 +35,17 @@ internal static class CsvGenerator
         return [.. csvContent];
     }
 
+    public static string Unescape(string field)
+    {
+        if (field.Length >= 2
+         && field[0] == '"' && field[^1] == '"')
+        {
+            var inner = field[1..^1];
+            return inner.Replace("\"\"", "\"");
+        }
+        return field;
+    }
+
     private static string EscapeCsvValue(string? value)
     {
         if (string.IsNullOrEmpty(value)) return string.Empty;

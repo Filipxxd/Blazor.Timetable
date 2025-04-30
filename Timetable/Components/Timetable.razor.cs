@@ -11,6 +11,7 @@ using Timetable.Models;
 using Timetable.Models.Props;
 using Timetable.Services;
 using Timetable.Services.DataExchange.Export;
+using Timetable.Services.DataExchange.Import;
 using Timetable.Services.Display;
 
 namespace Timetable.Components;
@@ -39,6 +40,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter] public TimetableConfig TimetableConfig { get; set; } = new();
     [Parameter] public StyleConfig StyleConfig { get; set; } = new();
     [Parameter] public ExportConfig<TEvent> ExportConfig { get; set; } = default!;
+    [Parameter] public ImportConfig<TEvent> ImportConfig { get; set; } = default!;
 
     [Parameter] public RenderFragment<TEvent> AdditionalFields { get; set; } = default!;
 
@@ -72,6 +74,21 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
                 new NamePropertySelector<TEvent, DateTime>("DateTo", DateTo),
                 new NamePropertySelector<TEvent, string>("Title", Title)
             ]
+        };
+
+        var mappers = new List<INamePropertyMapper<TEvent>>
+{
+  new NamePropertyMapper<TEvent,DateTime>(   "DateFrom",   DateFrom),
+  new NamePropertyMapper<TEvent,DateTime>("DateTo", DateTo),
+  new NamePropertyMapper<TEvent,string>("Title", Title),
+  // …
+};
+
+        ImportConfig = new ImportConfig<TEvent>
+        {
+            AllowedExtensions = new[] { "csv" },
+            MaxFileSize = 5_000_000,
+            Transformer = new CsvImportTransformer<TEvent>(mappers)
         };
     }
 
