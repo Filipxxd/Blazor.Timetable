@@ -1,24 +1,41 @@
 ﻿@typeparam TEvent where TEvent : class
 
 <div class="modal-container">
-    <div style="display: flex; flex-direction: column;">
-        <Input Model="editEvent" Label="Title" Selector="x => x.Title" />
-        <InputDateTime Model="editEvent" Label="Start" Selector="x => x.DateFrom" />
-        <InputDateTime Model="editEvent" Label="End" Selector="x => x.DateTo" />
-    </div>
+    @if(CurrentState == State.Normal)
+    {        
+        <button @onclick=TryDelete />
 
-    @if (AdditionalFields != null)
+        <div style="display: flex; flex-direction: column;">
+            <Input Model="editEvent" Label="Title" Selector="x => x.Title" />
+            <InputDateTime Model="editEvent" Label="Start" Selector="x => x.DateFrom" />
+            <InputDateTime Model="editEvent" Label="End" Selector="x => x.DateTo" />
+        </div>
+
+        @if (AdditionalFields != null)
+        {
+            @AdditionalFields.Invoke(editEvent.Event)
+        }
+
+        @if (editEvent.HasGroupdAssigned)
+        {
+            <Dropdown Model=this Label="Apply Changes To" Selector="x => x.Scope" Options="(ActionScope[])Enum.GetValues(typeof(ActionScope))" />
+        }
+
+        <div>
+            <button @onclick=Submit>Submit</button>
+        </div>
+    }
+    else
     {
-        @AdditionalFields.Invoke(editEvent.Event)
+        @if (editEvent.HasGroupdAssigned)
+        {
+            <Dropdown Model=this Label="Select" Selector="x => x.Scope" Options="(ActionScope[])Enum.GetValues(typeof(ActionScope))" />
+        }
+
+        <div>
+            <button @onclick=Delete>Delete</button>
+        </div>
     }
 
-    @if (editEvent.HasGroupdAssigned)
-    {
-        <Dropdown Model="this" Label="Apply Changes To" Selector="x => x.Scope" Options="@((ActionScope[])Enum.GetValues(typeof(ActionScope)))" />
-    }
-
-    <div>
-        <button @onclick="Submit">Submit</button>
-    </div>
 </div>
 

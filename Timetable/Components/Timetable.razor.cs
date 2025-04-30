@@ -204,6 +204,12 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         UpdateGrid();
     }
 
+    private async Task HandleEventDeleted(DeleteProps<TEvent> deleteProps)
+    {
+        var deleted = _timetableManager.DeleteEvent(Events, deleteProps);
+        UpdateGrid();
+    }
+
     private async Task HandleDisplayTypeChanged(DisplayType displayType)
     {
         _timetableManager.DisplayType = displayType;

@@ -14,7 +14,15 @@ public partial class UpdateEventModal<TEvent> where TEvent : class
     [Parameter] public EventWrapper<TEvent> EventWrapper { get; set; } = default!;
     [Parameter] public RenderFragment<TEvent> AdditionalFields { get; set; } = default!;
     [Parameter] public EventCallback<UpdateProps<TEvent>> OnSubmit { get; set; }
+    [Parameter] public EventCallback<DeleteProps<TEvent>> OnDelete { get; set; }
     public ActionScope Scope { get; set; } = ActionScope.All;
+    public State CurrentState { get; set; } = State.Normal;
+
+    public enum State
+    {
+        Normal,
+        Confirm,
+    }
 
     protected override void OnParametersSet()
     {
@@ -22,6 +30,29 @@ public partial class UpdateEventModal<TEvent> where TEvent : class
             Scope = ActionScope.Current;
 
         editEvent = EventWrapper.Copy();
+    }
+
+    private async Task TryDelete()
+    {
+        if (EventWrapper.HasGroupdAssigned)
+        {
+            CurrentState = State.Confirm;
+            return;
+        }
+
+        await Delete();
+    }
+
+    private async Task Delete()
+    {
+        var deleteProps = new DeleteProps<TEvent>
+        {
+            Scope = Scope,
+            EventWrapper = EventWrapper
+        };
+
+        await OnDelete.InvokeAsync(deleteProps);
+        ModalService.Close();
     }
 
     private async Task Submit()

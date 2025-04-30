@@ -22,6 +22,7 @@ public partial class TimetableEvent<TEvent>
     [Parameter] public int Order { get; set; }
     [Parameter] public RenderFragment<TEvent> AdditionalFields { get; set; } = default!;
     [Parameter] public EventCallback<UpdateProps<TEvent>> OnEventUpdated { get; set; } = default!;
+    [Parameter] public EventCallback<DeleteProps<TEvent>> OnEventDelete { get; set; } = default!;
 
     private string EventStyle =>
         $"background-color: {BackgroundColor}; " +
@@ -49,6 +50,7 @@ public partial class TimetableEvent<TEvent>
         {
             { "EventWrapper", EventWrapper },
             { "OnSubmit", OnEventUpdated },
+            { "OnDelete", OnEventDelete },
             { "AdditionalFields", AdditionalFields }
         };
 

@@ -78,6 +78,7 @@
                                   Span=@cellEvent.Span>
                             <TimetableEvent EventWrapper=@cellEvent
                                             OnEventUpdated="(UpdateProps<TEvent> props) => HandleEventUpdated(props)"
+                                            OnEventDelete="(DeleteProps<TEvent> props) => HandleEventDeleted(props)"
                                             AdditionalFields="@AdditionalFields"
                                             Order=@cell.Events.IndexOf(cellEvent)
                                             Direction=@direction

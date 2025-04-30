@@ -14,6 +14,34 @@ internal sealed class TimetableManager<TEvent> where
     public DateOnly CurrentDate { get; set; }
     public DisplayType DisplayType { get; set; }
 
+    public IList<TEvent> DeleteEvent(IList<TEvent> events, DeleteProps<TEvent> deleteProps)
+    {
+        if (deleteProps.Scope == ActionScope.Current)
+        {
+            events.Remove(deleteProps.EventWrapper.Event);
+            return [deleteProps.EventWrapper.Event];
+        }
+
+        if (deleteProps.EventWrapper.GroupIdentifier is null)
+            throw new InvalidOperationException("Cannot delete grouped events without group identifier.");
+
+
+        var groupId = deleteProps.EventWrapper.GroupIdentifier;
+
+        var relatedEvents = events.Where(e =>
+        {
+            var eGroup = deleteProps.EventWrapper.Props.GetGroupId(e);
+            return eGroup != null && eGroup.Equals(groupId);
+        }).ToList();
+
+        foreach (var relatedEvent in relatedEvents)
+        {
+            events.Remove(relatedEvent);
+        }
+
+        return relatedEvents;
+    }
+
     public TEvent? MoveEvent(Guid eventId, Guid targetCellId)
     {
         var currentCell = Grid.FindCellByEventId(eventId);
