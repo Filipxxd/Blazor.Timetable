@@ -35,10 +35,10 @@
                Selector="x => x.Description"
                Validate=@(value => string.IsNullOrWhiteSpace(value) ? "Description cannot be empty" : null) />
 
-        <ExampleCustomInput Model="@context"
+@*         <ExampleCustomInput Model="@context"
                             Label="Maximum Occupancy" 
                             Selector="x => x.Occupancy" 
-                            Validate=ComplexValidationExample />
+                            Validate=ComplexValidationExample /> *@
     </AdditionalFields>
 </Timetable>
 

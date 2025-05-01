@@ -1,19 +1,15 @@
 ﻿@typeparam TEvent where TEvent : class
-@typeparam TType
-@inherits BaseInput<TEvent, TType>
+@inherits BaseInput<TEvent, DateTime>
 
-<div class="datefield @(HasError ? "error" : "")">
-    <InputDate id=@_id
-               Type="InputDateType.DateTimeLocal"
-               @bind-Value="BindProperty"
-               @bind-Value:format="dd/MM/yyyy HH:mm"
-               placeholder=" " />
-    <label for=@_id>@Label</label>
+<div class="datetimefield @(HasError ? "error" : "")">
+    <InputDate id="@($"date-{_id}")" @bind-Value=DatePart Type=InputDateType.Date />
+    <InputDate id="@($"time-{_id}")" @bind-Value=TimePart Type=InputDateType.Time />
+
+    <label>@Label</label>
 
     @if (!HasError)
     {
         <div class="underline"></div>
     }
-
-    <ErrorMessage Message=@ErrorMessage />
 </div>
+    <ErrorMessage Message=@ErrorMessage />

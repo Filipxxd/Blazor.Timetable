@@ -26,7 +26,7 @@ public partial class EventModal<TEvent> where TEvent : class
     private EventWrapper<TEvent> _eventWrapper = default!;
 
     private RepeatOption RepeatOption { get; set; } = RepeatOption.Once;
-    private DateOnly RepeatUntil { get; set; }
+    private DateTime RepeatUntil { get; set; }
     private int RepeatDays { get; set; } = 1;
 
     private RepeatOption[] RepetitionOptions => (RepeatOption[])Enum.GetValues(typeof(RepeatOption));
@@ -37,7 +37,7 @@ public partial class EventModal<TEvent> where TEvent : class
         if (EventWrapper.GroupId is null)
             Scope = ActionScope.Single;
 
-        RepeatUntil = EventWrapper.DateFrom.AddMonths(1).ToDateOnly();
+        RepeatUntil = EventWrapper.DateFrom.AddMonths(1);
 
         _eventWrapper = State == EventModalState.Create
             ? EventWrapper
@@ -67,7 +67,7 @@ public partial class EventModal<TEvent> where TEvent : class
             var createProps = new CreateProps<TEvent>
             {
                 Repetition = RepeatOption,
-                RepeatUntil = RepeatUntil,
+                RepeatUntil = RepeatUntil.ToDateOnly(),
                 RepeatDays = RepeatDays,
                 EventWrapper = _eventWrapper
             };
