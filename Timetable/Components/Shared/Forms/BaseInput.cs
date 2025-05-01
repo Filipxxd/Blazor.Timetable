@@ -28,7 +28,8 @@ public abstract class BaseInput<TEvent, TType> : ComponentBase where TEvent : cl
         get => _getter(Model) ?? default!;
         set
         {
-            if (EqualityComparer<TType>.Default.Equals(_getter(Model), value)) return;
+            if (EqualityComparer<TType>.Default.Equals(_getter(Model), value))
+                return;
 
             _setter(Model, value);
             ValueChanged.InvokeAsync(value);
@@ -51,11 +52,10 @@ public abstract class BaseInput<TEvent, TType> : ComponentBase where TEvent : cl
 
     private bool ValidateInput()
     {
-        if (Validate != null)
-        {
-            ErrorMessage = Validate(_getter(Model)!);
-            return string.IsNullOrEmpty(ErrorMessage);
-        }
-        return true;
+        if (Validate is null)
+            return true;
+
+        ErrorMessage = Validate(_getter(Model)!);
+        return string.IsNullOrEmpty(ErrorMessage);
     }
 }

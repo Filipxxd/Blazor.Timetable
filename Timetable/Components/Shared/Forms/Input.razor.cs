@@ -2,12 +2,6 @@
 
 public partial class Input<TEvent, TType> : BaseInput<TEvent, TType>
 {
-
-    protected override void OnParametersSet()
-    {
-        base.OnParametersSet();
-    }
-
     private static string GetInputType()
     {
         var numberTypes = new[] { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) };
