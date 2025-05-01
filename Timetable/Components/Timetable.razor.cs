@@ -148,7 +148,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
     private async Task HandleEventUpdated(UpdateProps<TEvent> props)
     {
-        if (props.Scope != ActionScope.Current)
+        if (props.Scope != ActionScope.Single)
         {
             var updatedEvents = _timetableManager.UpdateEvents(Events, props);
             await OnGroupEventChanged.InvokeAsync(updatedEvents);
@@ -239,7 +239,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
                             offsetEnd = baseEnd.AddMonths(i);
                             break;
                         case RepeatOption.Custom:
-                            offsetStart = baseStart.AddDays(props.RepeatDays.Value * i);
+                            offsetStart = baseStart.AddDays(props.RepeatDays!.Value * i);
                             offsetEnd = baseEnd.AddDays(props.RepeatDays.Value * i);
                             break;
                         default:
@@ -289,11 +289,12 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         var parameters = new Dictionary<string, object>
         {
             { "EventWrapper", wrapper },
+            { "State", EventModalState.Create },
             { "OnCreate", handleCreate },
             { "AdditionalFields", AdditionalFields }
         };
 
-        ModalService.Show<CreateEventModal<TEvent>>("Add", parameters);
+        ModalService.Show<EventModal<TEvent>>("Add", parameters);
     }
 
     private void UpdateGrid()

@@ -49,11 +49,12 @@ public partial class TimetableEvent<TEvent>
         var parameters = new Dictionary<string, object>
         {
             { "EventWrapper", CellItem.EventWrapper },
-            { "OnSubmit", OnEventUpdated },
+            { "State", EventModalState.Edit },
+            { "OnUpdate", OnEventUpdated },
             { "OnDelete", OnEventDelete },
             { "AdditionalFields", AdditionalFields }
         };
 
-        ModalService.Show<UpdateEventModal<TEvent>>("Edit", parameters);
+        ModalService.Show<EventModal<TEvent>>("Edit", parameters);
     }
 }

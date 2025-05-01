@@ -1,0 +1,70 @@
+﻿@typeparam TEvent where TEvent : class
+
+<CascadingValue Name="RegisterValidation" IsFixed=true Value=@((Action<Func<bool>>)RegisterValidation)>
+    <CascadingValue Name="StateChanged" IsFixed=true Value=@((Action)StateHasChanged)>
+        <div class="modal-container">
+            @if (State == EventModalState.Create || State == EventModalState.Edit)
+            {
+                <Input Model=_eventWrapper 
+                       Label="Title" 
+                       Selector="x => x.Title" 
+                       Validate=ValidateTitle />
+
+                <InputDateTime Model=_eventWrapper 
+                               Label="Start"
+                               Selector="x => x.DateFrom" />
+
+                <InputDateTime Model=_eventWrapper 
+                               Label="End" 
+                               Selector="x => x.DateTo" 
+                               Validate=ValidateDateTo />
+
+                @if (AdditionalFields != null)
+                {
+                    @AdditionalFields(_eventWrapper.Event)
+                }
+
+                @if (State == EventModalState.Create)
+                {
+                    <Dropdown Model=this 
+                              Label="Repeat" 
+                              Selector="x => x.RepeatOption"
+                              Options=RepetitionOptions />
+
+                    @if (RepeatOption != RepeatOption.Once)
+                    {
+                        <InputDateTime Model=this Label="Repeat Till" Selector="x => x.RepeatUntil" />
+                    }
+
+                    @if (RepeatOption == RepeatOption.Custom)
+                    {
+                        <div style="margin-top: 0.5rem;">
+                            <label>Every (days):</label>
+                            <input type="number" class="form-control" @bind=RepeatDays min="1" />
+                        </div>
+                    }
+                }
+
+                <div style="margin-top: 1rem">
+                    <button @onclick=SaveAsync>Save</button>
+                    @if (State == EventModalState.Edit)
+                    {
+                        <button @onclick=SwitchToDelete style="margin-left: 1rem">Delete</button>
+                    }
+                </div>
+            }
+            else
+            {
+                @if (_eventWrapper.HasGroupdAssigned)
+                {
+                    <Dropdown Model=this Label="Select" Selector="x => x.Scope" Options="Scopes" />
+                }
+
+                <div>
+                    <button @onclick=DeleteAsync>Delete</button>
+                    <button @onclick=SwitchToDelete>Cancel</button>
+                </div>
+            }
+        </div>
+    </CascadingValue>
+</CascadingValue>

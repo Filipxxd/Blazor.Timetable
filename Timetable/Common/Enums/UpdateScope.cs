@@ -2,7 +2,7 @@
 
 public enum ActionScope
 {
-    Current,
+    Single,
     Future,
     All
 }

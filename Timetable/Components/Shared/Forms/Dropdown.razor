@@ -3,7 +3,7 @@
 @inherits BaseInput<TEvent, TType>
 
 <div class="selectfield">
-    <select id=@_id required=@Required @bind=BindProperty>
+    <select id=@_id @bind=BindProperty>
         @foreach (var option in Options)
         {
             <option value="@option?.ToString()">@option</option>

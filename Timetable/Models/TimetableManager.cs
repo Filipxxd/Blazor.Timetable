@@ -16,7 +16,7 @@ internal sealed class TimetableManager<TEvent> where
 
     public IList<TEvent> DeleteEvent(IList<TEvent> events, DeleteProps<TEvent> deleteProps)
     {
-        if (deleteProps.Scope == ActionScope.Current)
+        if (deleteProps.Scope == ActionScope.Single)
         {
             events.Remove(deleteProps.EventWrapper.Event);
             return [deleteProps.EventWrapper.Event];
