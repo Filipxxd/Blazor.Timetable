@@ -18,21 +18,27 @@ internal static class PropertyHelper
 
     public static Action<TObject, TProperty?> CreateSetter<TObject, TProperty>(Expression<Func<TObject, TProperty?>> expression) where TObject : class
     {
-        if (expression.Body is not MemberExpression { Member: PropertyInfo property } memberExpression)
-            throw new ArgumentException("Expression must point to a property", nameof(expression));
-
-        var targetExpression = expression.Parameters[0];
-        var valueExpression = Expression.Parameter(typeof(TProperty), "value");
-
-        var convertedValueExpression = valueExpression as Expression;
-
-        if (property.PropertyType != typeof(TProperty))
+        var memberExpr = expression.Body switch
         {
-            convertedValueExpression = Expression.Convert(valueExpression, property.PropertyType);
-        }
+            MemberExpression me => me,
+            UnaryExpression ue when ue.Operand is MemberExpression me => me,
+            _ => throw new ArgumentException("Expression must point to a property", nameof(expression)),
+        };
 
-        var assignExpression = Expression.Assign(memberExpression, convertedValueExpression);
-        var lambda = Expression.Lambda<Action<TObject, TProperty?>>(assignExpression, targetExpression, valueExpression);
+        if (memberExpr.Member is not PropertyInfo propertyInfo)
+            throw new ArgumentException("Member is not a property", nameof(expression));
+
+        var targetParameter = expression.Parameters[0];
+        var valueParameter = Expression.Parameter(typeof(TProperty), "value");
+
+        var valueToAssign = valueParameter as Expression;
+
+        if (propertyInfo.PropertyType != typeof(TProperty))
+            valueToAssign = Expression.Convert(valueParameter, propertyInfo.PropertyType);
+
+        var assign = Expression.Assign(Expression.MakeMemberAccess(targetParameter, propertyInfo), valueToAssign);
+
+        var lambda = Expression.Lambda<Action<TObject, TProperty?>>(assign, targetParameter, valueParameter);
 
         return lambda.Compile();
     }
