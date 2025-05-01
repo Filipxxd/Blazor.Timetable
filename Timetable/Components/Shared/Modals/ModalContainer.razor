@@ -1,6 +1,6 @@
 ﻿<div class="modal-wrapper @(ModalService.IsOpen ? "show" : "hide")"
-     @onclick=Close>
-    <div class="modal" @onclick:stopPropagation>
+     @onmousedown=Close>
+    <div class="modal" @onmousedown:stopPropagation>
         <div class="modal-header">
             <span class="modal-title">
                 @ModalService.Title
