@@ -33,7 +33,6 @@ public partial class CreateEventModal<TEvent> where TEvent : class
     {
         var createProps = new CreateProps<TEvent>
         {
-
             Repetition = RepeatOption,
             RepeatUntil = RepeatUntil,
             RepeatDays = RepeatDays,

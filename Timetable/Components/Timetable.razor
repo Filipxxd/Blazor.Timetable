@@ -1,6 +1,7 @@
 ﻿@using Timetable.Models.Grid
 @typeparam TEvent where TEvent : class
 @attribute [type: RenderModeInteractiveServer]
+@attribute [CascadingTypeParameter(nameof(TEvent))]
 
 <div class="timetable-wrapper">
     <Options Events=@Events

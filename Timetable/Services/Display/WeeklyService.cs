@@ -72,8 +72,7 @@ internal sealed class WeeklyService : IDisplayService
                     EventWrapper = new EventWrapper<TEvent>(e, props),
                     Span = Math.Min(overlapDays, maxSpan)
                 };
-            })
-            .OrderByDescending(ci => ci.Span).ToList();
+            }).OrderByDescending(ci => ci.Span).ToList();
 
             var cells = new List<Cell<TEvent>>
             {
@@ -105,7 +104,7 @@ internal sealed class WeeklyService : IDisplayService
                     var dateEnd = eventEnd.ToDateOnly();
 
                     var isInTimeRange = timeStart >= config.TimeFrom && timeEnd <= config.TimeTo;
-                    var isSameDay = dateStart.Day == dateStart.Day;
+                    var isSameDay = dateStart == dateEnd;
                     var fitsCellDateTime = timeStart.Hour == timeSlot.Hour && timeStart.Minute == timeSlot.Minute && dateStart.Day == cellStartTime.Day && dateStart.Month == cellStartTime.Month && dateStart.Year == cellStartTime.Year;
 
                     return isInTimeRange && isSameDay && fitsCellDateTime;
@@ -131,8 +130,7 @@ internal sealed class WeeklyService : IDisplayService
                         EventWrapper = new EventWrapper<TEvent>(e, props),
                         Span = span
                     };
-                })
-                .OrderByDescending(ci => (ci.EventWrapper.DateTo - ci.EventWrapper.DateFrom).TotalHours).ToList();
+                }).OrderByDescending(ci => (ci.EventWrapper.DateTo - ci.EventWrapper.DateFrom).TotalHours).ToList();
 
                 cells.Add(new Cell<TEvent>
                 {
@@ -153,12 +151,16 @@ internal sealed class WeeklyService : IDisplayService
 
         var rowTitles = config.Hours.Select(hour =>
             config.Is24HourFormat
-                ? TimeSpan.FromHours(hour).ToString(@"hh\:mm")
-                : DateTime.Today.AddHours(hour).ToString("h tt")).ToList();
+                ? $"{hour}:00"
+                : $"{hour % 12} {(hour / 12 < 1 ? "AM" : "PM")}");
+
+        var title = gridStart.Month == gridEndDate.Month
+            ? $"{gridStart:dddd d.} - {gridEndDate:dddd d. MMMM yyyy}"
+            : $"{gridStart:dddd d. MMMM} - {gridEndDate:dddd d. MMMM yyyy}";
 
         return new Grid<TEvent>
         {
-            Title = $"{gridStart:dddd d. MMMM} - {gridEndDate:dddd d. MMMM yyyy}".CapitalizeWords(),
+            Title = title.CapitalizeWords(),
             RowTitles = rowTitles,
             Columns = columns
         };

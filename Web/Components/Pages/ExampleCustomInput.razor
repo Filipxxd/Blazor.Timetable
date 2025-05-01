@@ -1,0 +1,15 @@
+﻿@using Timetable.Components.Shared.Forms
+@inherits BaseInput<TimetableEvent, int?>
+
+<div class="textfield">
+    <input type="number" @bind=BindProperty id=@_id placeholder=" " />
+    <label for=@_id>@Label</label>
+    <div class="underline"></div>
+</div>
+
+@if (HasError)
+{
+    <div class="">
+        <span class="error">@ErrorMessage</span>
+    </div>
+}

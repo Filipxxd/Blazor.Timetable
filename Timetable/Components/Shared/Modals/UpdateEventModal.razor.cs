@@ -51,6 +51,10 @@ public partial class UpdateEventModal<TEvent> where TEvent : class
 
     private async Task Submit()
     {
+        var valid = validationFuncs.All(validate => validate());
+        if (!valid)
+            return;
+
         var updateProps = new UpdateProps<TEvent>
         {
             Scope = Scope,
@@ -60,5 +64,45 @@ public partial class UpdateEventModal<TEvent> where TEvent : class
 
         await OnSubmit.InvokeAsync(updateProps);
         ModalService.Close();
+    }
+    private readonly List<bool> validationStates = [];
+
+    private string? ValidateTitle(string title)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+            return "Title is required.";
+        if (title.Length > 40)
+            return "Title must be less than 40 characters.";
+        return null;
+    }
+
+    private string? ValidateDateTo(DateTime dateTo)
+    {
+        if (dateTo <= editEvent.DateFrom)
+            return "End date must be later than the start date.";
+        return null;
+    }
+
+    public int RegisterValidation(bool initialState = true)
+    {
+        validationStates.Add(initialState);
+        return validationStates.Count - 1;
+    }
+
+    public void UpdateValidationState(int index, bool isValid)
+    {
+        if (index < validationStates.Count)
+        {
+            validationStates[index] = isValid;
+        }
+    }
+
+    private bool AreAllInputsValid => validationStates.All(state => state);
+
+    private readonly List<Func<bool>> validationFuncs = [];
+
+    public void RegisterValidation(Func<bool> validateFunc)
+    {
+        validationFuncs.Add(validateFunc);
     }
 }

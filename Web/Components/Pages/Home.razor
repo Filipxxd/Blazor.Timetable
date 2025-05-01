@@ -15,7 +15,7 @@
            DateFrom="e => e.StartTime"
            DateTo="e => e.EndTime"
            GroupId="e => e.GroupId"
-           AdditionalProps=@([x => x.Description])
+           AdditionalProps=@([x => x.Description, x => x.Occupancy])
 
            TimetableConfig="new(){
                 DefaultDisplayType=DisplayType.Week,
@@ -30,7 +30,15 @@
             OnPreviousClicked=HandlePreviousClicked 
             OnNextClicked=HandleNextClicked>
     <AdditionalFields>
-        <Input Model="@context" Label="Description" Selector="x => x.Description" />
+        <Input Model=@context
+               Label="Description"
+               Selector="x => x.Description"
+               Validate=@(value => string.IsNullOrWhiteSpace(value) ? "Description cannot be empty" : null) />
+
+        <ExampleCustomInput Model="@context"
+                            Label="Maximum Occupancy" 
+                            Selector="x => x.Occupancy" 
+                            Validate=@(value => value <= 0 ? "At least 1" : null) />
     </AdditionalFields>
 </Timetable>
 

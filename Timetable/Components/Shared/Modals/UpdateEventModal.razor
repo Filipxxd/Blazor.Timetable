@@ -1,39 +1,41 @@
 ﻿@typeparam TEvent where TEvent : class
 
-<div class="modal-container">
-    @if (State == UpdateState.Normal)
-    {        
-        <button @onclick=TryDelete />
+<CascadingValue Name="RegisterValidation" IsFixed=true Value=@((Action<Func<bool>>)(RegisterValidation))>
+    <div class="modal-container">
+        @if (State == UpdateState.Normal)
+        {        
+            <button @onclick=TryDelete />
 
-        <div style="required-props">
-            <Input Model="editEvent" Label="Title" Selector="x => x.Title" />
-            <InputDateTime Model="editEvent" Label="Start" Selector="x => x.DateFrom" />
-            <InputDateTime Model="editEvent" Label="End" Selector="x => x.DateTo" />
-        </div>
+            <div class="required-props">
+                <Input Model="editEvent" Label="Title" Selector="x => x.Title" Validate=ValidateTitle />
+                <InputDateTime Model="editEvent" Label="Start" Selector="x => x.DateFrom" />
+                <InputDateTime Model="editEvent" Label="End" Selector="x => x.DateTo" Validate=ValidateDateTo />
+            </div>
 
-        @if (AdditionalFields != null)
-        {
-            @AdditionalFields.Invoke(editEvent.Event)
+            @if (AdditionalFields != null)
+            {
+                @AdditionalFields.Invoke(editEvent.Event)
+            }
+
+            @if (editEvent.HasGroupdAssigned)
+            {
+                <Dropdown Model=this Label="Apply Changes To" Selector="x => x.Scope" Options="(ActionScope[])Enum.GetValues(typeof(ActionScope))" />
+            }
+
+            <div>
+                <button @onclick=Submit>Submit</button>
+            </div>
         }
-
-        @if (editEvent.HasGroupdAssigned)
+        else
         {
-            <Dropdown Model=this Label="Apply Changes To" Selector="x => x.Scope" Options="(ActionScope[])Enum.GetValues(typeof(ActionScope))" />
-        }
+            @if (editEvent.HasGroupdAssigned)
+            {
+                <Dropdown Model=this Label="Select" Selector="x => x.Scope" Options="(ActionScope[])Enum.GetValues(typeof(ActionScope))" />
+            }
 
-        <div>
-            <button @onclick=Submit>Submit</button>
-        </div>
-    }
-    else
-    {
-        @if (editEvent.HasGroupdAssigned)
-        {
-            <Dropdown Model=this Label="Select" Selector="x => x.Scope" Options="(ActionScope[])Enum.GetValues(typeof(ActionScope))" />
+            <div>
+                <button @onclick=Delete>Delete</button>
+            </div>
         }
-
-        <div>
-            <button @onclick=Delete>Delete</button>
-        </div>
-    }
-</div>
+    </div>
+</CascadingValue>
