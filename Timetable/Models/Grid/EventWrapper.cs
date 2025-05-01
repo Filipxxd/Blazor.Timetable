@@ -12,7 +12,7 @@ public sealed class EventWrapper<TEvent> where
     public PropertyAccessors<TEvent> Props { get; init; }
     public TEvent Event { get; init; }
 
-    public bool HasGroupdAssigned => GroupIdentifier != null;
+    public bool HasGroupdAssigned => GroupId != null;
 
     public string Title
     {
@@ -29,7 +29,7 @@ public sealed class EventWrapper<TEvent> where
         get => Props.GetDateTo(Event);
         set => Props.SetDateTo(Event, value);
     }
-    public object? GroupIdentifier
+    public object? GroupId
     {
         get => Props?.GetGroupId != null ? Props.GetGroupId(Event) : null;
         set
@@ -48,7 +48,7 @@ public sealed class EventWrapper<TEvent> where
         Props.SetTitle(eventCopy, Title);
         Props.SetDateFrom(eventCopy, DateFrom);
         Props.SetDateTo(eventCopy, DateTo);
-        Props.SetGroupId(eventCopy, GroupIdentifier);
+        Props.SetGroupId(eventCopy, GroupId);
 
         foreach (var (getter, setter) in Props.AdditionalProperties)
         {
@@ -64,7 +64,7 @@ public sealed class EventWrapper<TEvent> where
         Props.SetTitle(timetableEvent, Title);
         Props.SetDateFrom(timetableEvent, DateFrom);
         Props.SetDateTo(timetableEvent, DateTo);
-        Props.SetGroupId(timetableEvent, GroupIdentifier);
+        Props.SetGroupId(timetableEvent, GroupId);
 
         foreach (var (getter, setter) in Props.AdditionalProperties)
         {

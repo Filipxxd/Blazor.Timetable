@@ -1,6 +1,6 @@
 ﻿namespace Timetable.Common.Enums;
 
-internal enum RepeatOption
+public enum RepeatOption
 {
     Once,
     Daily,

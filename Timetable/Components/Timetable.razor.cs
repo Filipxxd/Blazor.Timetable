@@ -134,14 +134,14 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
     private async Task HandleNextClicked()
     {
-        _timetableManager.CurrentDate = _timetableManager.CurrentDate.GetDate(_timetableManager.DisplayType, TimetableConfig.Days, TimetableConfig.Months, true);
+        _timetableManager.CurrentDate = _timetableManager.CurrentDate.GetValidDateFor(_timetableManager.DisplayType, TimetableConfig.Days, TimetableConfig.Months, true);
         await OnNextClicked.InvokeAsync();
         UpdateGrid();
     }
 
     private async Task HandlePreviousClicked()
     {
-        _timetableManager.CurrentDate = _timetableManager.CurrentDate.GetDate(_timetableManager.DisplayType, TimetableConfig.Days, TimetableConfig.Months, false);
+        _timetableManager.CurrentDate = _timetableManager.CurrentDate.GetValidDateFor(_timetableManager.DisplayType, TimetableConfig.Days, TimetableConfig.Months, false);
         await OnPreviousClicked.InvokeAsync();
         UpdateGrid();
     }
@@ -199,23 +199,88 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
         var wrapper = new EventWrapper<TEvent>(newEvent, _eventProps)
         {
-            GroupIdentifier = null
+            GroupId = null
         };
 
-        var onSaveCallback = EventCallback.Factory.Create(this, async (IList<TEvent> ev) =>
+        var handleCreate = EventCallback.Factory.Create(this, async (CreateProps<TEvent> props) =>
         {
-            foreach (var e in ev)
+            var EventWrapper = props.EventWrapper;
+
+            var eventsToCreate = new List<TEvent>();
+            var baseStart = EventWrapper.DateFrom;
+            var baseEnd = EventWrapper.DateTo;
+
+            eventsToCreate.Add(EventWrapper.Event);
+
+            if (props.Repetition != RepeatOption.Once)
+            {
+                var groupId = Guid.NewGuid().ToString();
+                EventWrapper.Props.SetGroupId(EventWrapper.Event, groupId);
+
+                if (props.Repetition == RepeatOption.Custom && !props.RepeatDays.HasValue)
+                    throw new Exception();
+
+                var i = 1;
+                while (true)
+                {
+                    DateTime offsetStart, offsetEnd;
+                    switch (props.Repetition)
+                    {
+                        case RepeatOption.Daily:
+                            offsetStart = baseStart.AddDays(1 * i);
+                            offsetEnd = baseEnd.AddDays(1 * i);
+                            break;
+                        case RepeatOption.Weekly:
+                            offsetStart = baseStart.AddDays(7 * i);
+                            offsetEnd = baseEnd.AddDays(7 * i);
+                            break;
+                        case RepeatOption.Monthly:
+                            offsetStart = baseStart.AddMonths(i);
+                            offsetEnd = baseEnd.AddMonths(i);
+                            break;
+                        case RepeatOption.Custom:
+                            offsetStart = baseStart.AddDays(props.RepeatDays.Value * i);
+                            offsetEnd = baseEnd.AddDays(props.RepeatDays.Value * i);
+                            break;
+                        default:
+                            offsetStart = baseStart;
+                            offsetEnd = baseEnd;
+                            break;
+                    }
+
+                    if (offsetStart.ToDateOnly() > props.RepeatUntil)
+                        break;
+
+                    TEvent newEvent = Activator.CreateInstance<TEvent>();
+                    EventWrapper.Props.SetTitle(newEvent, EventWrapper.Title);
+                    EventWrapper.Props.SetDateFrom(newEvent, offsetStart);
+                    EventWrapper.Props.SetDateTo(newEvent, offsetEnd);
+                    EventWrapper.Props.SetGroupId(newEvent, groupId);
+
+                    foreach (var (getter, setter) in EventWrapper.Props.AdditionalProperties)
+                    {
+                        var updatedValue = getter(props.EventWrapper.Event);
+                        setter(newEvent, updatedValue);
+                    }
+
+
+                    eventsToCreate.Add(newEvent);
+                    i++;
+                }
+            }
+
+            foreach (var e in eventsToCreate)
             {
                 Events.Add(e);
             }
 
-            if (ev.Count == 1)
+            if (eventsToCreate.Count == 1)
             {
-                await OnEventChanged.InvokeAsync(ev[0]);
+                await OnEventChanged.InvokeAsync(eventsToCreate[0]);
             }
             else
             {
-                await OnGroupEventChanged.InvokeAsync(ev);
+                await OnGroupEventChanged.InvokeAsync(eventsToCreate);
             }
 
             UpdateGrid();
@@ -224,7 +289,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         var parameters = new Dictionary<string, object>
         {
             { "EventWrapper", wrapper },
-            { "OnSave", onSaveCallback },
+            { "OnCreate", handleCreate },
             { "AdditionalFields", AdditionalFields }
         };
 

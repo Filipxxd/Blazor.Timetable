@@ -25,8 +25,7 @@ internal sealed class TimetableManager<TEvent> where
         if (!deleteProps.EventWrapper.HasGroupdAssigned)
             throw new InvalidOperationException("Cannot delete grouped events without group identifier.");
 
-
-        var groupId = deleteProps.EventWrapper.GroupIdentifier;
+        var groupId = deleteProps.EventWrapper.GroupId;
 
         var relatedEvents = events.Where(e =>
         {
@@ -42,14 +41,14 @@ internal sealed class TimetableManager<TEvent> where
         return relatedEvents;
     }
 
-    public TEvent? MoveEvent(Guid eventId, Guid targetCellId)
+    public TEvent? MoveEvent(Guid cellItemId, Guid targetCellId)
     {
         // TODO: Group move
-        var currentCell = Grid.FindCellByEventId(eventId);
+        var currentCell = Grid.FindCellByEventId(cellItemId);
         if (currentCell is null)
             return null;
 
-        var cellItem = currentCell.Items.FirstOrDefault(e => e.Id == eventId);
+        var cellItem = currentCell.Items.FirstOrDefault(cellItem => cellItem.Id == cellItemId);
         if (cellItem is null)
             return null;
 
@@ -89,7 +88,7 @@ internal sealed class TimetableManager<TEvent> where
 
     public IList<TEvent> UpdateEvents(IList<TEvent> events, UpdateProps<TEvent> props)
     {
-        var originalGroup = props.Original.GroupIdentifier;
+        var originalGroup = props.Original.GroupId;
         if (originalGroup is null)
             throw new InvalidOperationException("Cannot update grouped events without group identifier.");
 
@@ -141,7 +140,7 @@ internal sealed class TimetableManager<TEvent> where
     public TEvent UpdateEvent(UpdateProps<TEvent> props)
     {
         if (props.Original.HasGroupdAssigned)
-            props.New.GroupIdentifier = null;
+            props.New.GroupId = null;
 
         props.New.MapTo(props.Original.Event);
 

@@ -4,10 +4,10 @@ namespace Timetable.Common.Extensions;
 
 internal static class DateExtensions
 {
-    public static DateOnly GetDate(this DateOnly date, DisplayType displayType, ICollection<DayOfWeek> days, ICollection<Month> months, bool isNext)
+    public static DateOnly GetValidDateFor(this DateOnly date, DisplayType displayType, ICollection<DayOfWeek> days, ICollection<Month> months, bool inFuture)
     {
-        var dayIncrement = isNext ? 1 : -1;
-        var weekIncrement = isNext ? days.Count : -days.Count;
+        var dayIncrement = inFuture ? 1 : -1;
+        var weekIncrement = inFuture ? days.Count : -days.Count;
 
         switch (displayType)
         {
@@ -18,7 +18,7 @@ internal static class DateExtensions
                 date = date.AddDays(weekIncrement);
                 break;
             case DisplayType.Month:
-                if (isNext)
+                if (inFuture)
                 {
                     var nextMonth = date.Month + 1;
                     var nextYear = date.Year;
