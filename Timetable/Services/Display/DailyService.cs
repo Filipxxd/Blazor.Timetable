@@ -28,7 +28,7 @@ internal sealed class DailyService : IDisplayService
             var dateStart = eventStart.ToDateOnly();
             var dateEnd = eventEnd.ToDateOnly();
 
-            var isOutOfTimeRange = timeStart < config.TimeFrom && timeEnd <= config.TimeFrom;
+            var isOutOfTimeRange = timeStart < config.TimeFrom || timeEnd > config.TimeTo;
             var isMultiDay = eventStart.Day != eventEnd.Day;
 
             var startsInPreviousView = isMultiDay && dateStart < currentDate;

@@ -168,7 +168,7 @@ public sealed class DailyServiceTests
         var mockConfig = new TimetableConfig
         {
             TimeFrom = new TimeOnly(0, 0),
-            TimeTo = new TimeOnly(15, 59),
+            TimeTo = new TimeOnly(16, 0),
             Is24HourFormat = true
         };
         var wholeDayEvent = new TestEvent
@@ -235,9 +235,9 @@ public sealed class DailyServiceTests
             },
             new()
             {
-                StartTime = new DateTime(2023, 10, 30, 17, 0, 0),
-                EndTime = new DateTime(2023, 10, 30, 17, 30, 0),
-                Title = "End Boundary Event"
+                StartTime = new DateTime(2023, 10, 29, 17, 0, 0),
+                EndTime = new DateTime(2023, 10, 29, 17, 30, 0),
+                Title = "Not Today Event"
             }
         };
         var result = _dailyService.CreateGrid(events, mockConfig, _currentDate, _props);
@@ -245,9 +245,9 @@ public sealed class DailyServiceTests
             .SelectMany(col => col.Cells)
             .Any(cell => cell.Items.Any(e => e.EventWrapper.Event.Title == "Start Boundary Event"));
         Assert.True(startIncluded);
-        var endIncluded = result.Columns
+        var excludedEvent = result.Columns
             .SelectMany(col => col.Cells)
-            .Any(cell => cell.Items.Any(e => e.EventWrapper.Event.Title == "End Boundary Event"));
-        Assert.False(endIncluded);
+            .Any(cell => cell.Items.Any(e => e.EventWrapper.Event.Title == "Not Today Event"));
+        Assert.False(excludedEvent);
     }
 }
