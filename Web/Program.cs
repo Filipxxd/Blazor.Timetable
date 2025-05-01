@@ -4,7 +4,7 @@ using Web.Components;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+    .AddInteractiveServerComponents();// req
 
 builder.Services.AddSchoolTimetable().UseCulture(new("cs")); // req
 
@@ -15,6 +15,6 @@ app.UseAntiforgery();
 app.UseStaticFiles(); // req
 
 app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+    .AddInteractiveServerRenderMode(); // req
 
 await app.RunAsync();

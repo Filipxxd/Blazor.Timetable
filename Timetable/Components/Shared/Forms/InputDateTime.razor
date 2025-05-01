@@ -2,18 +2,18 @@
 @typeparam TType
 @inherits BaseInput<TEvent, TType>
 
-<div class="datefield">
+<div class="datefield @(HasError ? "error" : "")">
     <InputDate id=@_id
                Type="InputDateType.DateTimeLocal"
                @bind-Value="BindProperty"
                @bind-Value:format="dd/MM/yyyy HH:mm"
                placeholder=" " />
     <label for=@_id>@Label</label>
-    <div class="underline"></div>
-</div>
 
-@if(HasError){
-<div class="">
-    <span class="error">@ErrorMessage</span>
+    @if (!HasError)
+    {
+        <div class="underline"></div>
+    }
+
+    <ErrorMessage Message=@ErrorMessage />
 </div>
-}

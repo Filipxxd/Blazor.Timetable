@@ -29,7 +29,6 @@ public partial class EventModal<TEvent> where TEvent : class
     private DateOnly RepeatUntil { get; set; }
     private int RepeatDays { get; set; } = 1;
 
-    private bool IsValid => _validationFuncs.All(f => f());
     private RepeatOption[] RepetitionOptions => (RepeatOption[])Enum.GetValues(typeof(RepeatOption));
     private ActionScope[] Scopes => (ActionScope[])Enum.GetValues(typeof(ActionScope));
 
@@ -60,7 +59,7 @@ public partial class EventModal<TEvent> where TEvent : class
 
     private async Task SaveAsync()
     {
-        if (!IsValid)
+        if (!Validate())
             return;
 
         if (State == EventModalState.Create)
@@ -86,6 +85,19 @@ public partial class EventModal<TEvent> where TEvent : class
         }
 
         ModalService.Close();
+    }
+
+    private bool Validate()
+    {
+        var valid = true;
+
+        foreach (var validationFunc in _validationFuncs)
+        {
+            if (!validationFunc())
+                valid = false;
+        }
+
+        return valid;
     }
 
     private void SwitchToDelete()
