@@ -48,3 +48,16 @@
 .selectfield select:focus ~ .underline {
     width: 100%;
 }
+
+.selectfield.error .selectfield {
+    border-bottom-color: #f44336;
+}
+
+.selectfield.error label {
+    color: #f44336;
+}
+
+.selectfield.error .underline {
+    background-color: #f44336;
+    width: 100%;
+}

@@ -2,7 +2,7 @@
 @typeparam TType
 @inherits BaseInput<TEvent, TType>
 
-<div class="selectfield">
+<div class="selectfield @(HasError ? "error" : "")">
     <select id=@_id @bind=BindProperty>
         @foreach (var option in Options)
         {
@@ -10,5 +10,11 @@
         }
     </select>
     <label for=@_id>@Label</label>
-    <div class="underline"></div>
+
+    @if (!HasError)
+    {
+        <div class="underline"></div>
+    }
+
+    <ErrorMessage Message=@ErrorMessage />
 </div>

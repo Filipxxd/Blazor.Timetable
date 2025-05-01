@@ -48,3 +48,16 @@
 .textfield input:focus ~ .underline {
     width: 100%;
 }
+
+.textfield.error input {
+    border-bottom-color: #f44336;
+}
+
+.textfield.error label {
+    color: #f44336;
+}
+
+.textfield.error .underline {
+    background-color: #f44336;
+    width: 100%;
+}

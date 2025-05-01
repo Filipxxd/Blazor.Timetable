@@ -2,14 +2,14 @@
 @typeparam TType
 @inherits BaseInput<TEvent, TType>
 
-<div class="textfield">
+<div class="textfield @(HasError ? "error" : "")">
     <input type="@GetInputType()" @bind=BindProperty id=@_id placeholder=" " />
     <label for=@_id>@Label</label>
-    <div class="underline"></div>
-</div>
 
-@if(HasError){
-    <div class="">
-        <span class="error">@ErrorMessage</span>
-    </div>
-}
+    @if (!HasError)
+    {
+        <div class="underline"></div>
+    }
+
+    <ErrorMessage Message=@ErrorMessage />
+</div>
