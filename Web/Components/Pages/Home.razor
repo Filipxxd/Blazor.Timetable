@@ -38,12 +38,23 @@
         <ExampleCustomInput Model="@context"
                             Label="Maximum Occupancy" 
                             Selector="x => x.Occupancy" 
-                            Validate=@(value => value <= 0 ? "At least 1" : null) />
+                            Validate=ComplexValidationExample />
     </AdditionalFields>
 </Timetable>
 
 @code{
     public IList<TimetableEvent> Events { get; set; } = new EventGenerator().GenerateHardcodedEvents();
+
+    private string? ComplexValidationExample(int? value)
+    {
+        if (value <= 0)
+            return "At least 1";
+
+        if (value > 100)
+            return "Maximum occupancy is 100";
+
+        return null; // No error -> valid
+    }
 
     public void HandleNextClicked()
     {
