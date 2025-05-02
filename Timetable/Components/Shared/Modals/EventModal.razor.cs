@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Timetable.Common.Enums;
 using Timetable.Common.Extensions;
+using Timetable.Models.Configuration;
 using Timetable.Models.Grid;
 using Timetable.Models.Props;
 using Timetable.Services;
@@ -18,6 +19,8 @@ public partial class EventModal<TEvent> where TEvent : class
     [Parameter] public EventCallback<CreateProps<TEvent>> OnCreate { get; set; }
     [Parameter] public EventCallback<UpdateProps<TEvent>> OnUpdate { get; set; }
     [Parameter] public EventCallback<DeleteProps<TEvent>> OnDelete { get; set; }
+
+    [CascadingParameter] public TimetableConfig Config { get; set; } = default!;
 
     private ActionScope Scope { get; set; } = ActionScope.All;
 
@@ -54,6 +57,10 @@ public partial class EventModal<TEvent> where TEvent : class
     private string? ValidateDateTo(DateTime d)
     {
         if (d <= _eventWrapper.DateFrom) return "End must be after start";
+
+        if (Config.TimeTo < _eventWrapper.DateTo.TimeOfDay.ToTimeOnly())
+            return "something is wrong i can feel it";
+
         return null;
     }
 

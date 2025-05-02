@@ -15,10 +15,10 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter] public IList<TEvent> Events { get; set; } = default!;
     [Parameter] public ExportConfig<TEvent> ExportConfig { get; set; } = default!;
     [Parameter] public ImportConfig<TEvent> ImportConfig { get; set; } = default!;
-    [Parameter] public TimetableConfig TimetableConfig { get; set; } = default!;
     [Parameter] public DisplayType CurrentDisplayType { get; set; } = default!;
     [Parameter] public EventCallback<DisplayType> OnDisplayTypeChanged { get; set; }
     [Parameter] public EventCallback OnCreateClicked { get; set; }
+    [CascadingParameter] public TimetableConfig TimetableConfig { get; set; } = default!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

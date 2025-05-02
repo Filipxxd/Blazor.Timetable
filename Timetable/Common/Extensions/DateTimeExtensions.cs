@@ -2,7 +2,7 @@
 
 namespace Timetable.Common.Extensions;
 
-internal static class DateExtensions
+internal static class DateTimeExtensions
 {
     public static DateOnly GetValidDateFor(this DateOnly date, DisplayType displayType, ICollection<DayOfWeek> days, ICollection<Month> months, bool inFuture)
     {
@@ -55,6 +55,9 @@ internal static class DateExtensions
     {
         return days.Contains(date.DayOfWeek) && months.Contains((Month)date.Month);
     }
+
+    public static TimeOnly ToTimeOnly(this TimeSpan timeSpan)
+         => new(timeSpan.Hours, timeSpan.Minutes);
 
     public static DateTime ToDateTimeMidnight(this DateOnly dateOnly)
         => new(dateOnly.Year, dateOnly.Month, dateOnly.Day, 0, 0, 0, DateTimeKind.Utc);
