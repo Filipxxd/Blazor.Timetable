@@ -18,188 +18,153 @@ internal sealed class WeeklyService : IDisplayService
         DateOnly currentDate,
         PropertyAccessors<TEvent> props) where TEvent : class
     {
-        var cellDates = CalculateGridDates(currentDate, config.Days);
-        var gridStart = cellDates.First();
-        var gridEndDate = cellDates.Last();
+        var weekDates = CalculateGridDates(currentDate, config.Days);
+        var weekStart = weekDates.First();
+        var weekEnd = weekDates.Last();
 
-        var columns = cellDates.Select((cellDate, index) =>
+        var columns = weekDates.Select((columnDate, columnIndex) =>
         {
-            var isGridFirstCell = cellDate == gridStart;
+            var isFirstColumn = columnDate == weekStart;
 
-            var headerEvents = events.Where(e =>
-            {
-                var eventStart = props.GetDateFrom(e);
-                var eventEnd = props.GetDateTo(e);
-
-                var timeStart = new TimeOnly(eventStart.Hour, eventStart.Minute);
-                var timeEnd = new TimeOnly(eventEnd.Hour, eventEnd.Minute);
-
-                var dateStart = eventStart.ToDateOnly();
-                var dateEnd = eventEnd.ToDateOnly();
-
-                var isOutOfTimeRange = timeStart < config.TimeFrom && timeEnd <= config.TimeFrom;
-                var isMultiDay = eventStart.Day != eventEnd.Day;
-
-                var startsInPreviousView = isMultiDay && dateStart < currentDate && dateEnd <= currentDate && dateStart < gridStart;
-                var startsInthisCell = dateStart == cellDate;
-
-                var isInThisCell = eventEnd > cellDate.ToDateTimeMidnight();
-
-                if (props.GetTitle(e).StartsWith("Foot"))
+            var headerItems = events
+                .Where(timetableEvent =>
                 {
+                    var eventStart = props.GetDateFrom(timetableEvent);
+                    var eventEnd = props.GetDateTo(timetableEvent);
+                    var startTime = new TimeOnly(eventStart.Hour, eventStart.Minute);
+                    var endTime = new TimeOnly(eventEnd.Hour, eventEnd.Minute);
+                    var startDate = eventStart.ToDateOnly();
+                    var endDate = eventEnd.ToDateOnly();
 
-                }
+                    var outOfRange = startTime < config.TimeFrom && endTime <= config.TimeFrom;
+                    var spansMultipleDays = eventStart.Day != eventEnd.Day;
+                    var startedBefore = spansMultipleDays
+                        && startDate < currentDate
+                        && endDate <= currentDate
+                        && startDate < weekStart;
+                    var startsToday = startDate == columnDate;
+                    var continuesIntoColumn = eventEnd > columnDate.ToDateTimeMidnight();
 
-                return ((isOutOfTimeRange || isMultiDay) && startsInthisCell) || (isMultiDay && startsInPreviousView && isGridFirstCell && isInThisCell);
-            })
-            .Select(e =>
-            {
-                var eventStart = props.GetDateFrom(e);
-                var eventEnd = props.GetDateTo(e);
-                var overlapStart = eventStart > gridStart.ToDateTimeMidnight() ? eventStart : gridStart.ToDateTimeMidnight();
-                var overlapEnd = eventEnd < gridEndDate.ToDateTimeMidnight() ? eventEnd : gridEndDate.ToDateTimeMidnight().AddDays(1);
-
-                var totalDays = (overlapEnd - overlapStart).TotalDays;
-
-                var spanDays = totalDays == Math.Floor(totalDays) ? Math.Floor(totalDays) : Math.Ceiling(totalDays);
-
-                var overlapDays = Math.Max((int)spanDays, 1);
-                var currentDayIndex = config.Days.IndexOf(cellDate.DayOfWeek);
-                var maxSpan = config.Days.Count - currentDayIndex;
-
-                return new CellItem<TEvent>
-                {
-                    EventWrapper = new EventWrapper<TEvent>(e, props),
-                    Span = Math.Min(overlapDays, maxSpan)
-                };
-            }).OrderByDescending(ci => ci.Span).ToList();
-
-            var cells = new List<Cell<TEvent>>
-            {
-                new() {
-                    DateTime = cellDate.ToDateTimeMidnight(),
-                    Type = CellType.Header,
-                    RowIndex = 1,
-                    Items = headerEvents
-                }
-            };
-
-            var timeSlots = GetTimeSlots(config.TimeFrom, config.TimeTo);
-
-            for (var i = 0; i < timeSlots.Count; i++)
-            {
-                var timeSlot = timeSlots[i];
-
-                var cellStartTime = cellDate.ToDateTimeMidnight().AddHours(timeSlot.Hour).AddMinutes(timeSlot.Minute);
-
-                var cellEvents = events.Where(e =>
-                {
-                    var eventStart = props.GetDateFrom(e);
-                    var eventEnd = props.GetDateTo(e);
-
-                    var timeStart = new TimeOnly(eventStart.Hour, eventStart.Minute);
-                    var timeEnd = new TimeOnly(eventEnd.Hour, eventEnd.Minute);
-
-                    var dateStart = eventStart.ToDateOnly();
-                    var dateEnd = eventEnd.ToDateOnly();
-
-                    var isInTimeRange = timeStart >= config.TimeFrom && timeEnd <= config.TimeTo;
-                    var isSameDay = dateStart == dateEnd;
-                    var fitsCellDateTime = timeStart.Hour == timeSlot.Hour && timeStart.Minute == timeSlot.Minute && dateStart.Day == cellStartTime.Day && dateStart.Month == cellStartTime.Month && dateStart.Year == cellStartTime.Year;
-
-                    return isInTimeRange && isSameDay && fitsCellDateTime;
+                    return ((outOfRange || spansMultipleDays) && startsToday) || (spansMultipleDays && startedBefore && isFirstColumn && continuesIntoColumn);
                 })
-                .Select(e =>
+                .Select(@event =>
                 {
-                    var eventStart = props.GetDateFrom(e);
-                    var eventEnd = props.GetDateTo(e);
+                    var eventStart = props.GetDateFrom(@event);
+                    var eventEnd = props.GetDateTo(@event);
+                    var overlapStart = eventStart > weekStart.ToDateTimeMidnight()
+                        ? eventStart
+                        : weekStart.ToDateTimeMidnight();
+                    var overlapEnd = eventEnd < weekEnd.ToDateTimeMidnight()
+                        ? eventEnd
+                        : weekEnd.ToDateTimeMidnight().AddDays(1);
 
-                    var timeStart = new TimeOnly(eventStart.Hour, eventStart.Minute);
-                    var timeEnd = new TimeOnly(eventEnd.Hour, eventEnd.Minute);
-
-                    var span = 0;
-
-                    while (timeStart < config.TimeTo && timeStart < timeEnd)
-                    {
-                        timeStart = timeStart.AddMinutes(TimetableConstants.TimeSlotInterval);
-                        span++;
-                    }
+                    var totalDays = (overlapEnd - overlapStart).TotalDays;
+                    var spanDays = (int)(totalDays == Math.Floor(totalDays)
+                        ? totalDays
+                        : Math.Ceiling(totalDays));
+                    var maxSpan = config.Days.Count - config.Days.IndexOf(columnDate.DayOfWeek);
 
                     return new CellItem<TEvent>
                     {
-                        EventWrapper = new EventWrapper<TEvent>(e, props),
-                        Span = span
+                        EventWrapper = new EventWrapper<TEvent>(@event, props),
+                        Span = Math.Min(Math.Max(spanDays, 1), maxSpan)
                     };
-                }).OrderByDescending(ci => (ci.EventWrapper.DateTo - ci.EventWrapper.DateFrom).TotalHours).ToList();
+                })
+                .OrderByDescending(ci => ci.Span)
+                .ToList();
+
+            var cells = new List<Cell<TEvent>>
+            {
+                new()
+                {
+                    DateTime = columnDate.ToDateTimeMidnight(),
+                    Type = CellType.Header,
+                    RowIndex = 1,
+                    Items = headerItems
+                }
+            };
+
+            var timeSlots = DisplayServiceHelper.GetTimeSlots(config.TimeFrom, config.TimeTo);
+            var midnight = columnDate.ToDateTimeMidnight();
+
+            for (var i = 0; i < timeSlots.Count; i++)
+            {
+                var slotTime = timeSlots[i];
+                var cellDateTime = midnight
+                    .AddHours(slotTime.Hour)
+                    .AddMinutes(slotTime.Minute);
+
+                var cellItems = events
+                    .Where(timetableEvent =>
+                    {
+                        var eventStart = props.GetDateFrom(timetableEvent).ToDateOnly();
+                        var eventEnd = props.GetDateTo(timetableEvent).ToDateOnly();
+                        var timeStart = props.GetDateFrom(timetableEvent).ToTimeOnly();
+                        var timeEnd = props.GetDateTo(timetableEvent).ToTimeOnly();
+
+                        return timeStart >= config.TimeFrom
+                            && timeEnd <= config.TimeTo
+                            && eventStart == eventEnd
+                            && eventStart == columnDate
+                            && timeStart.Hour == slotTime.Hour
+                            && timeStart.Minute == slotTime.Minute;
+                    })
+                    .Select(timetableEvent => new CellItem<TEvent>
+                    {
+                        EventWrapper = new EventWrapper<TEvent>(timetableEvent, props),
+                        Span = DisplayServiceHelper.GetEventSpan(timetableEvent, config, props)
+                    })
+                    .OrderByDescending(ci => (ci.EventWrapper.DateTo - ci.EventWrapper.DateFrom).TotalHours)
+                    .ToList();
 
                 cells.Add(new Cell<TEvent>
                 {
-                    DateTime = cellStartTime,
+                    DateTime = cellDateTime,
                     Type = CellType.Normal,
-                    RowIndex = i + (timeSlot.Minute % TimetableConstants.TimeSlotInterval) + 2,
-                    Items = cellEvents
+                    RowIndex = i + (slotTime.Minute % TimetableConstants.TimeSlotInterval) + 2,
+                    Items = cellItems
                 });
             }
 
             return new Column<TEvent>
             {
-                DayOfWeek = cellDate.DayOfWeek,
-                Index = index + 1,
+                DayOfWeek = columnDate.DayOfWeek,
+                Index = columnIndex + 1,
                 Cells = cells
             };
         }).ToList();
 
-        var rowTitles = config.Hours.Select(hour =>
-            config.Is24HourFormat
-                ? $"{hour}:00"
-                : $"{hour % 12} {(hour / 12 < 1 ? "AM" : "PM")}");
-
-        var title = gridStart.Month == gridEndDate.Month
-            ? $"{gridStart:dddd d.} - {gridEndDate:dddd d. MMMM yyyy}"
-            : $"{gridStart:dddd d. MMMM} - {gridEndDate:dddd d. MMMM yyyy}";
+        var title = weekStart.Month == weekEnd.Month
+            ? $"{weekStart:dddd d.} - {weekEnd:dddd d. MMMM yyyy}"
+            : $"{weekStart:dddd d. MMMM} - {weekEnd:dddd d. MMMM yyyy}";
 
         return new Grid<TEvent>
         {
             Title = title.CapitalizeWords(),
-            RowTitles = rowTitles,
+            RowTitles = DisplayServiceHelper.GetTimeRowTitles(config.TimeFrom, config.TimeTo, config.Is24HourFormat),
             Columns = columns
         };
     }
 
-    private static List<TimeOnly> GetTimeSlots(TimeOnly start, TimeOnly end)
+    private static List<DateOnly> CalculateGridDates(
+        DateOnly currentDate,
+        IEnumerable<DayOfWeek> configuredDays)
     {
-        var timeSlots = new List<TimeOnly>();
-
-        var current = start;
-        while (current < end)
-        {
-            timeSlots.Add(current);
-            current = current.AddMinutes(TimetableConstants.TimeSlotInterval);
-
-            if (current > end)
-                break;
-        }
-
-        return timeSlots;
-    }
-
-    private static List<DateOnly> CalculateGridDates(DateOnly currentDate, IEnumerable<DayOfWeek> configuredDays)
-    {
-        var orderedDays = configuredDays.OrderBy(d => d);
-        var startDate = DateHelper.GetStartOfWeekDate(currentDate, orderedDays.First());
-        var dates = new List<DateOnly> { startDate };
-        var previousDate = startDate;
-        var previousDayValue = (int)orderedDays.First();
+        var orderedDays = configuredDays.OrderBy(d => d).ToArray();
+        var startOfWeek = DateHelper.GetStartOfWeekDate(currentDate, orderedDays[0]);
+        var dates = new List<DateOnly> { startOfWeek };
+        var previousDate = startOfWeek;
+        var previousDayValue = (int)orderedDays[0];
 
         foreach (var day in orderedDays.Skip(1))
         {
             var diff = ((int)day - previousDayValue + 7) % 7;
-            diff = diff == 0 ? 7 : diff;
-            var nextDate = previousDate.AddDays(diff);
-            dates.Add(nextDate);
+            if (diff == 0) diff = 7;
+            previousDate = previousDate.AddDays(diff);
             previousDayValue = (int)day;
-            previousDate = nextDate;
+            dates.Add(previousDate);
         }
+
         return dates;
     }
 }

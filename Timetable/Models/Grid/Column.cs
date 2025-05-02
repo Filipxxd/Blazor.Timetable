@@ -5,5 +5,5 @@ internal sealed class Column<TEvent> where
 {
     public required DayOfWeek DayOfWeek { get; init; }
     public required int Index { get; init; }
-    public IList<Cell<TEvent>> Cells { get; init; } = [];
+    public List<Cell<TEvent>> Cells { get; init; } = [];
 }

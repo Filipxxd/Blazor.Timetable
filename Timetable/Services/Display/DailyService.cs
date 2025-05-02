@@ -1,6 +1,7 @@
 ﻿using Timetable.Common;
 using Timetable.Common.Enums;
 using Timetable.Common.Extensions;
+using Timetable.Common.Helpers;
 using Timetable.Models;
 using Timetable.Models.Configuration;
 using Timetable.Models.Grid;
@@ -17,137 +18,95 @@ internal sealed class DailyService : IDisplayService
         DateOnly currentDate,
         PropertyAccessors<TEvent> props) where TEvent : class
     {
-        var headerEvents = events.Where(e =>
-        {
-            var eventStart = props.GetDateFrom(e);
-            var eventEnd = props.GetDateTo(e);
-
-            var timeStart = new TimeOnly(eventStart.Hour, eventStart.Minute);
-            var timeEnd = new TimeOnly(eventEnd.Hour, eventEnd.Minute);
-
-            var dateStart = eventStart.ToDateOnly();
-            var dateEnd = eventEnd.ToDateOnly();
-
-            var isOutOfTimeRange = timeStart < config.TimeFrom || timeEnd > config.TimeTo;
-            var isMultiDay = eventStart.Day != eventEnd.Day;
-
-            var startsInPreviousView = isMultiDay && dateStart < currentDate;
-            var startsInthisCell = dateStart == currentDate;
-
-            return (startsInPreviousView || startsInthisCell) &&
-                   (isOutOfTimeRange || isMultiDay);
-        }).Select(e => new CellItem<TEvent>
-        {
-            EventWrapper = new EventWrapper<TEvent>(e, props),
-            Span = 1
-        }).OrderByDescending(ci => (ci.EventWrapper.DateTo - ci.EventWrapper.DateFrom).TotalHours).ToList();
-
-        var cells = new List<Cell<TEvent>>
-        {
-            new() {
-                DateTime = currentDate.ToDateTimeMidnight(),
-                Type = CellType.Header,
-                RowIndex = 1,
-                Items = headerEvents
-            }
-        };
-
-        var timeSlots = GetTimeSlots(config.TimeFrom, config.TimeTo);
-
-        for (var i = 0; i < timeSlots.Count; i++)
-        {
-            var timeSlot = timeSlots[i];
-
-            var cellDateTime = currentDate.ToDateTimeMidnight().AddHours(timeSlot.Hour).AddMinutes(timeSlot.Minute);
-
-            var cellEvents = events.Where(e =>
-            {
-                var eventStart = props.GetDateFrom(e);
-                var eventEnd = props.GetDateTo(e);
-
-                var timeStart = new TimeOnly(eventStart.Hour, eventStart.Minute);
-                var timeEnd = new TimeOnly(eventEnd.Hour, eventEnd.Minute);
-
-                var dateStart = eventStart.ToDateOnly();
-                var dateEnd = eventEnd.ToDateOnly();
-
-                var isInTimeRange = timeStart >= config.TimeFrom && timeEnd <= config.TimeTo;
-                var isSameDay = dateStart.Day == dateStart.Day;
-                var fitsCellDateTime = timeStart.Hour == timeSlot.Hour && timeStart.Minute == timeSlot.Minute && dateStart.Day == cellDateTime.Day && dateStart.Month == cellDateTime.Month && dateStart.Year == cellDateTime.Year;
-
-                return isInTimeRange && isSameDay && fitsCellDateTime;
-            })
-            .Select(e => new CellItem<TEvent>()
-            {
-                EventWrapper = new EventWrapper<TEvent>(e, props),
-                Span = GetEventSpan(e, config, props)
-            }).OrderByDescending(ci => (ci.EventWrapper.DateTo - ci.EventWrapper.DateFrom).TotalHours).ToList();
-
-            cells.Add(new Cell<TEvent>
-            {
-                DateTime = cellDateTime,
-                Type = CellType.Normal,
-                RowIndex = i + (timeSlot.Minute % TimetableConstants.TimeSlotInterval) + 2,
-                Items = cellEvents
-            });
-        }
-
         var column = new Column<TEvent>
         {
             DayOfWeek = currentDate.DayOfWeek,
             Index = 1,
-            Cells = cells
+            Cells = []
         };
 
-        var rowTitles = config.Hours.Select(hour =>
-            config.Is24HourFormat
-                ? $"{hour}:00"
-                : $"{hour % 12} {(hour / 12 < 1 ? "AM" : "PM")}");
+        var headerItems = events
+            .Where(timetableEvent =>
+            {
+                var eventStart = props.GetDateFrom(timetableEvent);
+                var eventEnd = props.GetDateTo(timetableEvent);
+                var timeStart = new TimeOnly(eventStart.Hour, eventStart.Minute);
+                var timeEnd = new TimeOnly(eventEnd.Hour, eventEnd.Minute);
+                var dateStart = eventStart.ToDateOnly();
+
+                var spansMultipleDays = eventStart.Day != eventEnd.Day;
+                var outOfRange = timeStart < config.TimeFrom || timeEnd > config.TimeTo;
+
+                return (spansMultipleDays && dateStart < currentDate || dateStart == currentDate)
+                    && (outOfRange || spansMultipleDays);
+            })
+            .Select(@event => new CellItem<TEvent>
+            {
+                EventWrapper = new EventWrapper<TEvent>(@event, props),
+                Span = 1
+            })
+            .OrderByDescending(ci => (ci.EventWrapper.DateTo - ci.EventWrapper.DateFrom).TotalHours)
+            .ToList();
+
+        var headerCell = new Cell<TEvent>()
+        {
+            DateTime = currentDate.ToDateTimeMidnight(),
+            Type = CellType.Header,
+            RowIndex = 1,
+            Items = headerItems
+        };
+
+        column.Cells.Add(headerCell);
+
+        var timeSlots = DisplayServiceHelper.GetTimeSlots(config.TimeFrom, config.TimeTo);
+        var midnight = currentDate.ToDateTimeMidnight();
+
+        var regularCells = timeSlots.Select((slotTime, slotIndex) =>
+        {
+            var cellTime = midnight
+                .AddHours(slotTime.Hour)
+                .AddMinutes(slotTime.Minute);
+
+            var cellItems = events
+                .Where(timetableEvent =>
+                {
+                    var eventStart = props.GetDateFrom(timetableEvent);
+                    var eventEnd = props.GetDateTo(timetableEvent);
+
+                    var timeStart = new TimeOnly(eventStart.Hour, eventStart.Minute);
+                    var timeEnd = new TimeOnly(eventEnd.Hour, eventEnd.Minute);
+                    var dateStart = eventStart.ToDateOnly();
+
+                    return timeStart >= config.TimeFrom
+                        && timeEnd <= config.TimeTo
+                        && dateStart == currentDate
+                        && timeStart.Hour == slotTime.Hour
+                        && timeStart.Minute == slotTime.Minute;
+                })
+                .Select(@event => new CellItem<TEvent>
+                {
+                    EventWrapper = new EventWrapper<TEvent>(@event, props),
+                    Span = DisplayServiceHelper.GetEventSpan(@event, config, props)
+                })
+                .OrderByDescending(ci => (ci.EventWrapper.DateTo - ci.EventWrapper.DateFrom).TotalHours)
+                .ToList();
+
+            return new Cell<TEvent>
+            {
+                DateTime = cellTime,
+                Type = CellType.Normal,
+                RowIndex = slotIndex + slotTime.Minute % TimetableConstants.TimeSlotInterval + 2,
+                Items = cellItems
+            };
+        }).ToList();
+
+        column.Cells.AddRange(regularCells);
 
         return new Grid<TEvent>
         {
             Title = $"{currentDate:dddd d. MMMM yyyy}".CapitalizeWords(),
-            RowTitles = rowTitles,
+            RowTitles = DisplayServiceHelper.GetTimeRowTitles(config.TimeFrom, config.TimeTo, config.Is24HourFormat),
             Columns = [column]
         };
-    }
-
-    private static int GetEventSpan<TEvent>(
-        TEvent e,
-        TimetableConfig config,
-        PropertyAccessors<TEvent> props) where TEvent : class
-    {
-        var eventStart = props.GetDateFrom(e);
-        var eventEnd = props.GetDateTo(e);
-
-        var timeStart = new TimeOnly(eventStart.Hour, eventStart.Minute);
-        var timeEnd = new TimeOnly(eventEnd.Hour, eventEnd.Minute);
-
-        var span = 0;
-
-        while (timeStart < config.TimeTo && timeStart < timeEnd)
-        {
-            timeStart = timeStart.AddMinutes(TimetableConstants.TimeSlotInterval);
-            span++;
-        }
-
-        return span;
-    }
-
-    private static List<TimeOnly> GetTimeSlots(TimeOnly start, TimeOnly end)
-    {
-        var timeSlots = new List<TimeOnly>();
-
-        var current = start;
-        while (current < end)
-        {
-            timeSlots.Add(current);
-            current = current.AddMinutes(TimetableConstants.TimeSlotInterval);
-
-            if (current > end)
-                break;
-        }
-
-        return timeSlots;
     }
 }

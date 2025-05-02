@@ -16,84 +16,81 @@ internal sealed class MonthlyService : IDisplayService
         DateOnly currentDate,
         PropertyAccessors<TEvent> props) where TEvent : class
     {
-        var rows = CalculateMonthGridDates(currentDate, config.Days);
-        var gridStartDate = rows.First().First();
-        var gridEndDate = rows.Last().Last();
-
-        var columnsCount = rows.First().Count;
-
+        var weeks = CalculateMonthGridDates(currentDate, config.Days);
+        var monthStart = weeks.First().First();
+        var monthEnd = weeks.Last().Last();
+        var columnCount = weeks.First().Count;
         var columns = new List<Column<TEvent>>();
 
-        for (var col = 0; col < columnsCount; col++)
+        for (var colIndex = 0; colIndex < columnCount; colIndex++)
         {
             var column = new Column<TEvent>
             {
-                DayOfWeek = config.Days.ElementAt(col),
-                Index = col + 1,
+                DayOfWeek = config.Days[colIndex],
+                Index = colIndex + 1,
                 Cells = []
             };
 
-            for (var row = 0; row < rows.Count; row++)
+            for (var rowIndex = 0; rowIndex < weeks.Count; rowIndex++)
             {
-                var indexInRow = rows[row].FindIndex(d => d.Month == currentDate.Month);
-                var isFirstRowCell = indexInRow == col;
-
-                var cellDate = rows[row][col];
-
+                var cellDate = weeks[rowIndex][colIndex];
+                var isCurrentMonth = cellDate.Month == currentDate.Month;
                 var cell = new Cell<TEvent>
                 {
                     DateTime = cellDate.ToDateTimeMidnight(),
                     Title = $"{cellDate:dd}",
-                    Type = CellType.Normal,
-                    RowIndex = row + 1,
+                    Type = isCurrentMonth ? CellType.Normal : CellType.Disabled,
+                    RowIndex = rowIndex + 1,
                     Items = []
                 };
 
-                column.Cells.Add(cell);
-
-                if (cellDate.Month != currentDate.Month)
+                if (isCurrentMonth)
                 {
-                    cell.Type = CellType.Disabled;
-                    continue;
-                }
-
-                var maxSpan = columnsCount - (col + 1) + 1;
-
-                // eg if is lastrow where possible filling of next month days from right!
-                if (rows[row].Any(d => d.Month != currentDate.Month && rows[row].First().Month == currentDate.Month))
-                {
-                    maxSpan -= rows[row].Count(d => d.Month != currentDate.Month);
-                }
-
-                var cellEvents = events
-                    .Where(e =>
+                    var maxSpan = columnCount - colIndex;
+                    var firstOfRowIsCurrent = weeks[rowIndex].First().Month == currentDate.Month;
+                    if (weeks[rowIndex].Any(d => d.Month != currentDate.Month) && firstOfRowIsCurrent)
                     {
-                        var dateFrom = props.GetDateFrom(e);
-                        var dateTo = props.GetDateTo(e);
+                        maxSpan -= weeks[rowIndex].Count(d => d.Month != currentDate.Month);
+                    }
 
-                        var isMultiDay = (dateFrom.ToDateOnly() <= cellDate && dateTo.ToDateOnly() >= cellDate);
-
-                        return dateFrom.ToDateOnly() == cellDate || (isMultiDay && isFirstRowCell);
-                    })
-                    .Select(e =>
-                    {
-                        var eventStart = props.GetDateFrom(e);
-                        var eventEnd = props.GetDateTo(e);
-
-                        var overlapStart = eventStart.ToDateOnly() >= cellDate ? eventStart.ToDateOnly() : cellDate;
-                        var overlapEnd = eventEnd.ToDateOnly() < gridEndDate ? eventEnd.ToDateOnly() : gridEndDate;
-
-                        var overlapDays = (int)Math.Floor((overlapEnd.ToDateTimeMidnight() - overlapStart.ToDateTimeMidnight()).TotalDays + 1);
-
-                        return new CellItem<TEvent>
+                    var cellItems = events
+                        .Where(timetableEvent =>
                         {
-                            EventWrapper = new EventWrapper<TEvent>(e, props),
-                            Span = Math.Min(overlapDays, maxSpan)
-                        };
-                    }).OrderByDescending(ci => ci.Span)
-                    .ToList();
+                            var dateStart = props.GetDateFrom(timetableEvent).ToDateOnly();
+                            var dateEnd = props.GetDateTo(timetableEvent).ToDateOnly();
 
-                cell.Items = cellEvents;
+                            var spansDay = dateStart <= cellDate && dateEnd >= cellDate;
+                            var isFirstInRow = weeks[rowIndex].FindIndex(d => d.Month == currentDate.Month) == colIndex;
+
+                            return dateStart == cellDate || (spansDay && isFirstInRow);
+                        })
+                        .Select(timetableEvent =>
+                        {
+                            var dateStart = props.GetDateFrom(timetableEvent).ToDateOnly();
+                            var dateEnd = props.GetDateTo(timetableEvent).ToDateOnly();
+
+                            var overlapStart = dateStart >= cellDate
+                                ? dateStart
+                                : cellDate;
+                            var overlapEnd = dateEnd < monthEnd
+                                ? dateEnd
+                                : monthEnd;
+                            var dayCount = (int)
+                                ((overlapEnd.ToDateTimeMidnight() - overlapStart.ToDateTimeMidnight()).TotalDays + 1);
+
+                            return new CellItem<TEvent>
+                            {
+                                EventWrapper = new EventWrapper<TEvent>(timetableEvent, props),
+                                Span = Math.Min(dayCount, maxSpan)
+                            };
+                        })
+                        .OrderByDescending(ci => ci.Span)
+                        .ToList();
+
+                    cell.Items = cellItems;
+                }
+
+                column.Cells.Add(cell);
             }
 
             columns.Add(column);
@@ -106,38 +103,36 @@ internal sealed class MonthlyService : IDisplayService
         };
     }
 
-    public static List<List<DateOnly>> CalculateMonthGridDates(DateOnly date, IList<DayOfWeek> days)
+    public static List<List<DateOnly>> CalculateMonthGridDates(
+        DateOnly date,
+        IList<DayOfWeek> configuredDays)
     {
-        if (days == null || days.Count == 0)
-            throw new ArgumentException("configuredDays must contain at least one element.");
-
         var firstOfMonth = new DateOnly(date.Year, date.Month, 1);
         var lastOfMonth = firstOfMonth.AddMonths(1).AddDays(-1);
-        var startDiff = ((int)firstOfMonth.DayOfWeek - (int)days[0] + 7) % 7;
-        var gridStartBase = firstOfMonth.AddDays(-startDiff);
-        var offsets = days
-                              .Select(d => ((int)d - (int)days[0] + 7) % 7)
-                              .ToArray();
+        var startOffset = ((int)firstOfMonth.DayOfWeek - (int)configuredDays[0] + 7) % 7;
+        var gridStart = firstOfMonth.AddDays(-startOffset);
+        var dayOffsets = configuredDays
+            .Select(d => ((int)d - (int)configuredDays[0] + 7) % 7)
+            .ToArray();
 
-        var maxWeekIndex = (lastOfMonth.DayNumber - gridStartBase.DayNumber) / 7;
-
+        var maxWeekIndex = (lastOfMonth.DayNumber - gridStart.DayNumber) / 7;
         var firstWeekIndex = 0;
+
         while (firstWeekIndex <= maxWeekIndex)
         {
-            var ws = gridStartBase.AddDays(firstWeekIndex * 7);
-            if (offsets.Any(off => ws.AddDays(off).Month == date.Month))
+            var weekStart = gridStart.AddDays(firstWeekIndex * 7);
+            if (dayOffsets.Any(off => weekStart.AddDays(off).Month == date.Month))
                 break;
             firstWeekIndex++;
         }
 
-        var rows = new List<List<DateOnly>>();
-        for (var wi = firstWeekIndex; wi <= maxWeekIndex; wi++)
+        var weeks = new List<List<DateOnly>>();
+        for (var weekIndex = firstWeekIndex; weekIndex <= maxWeekIndex; weekIndex++)
         {
-            var ws = gridStartBase.AddDays(wi * 7);
-            var row = offsets.Select(off => ws.AddDays(off)).ToList();
-            rows.Add(row);
+            var weekStart = gridStart.AddDays(weekIndex * 7);
+            weeks.Add([.. dayOffsets.Select(weekStart.AddDays)]);
         }
 
-        return rows;
+        return weeks;
     }
 }
