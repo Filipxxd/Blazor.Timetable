@@ -33,6 +33,13 @@ internal sealed class TimetableManager<TEvent> where
             return eGroup != null && eGroup.Equals(groupId);
         }).ToList();
 
+        if (deleteProps.Scope == ActionScope.Future)
+            relatedEvents = [.. relatedEvents.Where(e =>
+            {
+                var eventStart = deleteProps.EventWrapper.Props.GetDateFrom(e);
+                return eventStart >= deleteProps.EventWrapper.DateFrom;
+            })];
+
         foreach (var relatedEvent in relatedEvents)
         {
             events.Remove(relatedEvent);

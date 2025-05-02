@@ -52,6 +52,8 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter] public EventCallback<DisplayType> OnDisplayTypeChanged { get; set; }
     [Parameter] public EventCallback<TEvent> OnEventChanged { get; set; } = default!;
     [Parameter] public EventCallback<IList<TEvent>> OnGroupEventChanged { get; set; } = default!;
+    [Parameter] public EventCallback<TEvent> OnEventDeleted { get; set; } = default!;
+    [Parameter] public EventCallback<IList<TEvent>> OnGroupEventDeleted { get; set; } = default!;
     [Parameter] public EventCallback<DayOfWeek> OnChangedToDay { get; set; } = default!;
     #endregion
 
@@ -165,7 +167,16 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     private void HandleEventDeleted(DeleteProps<TEvent> deleteProps)
     {
         var deleted = _timetableManager.DeleteEvent(Events, deleteProps);
-        // TODO: OnDeleted callback
+
+        if (deleteProps.Scope == ActionScope.Single)
+        {
+            OnEventDeleted.InvokeAsync(deleted[0]);
+        }
+        else
+        {
+            OnGroupEventDeleted.InvokeAsync(deleted);
+        }
+
         UpdateGrid();
     }
 
