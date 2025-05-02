@@ -2,8 +2,15 @@
 @inherits BaseInput<TEvent, DateTime>
 
 <div class="datetimefield @(HasError ? "error" : "")">
-    <InputDate id="@($"date-{_id}")" @bind-Value=DatePart Type=InputDateType.Date />
-    <InputDate id="@($"time-{_id}")" @bind-Value=TimePart Type=InputDateType.Time />
+    @if (Type == InputDateType.DateTimeLocal || Type == InputDateType.Date)
+    {
+        <InputDate id="@($"date-{_id}")" @bind-Value=DatePart Type=InputDateType.Date />
+    }
+
+    @if (Type == InputDateType.DateTimeLocal || Type == InputDateType.Time)
+    {
+        <InputDate id="@($"time-{_id}")" @bind-Value=TimePart Type=InputDateType.Time />
+    }
 
     <label>@Label</label>
 

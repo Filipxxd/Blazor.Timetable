@@ -33,7 +33,7 @@
 
                     @if (RepeatOption != RepeatOption.Once)
                     {
-                        <InputDateTime Model=this Label="Repeat Till" Selector="x => x.RepeatUntil" />
+                        <InputDateTime Model=this Label="Repeat Till" Selector="x => x.RepeatUntil" Type="InputDateType.Date" />
                     }
 
                     @if (RepeatOption == RepeatOption.Custom)

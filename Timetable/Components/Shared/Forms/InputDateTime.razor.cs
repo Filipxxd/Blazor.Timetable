@@ -1,7 +1,12 @@
-﻿namespace Timetable.Components.Shared.Forms;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
+
+namespace Timetable.Components.Shared.Forms;
 
 public partial class InputDateTime<TEvent> : BaseInput<TEvent, DateTime>
 {
+    [Parameter] public InputDateType Type { get; set; } = InputDateType.DateTimeLocal;
+
     private DateTime DatePart
     {
         get => BindProperty.Date;
