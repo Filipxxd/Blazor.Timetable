@@ -15,10 +15,10 @@ internal sealed class WeeklyService : IDisplayService
     public Grid<TEvent> CreateGrid<TEvent>(
         IList<TEvent> events,
         TimetableConfig config,
-        DateOnly currentDate,
+        DateOnly date,
         PropertyAccessors<TEvent> props) where TEvent : class
     {
-        var weekDates = CalculateGridDates(currentDate, config.Days);
+        var weekDates = CalculateGridDates(date, config.Days);
         var weekStart = weekDates.First();
         var weekEnd = weekDates.Last();
 
@@ -39,18 +39,18 @@ internal sealed class WeeklyService : IDisplayService
                     var outOfRange = startTime > config.TimeTo || endTime > config.TimeTo || startTime < config.TimeFrom;
                     var spansMultipleDays = eventStart.Day != eventEnd.Day;
                     var startedBefore = spansMultipleDays
-                        && startDate < currentDate
-                        && endDate <= currentDate
+                        && startDate < date
+                        && endDate <= date
                         && startDate < weekStart;
                     var startsToday = startDate == columnDate;
                     var continuesIntoColumn = eventEnd > columnDate.ToDateTimeMidnight();
 
                     return ((outOfRange || spansMultipleDays) && startsToday) || (spansMultipleDays && startedBefore && isFirstColumn && continuesIntoColumn);
                 })
-                .Select(@event =>
+                .Select(timetableEvent =>
                 {
-                    var eventStart = props.GetDateFrom(@event);
-                    var eventEnd = props.GetDateTo(@event);
+                    var eventStart = props.GetDateFrom(timetableEvent);
+                    var eventEnd = props.GetDateTo(timetableEvent);
                     var overlapStart = eventStart > weekStart.ToDateTimeMidnight()
                         ? eventStart
                         : weekStart.ToDateTimeMidnight();
@@ -66,7 +66,7 @@ internal sealed class WeeklyService : IDisplayService
 
                     return new CellItem<TEvent>
                     {
-                        EventWrapper = new EventWrapper<TEvent>(@event, props),
+                        EventWrapper = new EventWrapper<TEvent>(timetableEvent, props),
                         Span = Math.Min(Math.Max(spanDays, 1), maxSpan)
                     };
                 })
@@ -146,12 +146,10 @@ internal sealed class WeeklyService : IDisplayService
         };
     }
 
-    private static List<DateOnly> CalculateGridDates(
-        DateOnly currentDate,
-        IEnumerable<DayOfWeek> configuredDays)
+    private static List<DateOnly> CalculateGridDates(DateOnly date, IEnumerable<DayOfWeek> days)
     {
-        var orderedDays = configuredDays.OrderBy(d => d).ToArray();
-        var startOfWeek = DateHelper.GetStartOfWeekDate(currentDate, orderedDays[0]);
+        var orderedDays = days.OrderBy(d => d).ToArray();
+        var startOfWeek = DateHelper.GetStartOfWeekDate(date, orderedDays[0]);
         var dates = new List<DateOnly> { startOfWeek };
         var previousDate = startOfWeek;
         var previousDayValue = (int)orderedDays[0];

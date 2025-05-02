@@ -12,6 +12,6 @@ internal interface IDisplayService
     Grid<TEvent> CreateGrid<TEvent>(
         IList<TEvent> events,
         TimetableConfig config,
-        DateOnly currentDate,
+        DateOnly date,
         PropertyAccessors<TEvent> props) where TEvent : class;
 }

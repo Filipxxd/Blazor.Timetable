@@ -15,12 +15,12 @@ internal sealed class DailyService : IDisplayService
     public Grid<TEvent> CreateGrid<TEvent>(
         IList<TEvent> events,
         TimetableConfig config,
-        DateOnly currentDate,
+        DateOnly date,
         PropertyAccessors<TEvent> props) where TEvent : class
     {
         var column = new Column<TEvent>
         {
-            DayOfWeek = currentDate.DayOfWeek,
+            DayOfWeek = date.DayOfWeek,
             Index = 1,
             Cells = []
         };
@@ -37,7 +37,7 @@ internal sealed class DailyService : IDisplayService
                 var spansMultipleDays = eventStart.Day != eventEnd.Day;
                 var outOfRange = timeStart < config.TimeFrom || timeEnd > config.TimeTo;
 
-                return (spansMultipleDays && dateStart < currentDate || dateStart == currentDate)
+                return (spansMultipleDays && dateStart < date || dateStart == date)
                     && (outOfRange || spansMultipleDays);
             })
             .Select(@event => new CellItem<TEvent>
@@ -50,7 +50,7 @@ internal sealed class DailyService : IDisplayService
 
         var headerCell = new Cell<TEvent>()
         {
-            DateTime = currentDate.ToDateTimeMidnight(),
+            DateTime = date.ToDateTimeMidnight(),
             Type = CellType.Header,
             RowIndex = 1,
             Items = headerItems
@@ -59,7 +59,7 @@ internal sealed class DailyService : IDisplayService
         column.Cells.Add(headerCell);
 
         var timeSlots = DisplayServiceHelper.GetTimeSlots(config.TimeFrom, config.TimeTo);
-        var midnight = currentDate.ToDateTimeMidnight();
+        var midnight = date.ToDateTimeMidnight();
 
         var regularCells = timeSlots.Select((slotTime, slotIndex) =>
         {
@@ -79,7 +79,7 @@ internal sealed class DailyService : IDisplayService
 
                     return timeStart >= config.TimeFrom
                         && timeEnd <= config.TimeTo
-                        && dateStart == currentDate
+                        && dateStart == date
                         && timeStart.Hour == slotTime.Hour
                         && timeStart.Minute == slotTime.Minute;
                 })
@@ -104,7 +104,7 @@ internal sealed class DailyService : IDisplayService
 
         return new Grid<TEvent>
         {
-            Title = $"{currentDate:dddd d. MMMM yyyy}".CapitalizeWords(),
+            Title = $"{date:dddd d. MMMM yyyy}".CapitalizeWords(),
             RowTitles = DisplayServiceHelper.GetTimeRowTitles(config.TimeFrom, config.TimeTo, config.Is24HourFormat),
             Columns = [column]
         };
