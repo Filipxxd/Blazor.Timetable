@@ -108,10 +108,10 @@ public sealed class WeeklyServiceTests
             Is24HourFormat = true
         };
 
-        var events = new[]
+        var events = new List<TestEvent>
         {
-            new TestEvent { StartTime = new DateTime(2023, 10, 30, 10, 0, 0), EndTime = new DateTime(2023, 10, 30, 11, 0, 0), Title = "Event1" },
-            new TestEvent { StartTime = new DateTime(2023, 11, 1, 10, 0, 0), EndTime = new DateTime(2023, 11, 1, 11, 0, 0), Title = "Event2" }
+            new() { StartTime = new DateTime(2023, 10, 30, 10, 0, 0), EndTime = new DateTime(2023, 10, 30, 11, 0, 0), Title = "Event1" },
+            new() { StartTime = new DateTime(2023, 11, 1, 10, 0, 0), EndTime = new DateTime(2023, 11, 1, 11, 0, 0), Title = "Event2" }
         };
 
         var grid = _weeklyService.CreateGrid(events, config, _currentDate, _props);
@@ -169,9 +169,9 @@ public sealed class WeeklyServiceTests
             Is24HourFormat = true
         };
 
-        var events = new[]
+        var events = new List<TestEvent>
         {
-            new TestEvent { StartTime = new DateTime(2023, 10, 30, 0, 0, 0), EndTime = new DateTime(2023, 10, 31, 0, 0, 0), Title = "WholeDay" }
+            new() { StartTime = new DateTime(2023, 10, 30, 0, 0, 0), EndTime = new DateTime(2023, 10, 31, 0, 0, 0), Title = "WholeDay" }
         };
 
         var grid = _weeklyService.CreateGrid(events, config, _currentDate, _props);
@@ -195,10 +195,10 @@ public sealed class WeeklyServiceTests
             Is24HourFormat = true
         };
 
-        var events = new[]
+        var events = new List<TestEvent>
         {
-            new TestEvent { StartTime = new DateTime(2023, 10, 30, 10, 0, 0), EndTime = new DateTime(2023, 10, 30, 12, 0, 0), Title = "Event1" },
-            new TestEvent { StartTime = new DateTime(2023, 10, 30, 11, 0, 0), EndTime = new DateTime(2023, 10, 30, 13, 0, 0), Title = "Event2" }
+            new() { StartTime = new DateTime(2023, 10, 30, 10, 0, 0), EndTime = new DateTime(2023, 10, 30, 12, 0, 0), Title = "Event1" },
+            new() { StartTime = new DateTime(2023, 10, 30, 11, 0, 0), EndTime = new DateTime(2023, 10, 30, 13, 0, 0), Title = "Event2" }
         };
 
         var grid = _weeklyService.CreateGrid(events, config, _currentDate, _props);
@@ -208,7 +208,7 @@ public sealed class WeeklyServiceTests
             .Select(i => i.EventWrapper.Event)
             .ToArray();
 
-        includedEvents.Should().HaveCount(events.Length);
+        includedEvents.Should().HaveCount(events.Count);
     }
 
     [Fact]
@@ -222,10 +222,10 @@ public sealed class WeeklyServiceTests
             Is24HourFormat = true
         };
 
-        var events = new[]
+        var events = new List<TestEvent>
         {
-            new TestEvent { StartTime = new DateTime(2023, 10, 30, 9, 0, 0), EndTime = new DateTime(2023, 10, 30, 10, 0, 0), Title = "StartEdge" },
-            new TestEvent { StartTime = new DateTime(2023, 10, 30, 16, 45, 0), EndTime = new DateTime(2023, 10, 30, 17, 0, 0), Title = "EndEdge" }
+            new() { StartTime = new DateTime(2023, 10, 30, 9, 0, 0), EndTime = new DateTime(2023, 10, 30, 10, 0, 0), Title = "StartEdge" },
+            new() { StartTime = new DateTime(2023, 10, 30, 16, 45, 0), EndTime = new DateTime(2023, 10, 30, 17, 0, 0), Title = "EndEdge" }
         };
 
         var grid = _weeklyService.CreateGrid(events, config, _currentDate, _props);
@@ -236,7 +236,7 @@ public sealed class WeeklyServiceTests
             .Select(i => i.EventWrapper.Event)
             .ToArray();
 
-        includedEvents.Should().HaveCount(events.Length);
+        includedEvents.Should().HaveCount(events.Count);
     }
 
     [Theory]
@@ -261,9 +261,7 @@ public sealed class WeeklyServiceTests
             Title = "SpanningEvent"
         };
 
-        var events = new[] { evt };
-
-        var grid = _weeklyService.CreateGrid(events, config, _currentDate, _props);
+        var grid = _weeklyService.CreateGrid([evt], config, _currentDate, _props);
 
         var actualSpan = grid.Columns.SelectMany(col => col.Cells.SelectMany(cell => cell.Items)).First().Span;
 
