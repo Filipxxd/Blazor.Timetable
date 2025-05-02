@@ -10,7 +10,12 @@
 </head>
 
 <body style="background-color: #f8f8f8;">
-    <Routes/>
+    <Router AppAssembly="typeof(Program).Assembly">
+        <Found Context="routeData">
+            <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
+            <FocusOnNavigate RouteData="routeData" Selector="h1" />
+        </Found>
+    </Router>
     <script src="_framework/blazor.web.js"></script>
 </body>
 
