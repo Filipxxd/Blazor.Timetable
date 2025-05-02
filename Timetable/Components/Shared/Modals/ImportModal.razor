@@ -1,0 +1,11 @@
+﻿@typeparam TEvent where TEvent : class
+
+<h3>ImportModal</h3>
+
+<Dropdown Model=this
+          Label="Import type"
+          Selector="x => x.Type"
+          Options=ImportTypes />
+
+<button @onclick=SubmitAsync>Delete</button>
+<button @onclick=ModalService.Close>Cancel</button>

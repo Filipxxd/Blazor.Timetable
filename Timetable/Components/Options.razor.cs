@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Timetable.Common.Enums;
+using Timetable.Components.Shared.Modals;
 using Timetable.Models.Configuration;
+using Timetable.Models.Props;
+using Timetable.Services;
 
 namespace Timetable.Components;
 
@@ -10,6 +13,7 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
     private IJSObjectReference _jsModule = default!;
     private DotNetObjectReference<Options<TEvent>> _dotNetRef = default!;
 
+    [Inject] private ModalService ModalService { get; set; } = default!;
     [Inject] public IJSRuntime JsRuntime { get; set; } = default!;
 
     [Parameter] public IList<TEvent> Events { get; set; } = default!;
@@ -18,6 +22,7 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter] public DisplayType CurrentDisplayType { get; set; } = default!;
     [Parameter] public EventCallback<DisplayType> OnDisplayTypeChanged { get; set; }
     [Parameter] public EventCallback OnCreateClicked { get; set; }
+    [Parameter] public EventCallback<ImportProps<TEvent>> OnImport { get; set; }
     [CascadingParameter] public TimetableConfig TimetableConfig { get; set; } = default!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -52,7 +57,14 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
         var items = ImportConfig.Transformer.Transform(ms);
 
         await ms.DisposeAsync();
-        //await OnImported.InvokeAsync(items);
+
+        var parameters = new Dictionary<string, object>
+        {
+            { "ImportedEvents", items },
+            { "OnSubmit", OnImport }
+        };
+
+        ModalService.Show<ImportModal<TEvent>>("Import", parameters);
     }
 
     private async Task Export()

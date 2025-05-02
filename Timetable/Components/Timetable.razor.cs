@@ -197,6 +197,23 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         UpdateGrid();
     }
 
+    private async Task HandleImport(ImportProps<TEvent> props)
+    {
+        if (props.Type == ImportType.Append)
+        {
+            foreach (var item in props.Events)
+            {
+                Events.Add(item);
+            }
+        }
+        else
+        {
+            Events = props.Events;
+        }
+
+        UpdateGrid();
+    }
+
     private void HandleOpenCreateModal(DateTime dateTime)
     {
         if (_timetableManager.DisplayType == DisplayType.Month && dateTime.Month != _timetableManager.CurrentDate.Month)

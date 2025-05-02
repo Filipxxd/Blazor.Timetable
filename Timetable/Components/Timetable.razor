@@ -10,6 +10,7 @@
                  CurrentDisplayType=@_timetableManager.DisplayType
                  ExportConfig=@ExportConfig
                  ImportConfig=@ImportConfig
+                 OnImport=@((ImportProps<TEvent> props) => HandleImport(props))
                  OnCreateClicked=@(() => HandleOpenCreateModal(_timetableManager.CurrentDate.ToDateTimeMidnight()))
                  OnDisplayTypeChanged=HandleDisplayTypeChanged />
 
