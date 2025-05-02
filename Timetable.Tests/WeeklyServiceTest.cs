@@ -244,7 +244,6 @@ public sealed class WeeklyServiceTests
     [InlineData(9, 0, 17, 0, 32)]
     [InlineData(10, 0, 13, 0, 12)]
     [InlineData(8, 0, 10, 0, 8)]
-    //[InlineData(0, 0, 23, 0, 16)]
     public void CreateGrid_HeaderEvent_SpanShouldBeCorrect(int hourFrom, int minuteFrom, int hourTo, int minuteTo, int expectedSpan)
     {
         var config = new TimetableConfig
