@@ -13,6 +13,7 @@ public sealed class CsvGeneratorTests
         public int IntegerProperty { get; set; }
         public double DoubleProperty { get; set; }
         public bool BooleanProperty { get; set; }
+        public int? NullableIntegerProperty { get; set; }
         public DateTime DateTimeProperty { get; set; }
     }
 
@@ -75,13 +76,14 @@ public sealed class CsvGeneratorTests
             new NamePropertySelector<TestEvent, int>("IntegerProperty", e => e.IntegerProperty),
             new NamePropertySelector<TestEvent, double>("DoubleProperty", e => e.DoubleProperty),
             new NamePropertySelector<TestEvent, bool>("BooleanProperty", e => e.BooleanProperty),
-            new NamePropertySelector<TestEvent, DateTime>("DateTimeProperty", e => e.DateTimeProperty)
+            new NamePropertySelector<TestEvent, DateTime>("DateTimeProperty", e => e.DateTimeProperty),
+            new NamePropertySelector<TestEvent, int?>("NullableIntegerProperty", e => e.NullableIntegerProperty)
         };
 
         var result = CsvGenerator.CreateCsvContent(testRecords, propertySelectors);
 
         result.Should().HaveCount(2);
-        result[1].Should().Equal(["Value1", "123", "456.78", "True", "10/10/2023 12:00:00 AM"]);
+        result[1].Should().Equal(["Value1", "123", "456.78", "True", "10/10/2023 12:00:00 AM", ""]);
     }
 
     [Fact]
