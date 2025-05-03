@@ -1,7 +1,7 @@
 ﻿@using Timetable.Common
 @using Timetable.Models.Grid
 @typeparam TEvent where TEvent : class
-@attribute [type: RenderModeInteractiveServer]
+@attribute [type: RenderModeInteractiveAuto]
 @attribute [CascadingTypeParameter(nameof(TEvent))]
 
 <CascadingValue IsFixed Value=TimetableConfig>
