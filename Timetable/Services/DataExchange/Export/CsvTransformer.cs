@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Timetable.Services.DataExchange.Export;
 
-internal sealed class CsvTransformer : ITransformer
+internal sealed class CsvTransformer : IExportTransformer
 {
     public IExportInfo Transform<TEvent>(IEnumerable<TEvent> records, IList<IExportSelector<TEvent>> properties)
         where TEvent : class

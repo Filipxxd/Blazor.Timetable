@@ -13,7 +13,7 @@ public sealed class ExportConfig<TEvent> where TEvent : class
     /// <summary>
     /// Transformer to use for the export. This is the class that will handle the transformation of the data.
     /// </summary>
-    public required ITransformer Transformer { get; init; }
+    public required IExportTransformer Transformer { get; init; }
 
     /// <summary>
     /// Properties to export. This is a list of properties that will be included in the export.
