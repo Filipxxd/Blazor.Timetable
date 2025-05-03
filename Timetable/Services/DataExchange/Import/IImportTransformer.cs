@@ -12,9 +12,9 @@ public interface IImportTransformer<TEvent>
 internal sealed class CsvImportTransformer<TEvent> : IImportTransformer<TEvent>
     where TEvent : class
 {
-    private readonly IList<INamePropertyMapper<TEvent>> _mappers;
+    private readonly IList<IImportSelector<TEvent>> _mappers;
 
-    public CsvImportTransformer(IList<INamePropertyMapper<TEvent>> mappers)
+    public CsvImportTransformer(IList<IImportSelector<TEvent>> mappers)
     {
         _mappers = mappers ??
           throw new ArgumentNullException(nameof(mappers));
@@ -34,7 +34,7 @@ internal sealed class CsvImportTransformer<TEvent> : IImportTransformer<TEvent>
                             .Select(h => h.Trim())
                             .ToArray();
 
-            var indexMap = new Dictionary<int, INamePropertyMapper<TEvent>>();
+            var indexMap = new Dictionary<int, IImportSelector<TEvent>>();
             for (var i = 0; i < headers.Length; i++)
             {
                 var colName = headers[i];

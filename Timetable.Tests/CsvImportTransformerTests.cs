@@ -23,9 +23,9 @@ public sealed class CsvImportTransformerTests
     [Fact]
     public void Transform_ShouldReturnEmpty_WhenStreamHasNoLines()
     {
-        var mappers = new INamePropertyMapper<TestEvent>[]
+        var mappers = new IImportSelector<TestEvent>[]
         {
-            new NamePropertyMapper<TestEvent, string>("Property1", e => e.Property1)
+            new ImportSelector<TestEvent, string>("Property1", e => e.Property1)
         }.ToList();
 
         var transformer = new CsvImportTransformer<TestEvent>(mappers);
@@ -44,10 +44,10 @@ public sealed class CsvImportTransformerTests
             "Hello;42"
         }.JoinToString(Environment.NewLine);
 
-        var mappers = new INamePropertyMapper<TestEvent>[]
+        var mappers = new IImportSelector<TestEvent>[]
         {
-            new NamePropertyMapper<TestEvent, string>("Property1", e => e.Property1),
-            new NamePropertyMapper<TestEvent, int>("IntegerProperty", e => e.IntegerProperty)
+            new ImportSelector<TestEvent, string>("Property1", e => e.Property1),
+            new ImportSelector<TestEvent, int>("IntegerProperty", e => e.IntegerProperty)
         }.ToList();
 
         var transformer = new CsvImportTransformer<TestEvent>(mappers);
@@ -72,9 +72,9 @@ public sealed class CsvImportTransformerTests
             "C;D"
         }.JoinToString(Environment.NewLine);
 
-        var mappers = new INamePropertyMapper<TestEvent>[]
+        var mappers = new IImportSelector<TestEvent>[]
         {
-            new NamePropertyMapper<TestEvent, string>("Property1", e => e.Property1)
+            new ImportSelector<TestEvent, string>("Property1", e => e.Property1)
         }.ToList();
 
         var transformer = new CsvImportTransformer<TestEvent>(mappers);
@@ -97,13 +97,13 @@ public sealed class CsvImportTransformerTests
 
         var csv = new[] { header, row }.JoinToString(Environment.NewLine);
 
-        var mappers = new INamePropertyMapper<TestEvent>[]
+        var mappers = new IImportSelector<TestEvent>[]
         {
-            new NamePropertyMapper<TestEvent, int>("IntegerProperty", e => e.IntegerProperty),
-            new NamePropertyMapper<TestEvent, double>("DoubleProperty", e => e.DoubleProperty),
-            new NamePropertyMapper<TestEvent, bool>("BooleanProperty", e => e.BooleanProperty),
-            new NamePropertyMapper<TestEvent, DateTime>("DateTimeProperty", e => e.DateTimeProperty),
-            new NamePropertyMapper<TestEvent, int?>("NullableIntegerProperty", e => e.NullableIntegerProperty)
+            new ImportSelector<TestEvent, int>("IntegerProperty", e => e.IntegerProperty),
+            new ImportSelector<TestEvent, double>("DoubleProperty", e => e.DoubleProperty),
+            new ImportSelector<TestEvent, bool>("BooleanProperty", e => e.BooleanProperty),
+            new ImportSelector<TestEvent, DateTime>("DateTimeProperty", e => e.DateTimeProperty),
+            new ImportSelector<TestEvent, int?>("NullableIntegerProperty", e => e.NullableIntegerProperty)
         }.ToList();
 
         var transformer = new CsvImportTransformer<TestEvent>(mappers);
@@ -126,15 +126,15 @@ public sealed class CsvImportTransformerTests
 
         var csv = new[] { header, row }.JoinToString(Environment.NewLine);
 
-        var mappers = new INamePropertyMapper<TestEvent>[]
+        var mappers = new IImportSelector<TestEvent>[]
         {
-            new NamePropertyMapper<TestEvent, double>(
+            new ImportSelector<TestEvent, double>(
                 "DoubleProperty", e => e.DoubleProperty,
                 s => Math.Floor(double.Parse(s, CultureInfo.InvariantCulture))),
-            new NamePropertyMapper<TestEvent, bool>(
+            new ImportSelector<TestEvent, bool>(
                 "BooleanProperty", e => e.BooleanProperty,
                 s => s == "1"),
-            new NamePropertyMapper<TestEvent, DateTime>(
+            new ImportSelector<TestEvent, DateTime>(
                 "DateTimeProperty", e => e.DateTimeProperty,
                 s => DateTime.ParseExact(s, "dd/MM", CultureInfo.InvariantCulture))
         }.ToList();
@@ -158,10 +158,10 @@ public sealed class CsvImportTransformerTests
             "X;Y;7"
         }.JoinToString(Environment.NewLine);
 
-        var mappers = new INamePropertyMapper<TestEvent>[]
+        var mappers = new IImportSelector<TestEvent>[]
         {
-            new NamePropertyMapper<TestEvent, string>("Property1", e => e.Property1),
-            new NamePropertyMapper<TestEvent, int>("IntegerProperty", e => e.IntegerProperty)
+            new ImportSelector<TestEvent, string>("Property1", e => e.Property1),
+            new ImportSelector<TestEvent, int>("IntegerProperty", e => e.IntegerProperty)
         }.ToList();
 
         var transformer = new CsvImportTransformer<TestEvent>(mappers);

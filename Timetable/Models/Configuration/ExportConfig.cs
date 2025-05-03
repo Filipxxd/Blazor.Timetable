@@ -18,7 +18,7 @@ public sealed class ExportConfig<TEvent> where TEvent : class
     /// <summary>
     /// Properties to export. This is a list of properties that will be included in the export.
     /// </summary>
-	public IList<INamePropertySelector<TEvent>> Properties { get; init; } = [];
+	public IList<IExportSelector<TEvent>> Properties { get; init; } = [];
 
     internal void Validate()
     {

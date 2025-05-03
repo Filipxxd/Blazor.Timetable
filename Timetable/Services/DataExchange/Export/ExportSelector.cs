@@ -3,20 +3,20 @@ using Timetable.Common.Helpers;
 
 namespace Timetable.Services.DataExchange.Export;
 
-public interface INamePropertySelector<in TEvent>
+public interface IExportSelector<in TEvent>
 {
     string Name { get; }
     string GetStringValue(TEvent entity);
 }
 
-public sealed class NamePropertySelector<TEvent, TProperty> : INamePropertySelector<TEvent>
+public sealed class ExportSelector<TEvent, TProperty> : IExportSelector<TEvent>
     where TEvent : class
 {
     private readonly Func<TProperty, string> _toStringConverter;
     public string Name { get; init; }
     internal Func<TEvent, TProperty> Getter { get; init; }
 
-    public NamePropertySelector(string name, Expression<Func<TEvent, TProperty>> selector, Func<TProperty, string>? toStringConverter = null)
+    public ExportSelector(string name, Expression<Func<TEvent, TProperty>> selector, Func<TProperty, string>? toStringConverter = null)
     {
         Name = name;
         Getter = PropertyHelper.CreateGetter(selector!)!;

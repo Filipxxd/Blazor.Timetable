@@ -2,6 +2,6 @@
 
 public interface ITransformer
 {
-    IExportInfo Transform<TEvent>(IEnumerable<TEvent> records, IList<INamePropertySelector<TEvent>> properties)
+    IExportInfo Transform<TEvent>(IEnumerable<TEvent> records, IList<IExportSelector<TEvent>> properties)
         where TEvent : class;
 }

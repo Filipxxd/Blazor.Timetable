@@ -73,9 +73,9 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             FileName = "EventExport",
             Transformer = new CsvTransformer(),
             Properties = [
-                new NamePropertySelector<TEvent, DateTime>("DateFrom", DateFrom),
-                new NamePropertySelector<TEvent, DateTime>("DateTo", DateTo),
-                new NamePropertySelector<TEvent, string>("Title", Title)
+                new ExportSelector<TEvent, DateTime>("DateFrom", DateFrom),
+                new ExportSelector<TEvent, DateTime>("DateTo", DateTo),
+                new ExportSelector<TEvent, string>("Title", Title)
             ]
         };
 
@@ -84,9 +84,9 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             AllowedExtensions = ["csv"],
             MaxFileSizeBytes = 5_000_000,
             Transformer = new CsvImportTransformer<TEvent>([
-              new NamePropertyMapper<TEvent,DateTime>("DateFrom", DateFrom),
-              new NamePropertyMapper<TEvent,DateTime>("DateTo", DateTo),
-              new NamePropertyMapper<TEvent,string>("Title", Title)
+              new ImportSelector<TEvent,DateTime>("DateFrom", DateFrom),
+              new ImportSelector<TEvent,DateTime>("DateTo", DateTo),
+              new ImportSelector<TEvent,string>("Title", Title)
             ])
         };
     }

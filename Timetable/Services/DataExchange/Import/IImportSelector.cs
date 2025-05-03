@@ -4,25 +4,25 @@ using Timetable.Common.Helpers;
 
 namespace Timetable.Services.DataExchange.Import;
 
-public interface INamePropertyMapper<TEvent>
+public interface IImportSelector<TEvent>
     where TEvent : class
 {
     string Name { get; }
     void SetValue(TEvent target, string raw);
 }
 
-public sealed class NamePropertyMapper<TEvent, TProperty> : INamePropertyMapper<TEvent>
+public sealed class ImportSelector<TEvent, TProperty> : IImportSelector<TEvent>
         where TEvent : class
 {
     private readonly Action<TEvent, TProperty> _setter;
     private readonly Func<string, TProperty> _parser;
     public string Name { get; init; }
 
-    public NamePropertyMapper(string name, Expression<Func<TEvent, TProperty?>> selector, Func<string, TProperty>? parser = null)
+    public ImportSelector(string name, Expression<Func<TEvent, TProperty?>> selector, Func<string, TProperty>? parser = null)
     {
         Name = name;
         _setter = PropertyHelper.CreateSetter(selector);
-        _parser = parser ?? NamePropertyMapper<TEvent, TProperty>.CreateDefaultParser();
+        _parser = parser ?? ImportSelector<TEvent, TProperty>.CreateDefaultParser();
     }
 
     public void SetValue(TEvent target, string raw)

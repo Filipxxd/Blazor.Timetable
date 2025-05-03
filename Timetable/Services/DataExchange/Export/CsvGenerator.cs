@@ -4,7 +4,7 @@ internal static class CsvGenerator
 {
     public const char Separator = ';';
 
-    public static string[][] CreateCsvContent<TEvent>(IEnumerable<TEvent> records, IList<INamePropertySelector<TEvent>> properties)
+    public static string[][] CreateCsvContent<TEvent>(IEnumerable<TEvent> records, IList<IExportSelector<TEvent>> properties)
         where TEvent : class
     {
         var csvContent = new List<string[]>();

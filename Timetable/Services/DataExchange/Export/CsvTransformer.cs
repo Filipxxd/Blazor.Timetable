@@ -5,7 +5,7 @@ namespace Timetable.Services.DataExchange.Export;
 
 internal sealed class CsvTransformer : ITransformer
 {
-    public IExportInfo Transform<TEvent>(IEnumerable<TEvent> records, IList<INamePropertySelector<TEvent>> properties)
+    public IExportInfo Transform<TEvent>(IEnumerable<TEvent> records, IList<IExportSelector<TEvent>> properties)
         where TEvent : class
     {
         var csvContent = CsvGenerator.CreateCsvContent(records, properties);
