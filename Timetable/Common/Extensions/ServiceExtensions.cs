@@ -8,7 +8,7 @@ namespace Timetable.Common.Extensions;
 
 public static class ServiceExtensions
 {
-    public static IServiceCollection AddSchoolTimetable(this IServiceCollection services)
+    public static IServiceCollection AddBlazorTimetable(this IServiceCollection services)
     {
         services.AddScoped<IDisplayService, DailyService>();
         services.AddScoped<IDisplayService, WeeklyService>();
