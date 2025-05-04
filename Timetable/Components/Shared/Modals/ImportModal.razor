@@ -7,5 +7,5 @@
           Selector="x => x.Type"
           Options=ImportTypes />
 
-<button @onclick=SubmitAsync>Delete</button>
-<button @onclick=ModalService.Close>Cancel</button>
+<Button Title="Confirm" OnClick=SubmitAsync />
+<Button Title="Cancel" OnClick=ModalService.Close ButtonType="ButtonType.Cancel" />

@@ -46,10 +46,10 @@
                 }
 
                 <div style="margin-top: 1rem">
-                    <button @onclick=SaveAsync>Save</button>
+                    <Button Title="Save" OnClick=SaveAsync ButtonType=ButtonType.Confirm />
                     @if (State == EventModalState.Edit)
                     {
-                        <button @onclick=SwitchToDelete style="margin-left: 1rem">Delete</button>
+                        <Button Title="Delete" OnClick=ToggleDelete ButtonType=ButtonType.Delete Style="margin-left: 1rem;" />
                     }
                 </div>
             }
@@ -61,8 +61,8 @@
                 }
 
                 <div>
-                    <button @onclick=DeleteAsync>Delete</button>
-                    <button @onclick=SwitchToDelete>Cancel</button>
+                    <Button Title="Delete" OnClick=DeleteAsync ButtonType=ButtonType.Delete />
+                    <Button Title="Cancel" OnClick=ModalService.Close ButtonType=ButtonType.Cancel Style="margin-left: 1rem;" />
                 </div>
             }
         </div>

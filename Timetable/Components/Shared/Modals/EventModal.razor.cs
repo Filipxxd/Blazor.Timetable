@@ -107,7 +107,7 @@ public partial class EventModal<TEvent> where TEvent : class
         return valid;
     }
 
-    private void SwitchToDelete()
+    private void ToggleDelete()
     {
         State = State == EventModalState.DeleteConfirm
             ? EventModalState.Edit

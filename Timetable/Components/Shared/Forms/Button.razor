@@ -1,0 +1,30 @@
+﻿<div @onclick=HandleClick class="button @ButtonStyle" style="@Style">
+    @if (IconFragment != null)
+    {
+        <span class="button-icon">
+            @IconFragment
+        </span>
+    }
+    <span class="button-title">@Title</span>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = default!;
+    [Parameter] public string Style { get; set; } = string.Empty;
+    [Parameter] public ButtonType ButtonType { get; set; } = ButtonType.Confirm;
+    [Parameter] public EventCallback OnClick { get; set; }
+    [Parameter] public RenderFragment? IconFragment { get; set; }
+
+    private string ButtonStyle => ButtonType switch
+    {
+        ButtonType.Confirm => "button-confirm",
+        ButtonType.Delete => "button-delete",
+        ButtonType.Cancel => "button-cancel",
+        _ => ""
+    };
+
+    private async Task HandleClick(MouseEventArgs e)
+    {
+        await OnClick.InvokeAsync(e);
+    }
+}
