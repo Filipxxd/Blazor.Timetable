@@ -1,4 +1,4 @@
-using Timetable.Common.Extensions;
+using Blazor.Timetable.Common.Extensions;
 using Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);

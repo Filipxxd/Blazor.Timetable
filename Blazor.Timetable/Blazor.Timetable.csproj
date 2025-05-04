@@ -1,17 +1,18 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <RootNamespace>Blazor.Timetable</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Blazor.Timetable\Blazor.Timetable.csproj" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.15" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.AspNetCore.Components" Version="8.0.15" />
+        <EmbeddedResource Include="wwwroot\**" Pack="true" />
     </ItemGroup>
-
+    
 </Project>
