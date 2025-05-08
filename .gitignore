@@ -1,8 +1,47 @@
+# Build artifacts
 bin/
 obj/
+
+# Configuration files
 config/
+
+# Package directories
 /packages/
+
+# Rider-specific files
 riderModule.iml
+/.idea/
 /_ReSharper.Caches/
-.idea/
+
+# Visual Studio specific files
 .vs
+*.suo
+*.user
+*.userosscache
+*.sln.dotsettings
+
+# VS Code
+.vscode/
+
+# MacOS specific files
+.DS_Store
+
+# Windows specific files
+Thumbs.db
+ehthumbs.db
+
+# Log files
+*.log
+
+# Publish Outputs (e.g., after `dotnet publish`)
+publish/
+
+# Resharper
+*.DotSettings.user
+
+# NuGet Packages
+*.nupkg
+# Lock file (untracked package versions)
+/.nuget/packages/*.snupkg
+.nuget/
+project.lock.json
