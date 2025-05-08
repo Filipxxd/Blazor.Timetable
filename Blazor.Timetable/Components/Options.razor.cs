@@ -23,7 +23,7 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter] public EventCallback<DisplayType> OnDisplayTypeChanged { get; set; }
     [Parameter] public EventCallback OnCreateClicked { get; set; }
     [Parameter] public EventCallback<ImportProps<TEvent>> OnImport { get; set; }
-    [CascadingParameter] public TimetableConfig TimetableConfig { get; set; } = default!;
+    public IEnumerable<DisplayType> DisplayTypes { get; set; } = [DisplayType.Day, DisplayType.Week, DisplayType.Month];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

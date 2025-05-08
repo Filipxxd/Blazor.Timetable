@@ -24,11 +24,6 @@ public sealed class TimetableConfig
     ];
 
     /// <summary>
-    /// Allowed display modes for the timetable. Defaults to <see cref="DisplayType.Day"/>, <see cref="DisplayType.Week"/>, <see cref="DisplayType.Month"/>.
-    /// </summary>
-    public IEnumerable<DisplayType> DisplayTypes { get; init; } = [DisplayType.Day, DisplayType.Week, DisplayType.Month];
-
-    /// <summary>
     /// Start time for displayed events. Defaults to 00:00 (0AM).
     /// </summary>
     public TimeOnly TimeFrom { get; init; } = new(0, 0);
@@ -66,16 +61,7 @@ public sealed class TimetableConfig
         if (TimeTo.Minute % TimetableConstants.TimeSlotInterval != 0)
             throw new InvalidOperationException($"{nameof(TimeTo)} must be a quarter-hour interval (0, 15, 30, 45 minutes).");
 
-        if (!DisplayTypes.Any())
-            throw new InvalidSetupException($"At least one {nameof(DisplayType)} in {nameof(DisplayTypes)} required.");
-
-        if (DisplayTypes.GroupBy(x => x).Any(x => x.Count() > 1))
-            throw new InvalidSetupException($"Duplicate {nameof(DisplayType)} found in {nameof(DisplayTypes)}.");
-
-        if (!DisplayTypes.Contains(DefaultDisplayType))
-            throw new InvalidSetupException($"{nameof(DisplayType)} must be part of {nameof(DisplayTypes)}.");
-
-        if (!Months.Any())
+        if (Months.Count == 0)
             throw new InvalidSetupException($"At least one {nameof(DayOfWeek)} in {nameof(Days)} required.");
 
         if (Months.GroupBy(x => x).Any(x => x.Count() > 1))

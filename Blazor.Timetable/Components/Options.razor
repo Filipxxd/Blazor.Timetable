@@ -18,7 +18,7 @@
             <span>Export</span>
         </div>
 
-        @foreach (var displayType in TimetableConfig.DisplayTypes.Where(x => x != CurrentDisplayType).OrderBy(x => x))
+        @foreach (var displayType in DisplayTypes.Where(x => x != CurrentDisplayType).OrderBy(x => x))
         {
             <span @onclick="() => OnDisplayTypeChanged.InvokeAsync(displayType)" class="icon-button">
                 @switch (displayType)
