@@ -35,7 +35,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateFrom { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, DateTime>> DateTo { get; set; } = default!;
     [Parameter, EditorRequired] public Expression<Func<TEvent, string>> Title { get; set; } = default!;
-    [Parameter, EditorRequired] public Expression<Func<TEvent, object?>> GroupId { get; set; } = default!;
+    [Parameter, EditorRequired] public Expression<Func<TEvent, string?>> GroupId { get; set; } = default!;
     [Parameter] public IEnumerable<Expression<Func<TEvent, object?>>> AdditionalProps { get; set; } = [];
 
     [Parameter] public TimetableConfig TimetableConfig { get; set; } = new();
@@ -86,7 +86,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             Transformer = new CsvImportTransformer<TEvent>([
               new ImportSelector<TEvent,DateTime>("DateFrom", DateFrom),
               new ImportSelector<TEvent,DateTime>("DateTo", DateTo),
-              new ImportSelector<TEvent,string>("Title", Title)
+              new ImportSelector<TEvent,string>("Title", Title!)
             ])
         };
     }
@@ -197,7 +197,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         UpdateGrid();
     }
 
-    private async Task HandleImport(ImportProps<TEvent> props)
+    private void HandleImport(ImportProps<TEvent> props)
     {
         if (props.Type == ImportType.Append)
         {

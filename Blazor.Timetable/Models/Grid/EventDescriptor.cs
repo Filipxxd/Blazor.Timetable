@@ -29,7 +29,7 @@ public sealed class EventDescriptor<TEvent> where
         get => Props.GetDateTo(Event);
         set => Props.SetDateTo(Event, value);
     }
-    public object? GroupId
+    public string? GroupId
     {
         get => Props?.GetGroupId != null ? Props.GetGroupId(Event) : null;
         set
