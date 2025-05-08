@@ -5,23 +5,23 @@
         <div class="modal-container">
             @if (State == EventModalState.Create || State == EventModalState.Edit)
             {
-                <Input Model=_eventWrapper 
+                <Input Model=_eventDescriptor 
                        Label="Title" 
                        Selector="x => x.Title" 
                        Validate=ValidateTitle />
 
-                <InputDateTime Model=_eventWrapper 
+                <InputDateTime Model=_eventDescriptor 
                                Label="Start"
                                Selector="x => x.DateFrom" />
 
-                <InputDateTime Model=_eventWrapper 
+                <InputDateTime Model=_eventDescriptor 
                                Label="End" 
                                Selector="x => x.DateTo" 
                                Validate=ValidateDateTo />
 
                 @if (AdditionalFields != null)
                 {
-                    @AdditionalFields(_eventWrapper.Event)
+                    @AdditionalFields(_eventDescriptor.Event)
                 }
 
                 @if (State == EventModalState.Create)
@@ -55,7 +55,7 @@
             }
             else
             {
-                @if (_eventWrapper.HasGroupdAssigned)
+                @if (_eventDescriptor.HasGroupdAssigned)
                 {
                     <Dropdown Model=this Label="Select" Selector="x => x.Scope" Options="Scopes" />
                 }

@@ -18,26 +18,26 @@ internal sealed class TimetableManager<TEvent> where
     {
         if (deleteProps.Scope == ActionScope.Single)
         {
-            events.Remove(deleteProps.EventWrapper.Event);
-            return [deleteProps.EventWrapper.Event];
+            events.Remove(deleteProps.EventDescriptor.Event);
+            return [deleteProps.EventDescriptor.Event];
         }
 
-        if (!deleteProps.EventWrapper.HasGroupdAssigned)
+        if (!deleteProps.EventDescriptor.HasGroupdAssigned)
             throw new InvalidOperationException("Cannot delete grouped events without group identifier.");
 
-        var groupId = deleteProps.EventWrapper.GroupId;
+        var groupId = deleteProps.EventDescriptor.GroupId;
 
         var relatedEvents = events.Where(e =>
         {
-            var eGroup = deleteProps.EventWrapper.Props.GetGroupId(e);
+            var eGroup = deleteProps.EventDescriptor.Props.GetGroupId(e);
             return eGroup != null && eGroup.Equals(groupId);
         }).ToList();
 
         if (deleteProps.Scope == ActionScope.Future)
             relatedEvents = [.. relatedEvents.Where(e =>
             {
-                var eventStart = deleteProps.EventWrapper.Props.GetDateFrom(e);
-                return eventStart >= deleteProps.EventWrapper.DateFrom;
+                var eventStart = deleteProps.EventDescriptor.Props.GetDateFrom(e);
+                return eventStart >= deleteProps.EventDescriptor.DateFrom;
             })];
 
         foreach (var relatedEvent in relatedEvents)
@@ -68,29 +68,29 @@ internal sealed class TimetableManager<TEvent> where
 
         if (currentCell.Type == CellType.Normal)
         {
-            var duration = cellItem.EventWrapper.DateTo - cellItem.EventWrapper.DateFrom;
+            var duration = cellItem.EventDescriptor.DateTo - cellItem.EventDescriptor.DateFrom;
             var newEndDate = targetCell.DateTime.Add(duration);
 
-            cellItem.EventWrapper.DateFrom = targetCell.DateTime;
-            cellItem.EventWrapper.DateTo = newEndDate;
+            cellItem.EventDescriptor.DateFrom = targetCell.DateTime;
+            cellItem.EventDescriptor.DateTo = newEndDate;
 
             currentCell.Items.Remove(cellItem);
             targetCell.Items.Add(cellItem);
         }
         else
         {
-            var duration = cellItem.EventWrapper.DateTo - cellItem.EventWrapper.DateFrom;
-            var originalFrom = cellItem.EventWrapper.DateFrom;
+            var duration = cellItem.EventDescriptor.DateTo - cellItem.EventDescriptor.DateFrom;
+            var originalFrom = cellItem.EventDescriptor.DateFrom;
             var newStartDate = new DateTime(targetCell.DateTime.Year, targetCell.DateTime.Month, targetCell.DateTime.Day, originalFrom.Hour, originalFrom.Minute, originalFrom.Second);
             var newEndDate = newStartDate.Add(duration);
 
-            cellItem.EventWrapper.DateFrom = newStartDate;
-            cellItem.EventWrapper.DateTo = newEndDate;
+            cellItem.EventDescriptor.DateFrom = newStartDate;
+            cellItem.EventDescriptor.DateTo = newEndDate;
             currentCell.Items.Remove(cellItem);
             targetCell.Items.Add(cellItem);
         }
 
-        return cellItem.EventWrapper.Event;
+        return cellItem.EventDescriptor.Event;
     }
 
     public IList<TEvent> UpdateEvents(IList<TEvent> events, UpdateProps<TEvent> props)

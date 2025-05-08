@@ -13,7 +13,7 @@ public partial class EventModal<TEvent> where TEvent : class
     [Inject] ModalService ModalService { get; set; } = default!;
 
     [Parameter] public EventModalState State { get; set; }
-    [Parameter] public EventWrapper<TEvent> EventWrapper { get; set; } = default!;
+    [Parameter] public EventDescriptor<TEvent> EventDescriptor { get; set; } = default!;
     [Parameter] public RenderFragment<TEvent>? AdditionalFields { get; set; }
 
     [Parameter] public EventCallback<CreateProps<TEvent>> OnCreate { get; set; }
@@ -26,7 +26,7 @@ public partial class EventModal<TEvent> where TEvent : class
 
     private readonly IList<Func<bool>> _validationFuncs = [];
     private void RegisterValidation(Func<bool> fn) => _validationFuncs.Add(fn);
-    private EventWrapper<TEvent> _eventWrapper = default!;
+    private EventDescriptor<TEvent> _eventDescriptor = default!;
 
     private RepeatOption RepeatOption { get; set; } = RepeatOption.Once;
     private DateTime RepeatUntil { get; set; }
@@ -37,14 +37,14 @@ public partial class EventModal<TEvent> where TEvent : class
 
     protected override void OnParametersSet()
     {
-        if (EventWrapper.GroupId is null)
+        if (EventDescriptor.GroupId is null)
             Scope = ActionScope.Single;
 
-        RepeatUntil = EventWrapper.DateFrom.AddMonths(1);
+        RepeatUntil = EventDescriptor.DateFrom.AddMonths(1);
 
-        _eventWrapper = State == EventModalState.Create
-            ? EventWrapper
-            : EventWrapper.Copy();
+        _eventDescriptor = State == EventModalState.Create
+            ? EventDescriptor
+            : EventDescriptor.Copy();
     }
 
     private string? ValidateTitle(string title)
@@ -56,9 +56,9 @@ public partial class EventModal<TEvent> where TEvent : class
 
     private string? ValidateDateTo(DateTime d)
     {
-        if (d <= _eventWrapper.DateFrom) return "End must be after start";
+        if (d <= _eventDescriptor.DateFrom) return "End must be after start";
 
-        if (Config.TimeTo < _eventWrapper.DateTo.TimeOfDay.ToTimeOnly())
+        if (Config.TimeTo < _eventDescriptor.DateTo.TimeOfDay.ToTimeOnly())
             return "something is wrong i can feel it";
 
         return null;
@@ -76,7 +76,7 @@ public partial class EventModal<TEvent> where TEvent : class
                 Repetition = RepeatOption,
                 RepeatUntil = RepeatUntil.ToDateOnly(),
                 RepeatDays = RepeatDays,
-                EventWrapper = _eventWrapper
+                EventDescriptor = _eventDescriptor
             };
             await OnCreate.InvokeAsync(createProps);
         }
@@ -84,8 +84,8 @@ public partial class EventModal<TEvent> where TEvent : class
         {
             var p = new UpdateProps<TEvent>
             {
-                Original = EventWrapper,
-                New = _eventWrapper,
+                Original = EventDescriptor,
+                New = _eventDescriptor,
                 Scope = Scope
             };
             await OnUpdate.InvokeAsync(p);
@@ -116,7 +116,7 @@ public partial class EventModal<TEvent> where TEvent : class
 
     private async Task DeleteAsync()
     {
-        var p = new DeleteProps<TEvent> { EventWrapper = EventWrapper, Scope = Scope };
+        var p = new DeleteProps<TEvent> { EventDescriptor = EventDescriptor, Scope = Scope };
         await OnDelete.InvokeAsync(p);
         ModalService.Close();
     }

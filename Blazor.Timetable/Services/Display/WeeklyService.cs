@@ -66,7 +66,7 @@ internal sealed class WeeklyService : IDisplayService
 
                     return new CellItem<TEvent>
                     {
-                        EventWrapper = new EventWrapper<TEvent>(timetableEvent, props),
+                        EventDescriptor = new EventDescriptor<TEvent>(timetableEvent, props),
                         Span = Math.Min(Math.Max(spanDays, 1), maxSpan)
                     };
                 })
@@ -111,10 +111,10 @@ internal sealed class WeeklyService : IDisplayService
                     })
                     .Select(timetableEvent => new CellItem<TEvent>
                     {
-                        EventWrapper = new EventWrapper<TEvent>(timetableEvent, props),
+                        EventDescriptor = new EventDescriptor<TEvent>(timetableEvent, props),
                         Span = DisplayServiceHelper.GetEventSpan(timetableEvent, config, props)
                     })
-                    .OrderByDescending(ci => (ci.EventWrapper.DateTo - ci.EventWrapper.DateFrom).TotalHours)
+                    .OrderByDescending(ci => (ci.EventDescriptor.DateTo - ci.EventDescriptor.DateFrom).TotalHours)
                     .ToList();
 
                 cells.Add(new Cell<TEvent>

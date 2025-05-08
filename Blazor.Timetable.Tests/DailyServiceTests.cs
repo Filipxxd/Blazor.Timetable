@@ -83,7 +83,7 @@ public sealed class DailyServiceTests
         var regularEvents = result.Columns
             .SelectMany(col => col.Cells.Where(cell => cell.Type != CellType.Header)
             .SelectMany(cell => cell.Items))
-            .Select(e => e.EventWrapper.Event)
+            .Select(e => e.EventDescriptor.Event)
             .ToList();
 
         regularEvents.Should().ContainSingle().Which.Title.Should().Be("Event 2");
@@ -91,14 +91,14 @@ public sealed class DailyServiceTests
         var headerEvents = result.Columns
             .SelectMany(col => col.Cells.Where(cell => cell.Type == CellType.Header)
             .SelectMany(cell => cell.Items))
-            .Select(e => e.EventWrapper.Event)
+            .Select(e => e.EventDescriptor.Event)
             .ToList();
 
         headerEvents.Should().ContainSingle().Which.Title.Should().Be("Event 1");
 
         var allEvents = result.Columns
             .SelectMany(col => col.Cells.SelectMany(cell => cell.Items))
-            .Select(e => e.EventWrapper.Event)
+            .Select(e => e.EventDescriptor.Event)
             .ToList();
 
         allEvents.Should().NotContain(e => e.Title == "Event 3");
@@ -127,7 +127,7 @@ public sealed class DailyServiceTests
 
         var headerCell = result.Columns.SelectMany(x => x.Cells).First(cell => cell.Type == CellType.Header);
 
-        headerCell.Items.Should().Contain(e => e.EventWrapper.Event.Title == wholeDayEvent.Title);
+        headerCell.Items.Should().Contain(e => e.EventDescriptor.Event.Title == wholeDayEvent.Title);
     }
 
     [Fact]
@@ -150,7 +150,7 @@ public sealed class DailyServiceTests
 
         var allTitles = result.Columns
             .SelectMany(col => col.Cells.SelectMany(cell => cell.Items))
-            .Select(e => e.EventWrapper.Event.Title)
+            .Select(e => e.EventDescriptor.Event.Title)
             .ToList();
 
         allTitles.Should().Contain("Event 1").And.Contain("Event 2");
@@ -175,11 +175,11 @@ public sealed class DailyServiceTests
         var result = _dailyService.CreateGrid(events, mockConfig, _currentDate, _props);
 
         result.Columns.SelectMany(col => col.Cells)
-            .Any(cell => cell.Items.Any(e => e.EventWrapper.Event.Title == "Start Boundary Event"))
+            .Any(cell => cell.Items.Any(e => e.EventDescriptor.Event.Title == "Start Boundary Event"))
             .Should().BeTrue();
 
         result.Columns.SelectMany(col => col.Cells)
-            .Any(cell => cell.Items.Any(e => e.EventWrapper.Event.Title == "Not Today Event"))
+            .Any(cell => cell.Items.Any(e => e.EventDescriptor.Event.Title == "Not Today Event"))
             .Should().BeFalse();
     }
 }

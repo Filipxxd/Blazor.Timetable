@@ -42,10 +42,10 @@ internal sealed class DailyService : IDisplayService
             })
             .Select(@event => new CellItem<TEvent>
             {
-                EventWrapper = new EventWrapper<TEvent>(@event, props),
+                EventDescriptor = new EventDescriptor<TEvent>(@event, props),
                 Span = 1
             })
-            .OrderByDescending(ci => (ci.EventWrapper.DateTo - ci.EventWrapper.DateFrom).TotalHours)
+            .OrderByDescending(ci => (ci.EventDescriptor.DateTo - ci.EventDescriptor.DateFrom).TotalHours)
             .ToList();
 
         var headerCell = new Cell<TEvent>()
@@ -85,10 +85,10 @@ internal sealed class DailyService : IDisplayService
                 })
                 .Select(@event => new CellItem<TEvent>
                 {
-                    EventWrapper = new EventWrapper<TEvent>(@event, props),
+                    EventDescriptor = new EventDescriptor<TEvent>(@event, props),
                     Span = DisplayServiceHelper.GetEventSpan(@event, config, props)
                 })
-                .OrderByDescending(ci => (ci.EventWrapper.DateTo - ci.EventWrapper.DateFrom).TotalHours)
+                .OrderByDescending(ci => (ci.EventDescriptor.DateTo - ci.EventDescriptor.DateFrom).TotalHours)
                 .ToList();
 
             return new Cell<TEvent>

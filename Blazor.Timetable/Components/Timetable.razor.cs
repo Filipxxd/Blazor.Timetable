@@ -225,25 +225,25 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         _eventProps.SetDateFrom(newEvent, dateTime);
         _eventProps.SetDateTo(newEvent, dateTime.AddMinutes(TimetableConstants.TimeSlotInterval));
 
-        var wrapper = new EventWrapper<TEvent>(newEvent, _eventProps)
+        var wrapper = new EventDescriptor<TEvent>(newEvent, _eventProps)
         {
             GroupId = null
         };
 
         var handleCreate = EventCallback.Factory.Create(this, async (CreateProps<TEvent> props) =>
         {
-            var EventWrapper = props.EventWrapper;
+            var EventDescriptor = props.EventDescriptor;
 
             var eventsToCreate = new List<TEvent>();
-            var baseStart = EventWrapper.DateFrom;
-            var baseEnd = EventWrapper.DateTo;
+            var baseStart = EventDescriptor.DateFrom;
+            var baseEnd = EventDescriptor.DateTo;
 
-            eventsToCreate.Add(EventWrapper.Event);
+            eventsToCreate.Add(EventDescriptor.Event);
 
             if (props.Repetition != RepeatOption.Once)
             {
                 var groupId = Guid.NewGuid().ToString();
-                EventWrapper.Props.SetGroupId(EventWrapper.Event, groupId);
+                EventDescriptor.Props.SetGroupId(EventDescriptor.Event, groupId);
 
                 if (props.Repetition == RepeatOption.Custom && !props.RepeatDays.HasValue)
                     throw new Exception();
@@ -280,14 +280,14 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
                         break;
 
                     TEvent newEvent = Activator.CreateInstance<TEvent>();
-                    EventWrapper.Props.SetTitle(newEvent, EventWrapper.Title);
-                    EventWrapper.Props.SetDateFrom(newEvent, offsetStart);
-                    EventWrapper.Props.SetDateTo(newEvent, offsetEnd);
-                    EventWrapper.Props.SetGroupId(newEvent, groupId);
+                    EventDescriptor.Props.SetTitle(newEvent, EventDescriptor.Title);
+                    EventDescriptor.Props.SetDateFrom(newEvent, offsetStart);
+                    EventDescriptor.Props.SetDateTo(newEvent, offsetEnd);
+                    EventDescriptor.Props.SetGroupId(newEvent, groupId);
 
-                    foreach (var (getter, setter) in EventWrapper.Props.AdditionalProperties)
+                    foreach (var (getter, setter) in EventDescriptor.Props.AdditionalProperties)
                     {
-                        var updatedValue = getter(props.EventWrapper.Event);
+                        var updatedValue = getter(props.EventDescriptor.Event);
                         setter(newEvent, updatedValue);
                     }
 
@@ -316,7 +316,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
         var parameters = new Dictionary<string, object>
         {
-            { "EventWrapper", wrapper },
+            { "EventDescriptor", wrapper },
             { "State", EventModalState.Create },
             { "OnCreate", handleCreate },
             { "AdditionalFields", AdditionalFields }

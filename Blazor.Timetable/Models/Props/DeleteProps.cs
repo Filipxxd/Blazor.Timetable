@@ -6,5 +6,5 @@ namespace Blazor.Timetable.Models.Props;
 public sealed class DeleteProps<TEvent> where TEvent : class
 {
     public ActionScope Scope { get; set; } = ActionScope.Single;
-    public EventWrapper<TEvent> EventWrapper { get; set; } = default!;
+    public EventDescriptor<TEvent> EventDescriptor { get; set; } = default!;
 }

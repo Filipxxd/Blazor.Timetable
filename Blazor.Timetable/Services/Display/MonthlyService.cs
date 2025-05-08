@@ -80,7 +80,7 @@ internal sealed class MonthlyService : IDisplayService
 
                             return new CellItem<TEvent>
                             {
-                                EventWrapper = new EventWrapper<TEvent>(timetableEvent, props),
+                                EventDescriptor = new EventDescriptor<TEvent>(timetableEvent, props),
                                 Span = Math.Min(dayCount, maxSpan)
                             };
                         })

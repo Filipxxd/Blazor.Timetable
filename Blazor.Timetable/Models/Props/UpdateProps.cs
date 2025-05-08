@@ -6,6 +6,6 @@ namespace Blazor.Timetable.Models.Props;
 public sealed class UpdateProps<TEvent> where TEvent : class
 {
     public ActionScope Scope { get; set; } = ActionScope.Single;
-    public EventWrapper<TEvent> Original { get; set; } = default!;
-    public EventWrapper<TEvent> New { get; set; } = default!;
+    public EventDescriptor<TEvent> Original { get; set; } = default!;
+    public EventDescriptor<TEvent> New { get; set; } = default!;
 }

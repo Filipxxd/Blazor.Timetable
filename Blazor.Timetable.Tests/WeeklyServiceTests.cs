@@ -118,7 +118,7 @@ public sealed class WeeklyServiceTests
 
         var includedEvents = grid.Columns
             .SelectMany(col => col.Cells.SelectMany(cell => cell.Items))
-            .Select(i => i.EventWrapper.Event)
+            .Select(i => i.EventDescriptor.Event)
             .ToArray();
 
         includedEvents.Should().ContainSingle().Which.Should().Be(events[0]);
@@ -150,7 +150,7 @@ public sealed class WeeklyServiceTests
         var headerEvents = grid.Columns
             .SelectMany(col => col.Cells.Where(cell => cell.Type == CellType.Header))
             .SelectMany(cell => cell.Items)
-            .Select(i => i.EventWrapper.Event)
+            .Select(i => i.EventDescriptor.Event)
             .ToArray();
 
         headerEvents.Should().HaveCount(6);
@@ -178,7 +178,7 @@ public sealed class WeeklyServiceTests
 
         var headerEvents = grid.Columns
             .SelectMany(col => col.Cells.Where(cell => cell.Type == CellType.Header))
-            .SelectMany(cell => cell.Items.Select(i => i.EventWrapper.Event))
+            .SelectMany(cell => cell.Items.Select(i => i.EventDescriptor.Event))
             .ToArray();
 
         headerEvents.Should().ContainSingle().Which.Should().Be(events[0]);
@@ -205,7 +205,7 @@ public sealed class WeeklyServiceTests
 
         var includedEvents = grid.Columns
             .SelectMany(col => col.Cells.SelectMany(cell => cell.Items))
-            .Select(i => i.EventWrapper.Event)
+            .Select(i => i.EventDescriptor.Event)
             .ToArray();
 
         includedEvents.Should().HaveCount(events.Count);
@@ -233,7 +233,7 @@ public sealed class WeeklyServiceTests
         var includedEvents = grid.Columns
             .SelectMany(col => col.Cells.Where(cell => cell.DateTime.Hour < config.TimeTo.Hour))
             .SelectMany(cell => cell.Items)
-            .Select(i => i.EventWrapper.Event)
+            .Select(i => i.EventDescriptor.Event)
             .ToArray();
 
         includedEvents.Should().HaveCount(events.Count);

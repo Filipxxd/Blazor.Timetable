@@ -1,9 +1,9 @@
 ﻿namespace Blazor.Timetable.Models.Grid;
 
-public sealed class EventWrapper<TEvent> where
+public sealed class EventDescriptor<TEvent> where
     TEvent : class
 {
-    public EventWrapper(TEvent timetableEvent, PropertyAccessors<TEvent> props)
+    public EventDescriptor(TEvent timetableEvent, PropertyAccessors<TEvent> props)
     {
         Event = timetableEvent;
         Props = props;
@@ -41,7 +41,7 @@ public sealed class EventWrapper<TEvent> where
         }
     }
 
-    public EventWrapper<TEvent> Copy()
+    public EventDescriptor<TEvent> Copy()
     {
         var eventCopy = Activator.CreateInstance<TEvent>();
 
@@ -56,7 +56,7 @@ public sealed class EventWrapper<TEvent> where
             setter(eventCopy, originalValue);
         }
 
-        return new EventWrapper<TEvent>(eventCopy, Props);
+        return new EventDescriptor<TEvent>(eventCopy, Props);
     }
 
     public TEvent MapTo(TEvent timetableEvent)

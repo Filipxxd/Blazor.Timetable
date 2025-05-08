@@ -48,7 +48,7 @@ public partial class TimetableEvent<TEvent>
     {
         var parameters = new Dictionary<string, object>
         {
-            { "EventWrapper", CellItem.EventWrapper },
+            { "EventDescriptor", CellItem.EventDescriptor },
             { "State", EventModalState.Edit },
             { "OnUpdate", OnEventUpdated },
             { "OnDelete", OnEventDelete },
