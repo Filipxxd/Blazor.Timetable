@@ -1,11 +1,9 @@
-﻿<div @onclick=HandleClick class="button @ButtonStyle" style="@Style">
-    @if (IconFragment != null)
-    {
-        <span class="button-icon">
-            @IconFragment
-        </span>
-    }
-    <span class="button-title">@Title</span>
+﻿<div @onclick=HandleClick 
+     class="button @ButtonStyle" 
+     style="@Style">
+    <span class="button-title">
+        @Title
+    </span>
 </div>
 
 @code {
@@ -13,7 +11,6 @@
     [Parameter] public string Style { get; set; } = string.Empty;
     [Parameter] public ButtonType ButtonType { get; set; } = ButtonType.Confirm;
     [Parameter] public EventCallback OnClick { get; set; }
-    [Parameter] public RenderFragment? IconFragment { get; set; }
 
     private string ButtonStyle => ButtonType switch
     {

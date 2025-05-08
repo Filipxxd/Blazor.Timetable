@@ -13,8 +13,10 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
     private IJSObjectReference _jsModule = default!;
     private DotNetObjectReference<Options<TEvent>> _dotNetRef = default!;
 
+    private readonly IEnumerable<DisplayType> _displayTypes = [DisplayType.Day, DisplayType.Week, DisplayType.Month];
+
     [Inject] private ModalService ModalService { get; set; } = default!;
-    [Inject] public IJSRuntime JsRuntime { get; set; } = default!;
+    [Inject] private IJSRuntime JsRuntime { get; set; } = default!;
 
     [Parameter] public IList<TEvent> Events { get; set; } = default!;
     [Parameter] public ExportConfig<TEvent> ExportConfig { get; set; } = default!;
@@ -23,7 +25,6 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter] public EventCallback<DisplayType> OnDisplayTypeChanged { get; set; }
     [Parameter] public EventCallback OnCreateClicked { get; set; }
     [Parameter] public EventCallback<ImportProps<TEvent>> OnImport { get; set; }
-    public IEnumerable<DisplayType> DisplayTypes { get; set; } = [DisplayType.Day, DisplayType.Week, DisplayType.Month];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -43,20 +44,17 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
     private async Task Import()
     {
         if (_jsModule is null || _dotNetRef is null) return;
-        await _jsModule.InvokeVoidAsync("promptFileSelect",
-           _dotNetRef,
-           ImportConfig.MaxFileSizeBytes,
-           ImportConfig.AllowedExtensions);
+        await _jsModule.InvokeVoidAsync("promptFileSelect", _dotNetRef, ImportConfig.MaxFileSizeBytes, ImportConfig.AllowedExtensions);
     }
 
     [JSInvokable]
     public async Task ReceiveFileBase64(string base64)
     {
         var content = Convert.FromBase64String(base64);
-        var ms = new MemoryStream(content, writable: false);
-        var items = ImportConfig.Transformer.Transform(ms);
+        var stream = new MemoryStream(content, writable: false);
+        var items = ImportConfig.Transformer.Transform(stream);
 
-        await ms.DisposeAsync();
+        await stream.DisposeAsync();
 
         var parameters = new Dictionary<string, object>
         {

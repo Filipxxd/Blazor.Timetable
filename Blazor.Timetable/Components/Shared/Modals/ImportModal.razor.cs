@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Components;
-using Blazor.Timetable.Common.Enums;
+﻿using Blazor.Timetable.Common.Enums;
 using Blazor.Timetable.Models.Props;
 using Blazor.Timetable.Services;
+using Microsoft.AspNetCore.Components;
 
 namespace Blazor.Timetable.Components.Shared.Modals;
 
 public partial class ImportModal<TEvent> where TEvent : class
 {
-    [Inject] ModalService ModalService { get; set; } = default!;
+    [Inject] private ModalService ModalService { get; set; } = default!;
 
     public ImportType Type { get; set; } = ImportType.Append;
 

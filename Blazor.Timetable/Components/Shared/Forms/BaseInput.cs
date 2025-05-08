@@ -1,15 +1,16 @@
-﻿using Microsoft.AspNetCore.Components;
-using System.Linq.Expressions;
-using Blazor.Timetable.Common.Exceptions;
+﻿using Blazor.Timetable.Common.Exceptions;
 using Blazor.Timetable.Common.Helpers;
+using Microsoft.AspNetCore.Components;
+using System.Linq.Expressions;
 
 namespace Blazor.Timetable.Components.Shared.Forms;
 
 public abstract class BaseInput<TEvent, TType> : ComponentBase where TEvent : class
 {
+    private Func<TEvent, TType?> _getter = default!;
+    private Action<TEvent, TType?> _setter = default!;
+
     protected readonly Guid _id = Guid.NewGuid();
-    protected Func<TEvent, TType?> _getter = default!;
-    protected Action<TEvent, TType?> _setter = default!;
 
     protected string? ErrorMessage { get; private set; }
     protected bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);

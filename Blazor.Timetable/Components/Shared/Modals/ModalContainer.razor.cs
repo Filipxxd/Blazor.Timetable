@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Components;
-using Blazor.Timetable.Services;
+﻿using Blazor.Timetable.Services;
+using Microsoft.AspNetCore.Components;
 
 namespace Blazor.Timetable.Components.Shared.Modals;
 
-public partial class ModalContainer
+public partial class ModalContainer : IDisposable
 {
     [Inject] private ModalService ModalService { get; set; } = default!;
 
@@ -22,5 +22,6 @@ public partial class ModalContainer
     public void Dispose()
     {
         ModalService.OnModalChanged -= ModalChanged;
+        GC.SuppressFinalize(this);
     }
 }

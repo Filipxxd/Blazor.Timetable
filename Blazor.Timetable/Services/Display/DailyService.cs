@@ -83,10 +83,10 @@ internal sealed class DailyService : IDisplayService
                         && timeStart.Hour == slotTime.Hour
                         && timeStart.Minute == slotTime.Minute;
                 })
-                .Select(@event => new CellItem<TEvent>
+                .Select(timetableEvent => new CellItem<TEvent>
                 {
-                    EventDescriptor = new EventDescriptor<TEvent>(@event, props),
-                    Span = DisplayServiceHelper.GetEventSpan(@event, config, props)
+                    EventDescriptor = new EventDescriptor<TEvent>(timetableEvent, props),
+                    Span = DisplayServiceHelper.GetEventSpan(timetableEvent, config.TimeTo, props)
                 })
                 .OrderByDescending(ci => (ci.EventDescriptor.DateTo - ci.EventDescriptor.DateFrom).TotalHours)
                 .ToList();

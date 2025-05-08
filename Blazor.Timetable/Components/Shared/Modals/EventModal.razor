@@ -1,7 +1,7 @@
 ﻿@typeparam TEvent where TEvent : class
 
-<CascadingValue Name="RegisterValidation" IsFixed=true Value=@((Action<Func<bool>>)RegisterValidation)>
-    <CascadingValue Name="StateChanged" IsFixed=true Value=@((Action)StateHasChanged)>
+<CascadingValue Name="RegisterValidation" IsFixed Value=@((Action<Func<bool>>)RegisterValidation)>
+    <CascadingValue Name="StateChanged" IsFixed Value=@((Action)StateHasChanged)>
         <div class="modal-container">
             @if (State == EventModalState.Create || State == EventModalState.Edit)
             {

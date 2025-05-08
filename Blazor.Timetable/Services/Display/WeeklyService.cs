@@ -112,7 +112,7 @@ internal sealed class WeeklyService : IDisplayService
                     .Select(timetableEvent => new CellItem<TEvent>
                     {
                         EventDescriptor = new EventDescriptor<TEvent>(timetableEvent, props),
-                        Span = DisplayServiceHelper.GetEventSpan(timetableEvent, config, props)
+                        Span = DisplayServiceHelper.GetEventSpan(timetableEvent, config.TimeTo, props)
                     })
                     .OrderByDescending(ci => (ci.EventDescriptor.DateTo - ci.EventDescriptor.DateFrom).TotalHours)
                     .ToList();

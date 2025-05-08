@@ -25,9 +25,9 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     private PropertyAccessors<TEvent> _eventProps = default!;
     private IJSObjectReference _jsModule = default!;
 
-    [Inject] internal IJSRuntime JsRuntime { get; set; } = default!;
-    [Inject] internal IEnumerable<IDisplayService> DisplayServices { get; set; } = default!;
-    [Inject] internal ModalService ModalService { get; set; } = default!;
+    [Inject] private IJSRuntime JsRuntime { get; set; } = default!;
+    [Inject] private IEnumerable<IDisplayService> DisplayServices { get; set; } = default!;
+    [Inject] private ModalService ModalService { get; set; } = default!;
 
     [Parameter, EditorRequired] public IList<TEvent> Events { get; set; } = default!;
     [Parameter, EditorRequired] public EventCallback<IList<TEvent>> EventsChanged { get; set; } = default!;

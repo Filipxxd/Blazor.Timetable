@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
-using Blazor.Timetable.Common.Enums;
+﻿using Blazor.Timetable.Common.Enums;
+using Microsoft.AspNetCore.Components;
 
 namespace Blazor.Timetable.Components.Shared;
 
@@ -20,7 +20,5 @@ public partial class GridItem
         : $"display: grid; grid-template-columns: repeat({Offset}, 1fr); grid-column: {ColumnIndex}; grid-row: {RowIndex} {(Span.HasValue ? $"/ span {Span}" : null)};";
 
     private async Task HandleClick()
-    {
-        await OnClick.InvokeAsync();
-    }
+        => await OnClick.InvokeAsync();
 }

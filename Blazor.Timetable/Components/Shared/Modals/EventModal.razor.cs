@@ -1,16 +1,16 @@
-﻿using Microsoft.AspNetCore.Components;
-using Blazor.Timetable.Common.Enums;
+﻿using Blazor.Timetable.Common.Enums;
 using Blazor.Timetable.Common.Extensions;
 using Blazor.Timetable.Models.Configuration;
 using Blazor.Timetable.Models.Grid;
 using Blazor.Timetable.Models.Props;
 using Blazor.Timetable.Services;
+using Microsoft.AspNetCore.Components;
 
 namespace Blazor.Timetable.Components.Shared.Modals;
 
 public partial class EventModal<TEvent> where TEvent : class
 {
-    [Inject] ModalService ModalService { get; set; } = default!;
+    [Inject] private ModalService ModalService { get; set; } = default!;
 
     [Parameter] public EventModalState State { get; set; }
     [Parameter] public EventDescriptor<TEvent> EventDescriptor { get; set; } = default!;
