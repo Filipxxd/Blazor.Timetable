@@ -1,6 +1,6 @@
 ﻿namespace Blazor.Timetable.Common.Helpers;
 
-internal static class DateHelper
+internal static class DateTimeHelper
 {
     public static DateOnly GetStartOfWeekDate(DateOnly currentDate, DayOfWeek firstDayOfWeek)
     {
@@ -31,4 +31,9 @@ internal static class DateHelper
 
         return today.AddDays(daysToAdd).ToString("dddd");
     }
+
+    public static string FormatHour(int hour, bool use24HourFormat)
+        => use24HourFormat
+            ? $"{hour}:00"
+            : $"{hour % 12} {(hour < 12 ? "AM" : "PM")}";
 }

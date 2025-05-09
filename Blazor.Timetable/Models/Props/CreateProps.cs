@@ -5,7 +5,7 @@ namespace Blazor.Timetable.Models.Props;
 
 public sealed class CreateProps<TEvent> where TEvent : class
 {
-    public RepeatOption Repetition { get; set; } = RepeatOption.Once;
+    public Repeatability Repetition { get; set; } = Repeatability.Once;
     public DateOnly? RepeatUntil { get; set; }
     public int? RepeatDays { get; set; } = 1;
     public EventDescriptor<TEvent> EventDescriptor { get; set; } = default!;

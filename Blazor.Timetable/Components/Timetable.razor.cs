@@ -193,7 +193,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
     private async Task HandleChangedToDay(DayOfWeek dayOfWeek)
     {
-        _timetableManager.CurrentDate = DateHelper.GetDateForDay(_timetableManager.CurrentDate, dayOfWeek, TimetableConfig.Days.First());
+        _timetableManager.CurrentDate = DateTimeHelper.GetDateForDay(_timetableManager.CurrentDate, dayOfWeek, TimetableConfig.Days.First());
         _timetableManager.DisplayType = DisplayType.Day;
         await OnChangedToDay.InvokeAsync(dayOfWeek);
         await OnDisplayTypeChanged.InvokeAsync(DisplayType.Day);
@@ -228,7 +228,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         _eventProps.SetDateFrom(newEvent, dateTime);
         _eventProps.SetDateTo(newEvent, dateTime.AddMinutes(TimetableConstants.TimeSlotInterval));
 
-        var wrapper = new EventDescriptor<TEvent>(newEvent, _eventProps)
+        var eventDescriptor = new EventDescriptor<TEvent>(newEvent, _eventProps)
         {
             GroupId = null
         };
@@ -243,12 +243,12 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
             eventsToCreate.Add(EventDescriptor.Event);
 
-            if (props.Repetition != RepeatOption.Once)
+            if (props.Repetition != Repeatability.Once)
             {
                 var groupId = Guid.NewGuid().ToString();
                 EventDescriptor.Props.SetGroupId(EventDescriptor.Event, groupId);
 
-                if (props.Repetition == RepeatOption.Custom && !props.RepeatDays.HasValue)
+                if (props.Repetition == Repeatability.Custom && !props.RepeatDays.HasValue)
                     throw new Exception();
 
                 var i = 1;
@@ -257,19 +257,19 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
                     DateTime offsetStart, offsetEnd;
                     switch (props.Repetition)
                     {
-                        case RepeatOption.Daily:
+                        case Repeatability.Daily:
                             offsetStart = baseStart.AddDays(1 * i);
                             offsetEnd = baseEnd.AddDays(1 * i);
                             break;
-                        case RepeatOption.Weekly:
+                        case Repeatability.Weekly:
                             offsetStart = baseStart.AddDays(7 * i);
                             offsetEnd = baseEnd.AddDays(7 * i);
                             break;
-                        case RepeatOption.Monthly:
+                        case Repeatability.Monthly:
                             offsetStart = baseStart.AddMonths(i);
                             offsetEnd = baseEnd.AddMonths(i);
                             break;
-                        case RepeatOption.Custom:
+                        case Repeatability.Custom:
                             offsetStart = baseStart.AddDays(props.RepeatDays!.Value * i);
                             offsetEnd = baseEnd.AddDays(props.RepeatDays.Value * i);
                             break;
@@ -319,7 +319,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
         var parameters = new Dictionary<string, object>
         {
-            { "EventDescriptor", wrapper },
+            { "OriginalEventDescriptor", eventDescriptor },
             { "State", EventModalState.Create },
             { "OnCreate", handleCreate },
             { "AdditionalFields", AdditionalFields }

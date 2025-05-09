@@ -105,7 +105,7 @@ internal sealed class DailyService : IDisplayService
         return new Grid<TEvent>
         {
             Title = $"{date:dddd d. MMMM yyyy}".CapitalizeWords(),
-            RowTitles = DisplayServiceHelper.GetTimeRowTitles(config.TimeFrom, config.TimeTo, config.Is24HourFormat),
+            RowTitles = DisplayServiceHelper.GetRowTitles(config.TimeFrom, config.TimeTo, config.Is24HourFormat),
             Columns = [column]
         };
     }

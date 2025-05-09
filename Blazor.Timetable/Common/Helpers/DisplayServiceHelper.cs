@@ -4,13 +4,10 @@ namespace Blazor.Timetable.Common.Helpers;
 
 internal static class DisplayServiceHelper
 {
-    public static IEnumerable<string> GetTimeRowTitles(TimeOnly timeFrom, TimeOnly timeTo, bool is24Format = true)
-    {
-        var hours = Enumerable.Range(timeFrom.Hour, timeTo.Hour - timeFrom.Hour);
-        return hours.Select(hour => is24Format
-            ? $"{hour}:00"
-            : $"{hour % 12} {(hour / 12 < 1 ? "AM" : "PM")}");
-    }
+    public static IEnumerable<string> GetRowTitles(TimeOnly from, TimeOnly to, bool is24Format = true)
+        => Enumerable
+            .Range(from.Hour, to.Hour - from.Hour)
+            .Select(hour => DateTimeHelper.FormatHour(hour, is24Format));
 
     public static IList<TimeOnly> GetTimeSlots(TimeOnly timeFrom, TimeOnly timeTo)
     {

@@ -141,7 +141,7 @@ internal sealed class WeeklyService : IDisplayService
         return new Grid<TEvent>
         {
             Title = title.CapitalizeWords(),
-            RowTitles = DisplayServiceHelper.GetTimeRowTitles(config.TimeFrom, config.TimeTo, config.Is24HourFormat),
+            RowTitles = DisplayServiceHelper.GetRowTitles(config.TimeFrom, config.TimeTo, config.Is24HourFormat),
             Columns = columns
         };
     }
@@ -149,7 +149,7 @@ internal sealed class WeeklyService : IDisplayService
     private static List<DateOnly> CalculateGridDates(DateOnly date, IEnumerable<DayOfWeek> days)
     {
         var orderedDays = days.OrderBy(d => d).ToArray();
-        var startOfWeek = DateHelper.GetStartOfWeekDate(date, orderedDays[0]);
+        var startOfWeek = DateTimeHelper.GetStartOfWeekDate(date, orderedDays[0]);
         var dates = new List<DateOnly> { startOfWeek };
         var previousDate = startOfWeek;
         var previousDayValue = (int)orderedDays[0];

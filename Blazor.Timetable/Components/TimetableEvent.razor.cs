@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using System.Diagnostics;
-using Blazor.Timetable.Common;
+﻿using Blazor.Timetable.Common;
 using Blazor.Timetable.Common.Enums;
 using Blazor.Timetable.Components.Shared.Modals;
 using Blazor.Timetable.Models.Grid;
 using Blazor.Timetable.Models.Props;
 using Blazor.Timetable.Services;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using System.Diagnostics;
 
 namespace Blazor.Timetable.Components;
 
@@ -48,7 +48,7 @@ public partial class TimetableEvent<TEvent>
     {
         var parameters = new Dictionary<string, object>
         {
-            { "EventDescriptor", CellItem.EventDescriptor },
+            { "OriginalEventDescriptor", CellItem.EventDescriptor },
             { "State", EventModalState.Edit },
             { "OnUpdate", OnEventUpdated },
             { "OnDelete", OnEventDelete },

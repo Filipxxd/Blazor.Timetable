@@ -1,6 +1,6 @@
 ﻿namespace Blazor.Timetable.Common.Enums;
 
-public enum RepeatOption
+public enum Repeatability
 {
     Once,
     Daily,

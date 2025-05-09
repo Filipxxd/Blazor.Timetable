@@ -1,5 +1,6 @@
 ﻿using Blazor.Timetable.Common.Enums;
 using Blazor.Timetable.Common.Extensions;
+using Blazor.Timetable.Common.Helpers;
 using Blazor.Timetable.Models.Configuration;
 using Blazor.Timetable.Models.Grid;
 using Blazor.Timetable.Models.Props;
@@ -12,8 +13,12 @@ public partial class EventModal<TEvent> where TEvent : class
 {
     [Inject] private ModalService ModalService { get; set; } = default!;
 
+    private readonly IList<Func<bool>> _validationFuncs = [];
+    private readonly Repeatability[] RepetitionOptions = (Repeatability[])Enum.GetValues(typeof(Repeatability));
+    private readonly ActionScope[] Scopes = (ActionScope[])Enum.GetValues(typeof(ActionScope));
+
     [Parameter] public EventModalState State { get; set; }
-    [Parameter] public EventDescriptor<TEvent> EventDescriptor { get; set; } = default!;
+    [Parameter] public EventDescriptor<TEvent> OriginalEventDescriptor { get; set; } = default!;
     [Parameter] public RenderFragment<TEvent>? AdditionalFields { get; set; }
 
     [Parameter] public EventCallback<CreateProps<TEvent>> OnCreate { get; set; }
@@ -22,47 +27,27 @@ public partial class EventModal<TEvent> where TEvent : class
 
     [CascadingParameter] public TimetableConfig Config { get; set; } = default!;
 
-    private ActionScope Scope { get; set; } = ActionScope.All;
+    private EventDescriptor<TEvent> EventDescriptor { get; set; } = default!;
 
-    private readonly IList<Func<bool>> _validationFuncs = [];
-    private void RegisterValidation(Func<bool> fn) => _validationFuncs.Add(fn);
-    private EventDescriptor<TEvent> _eventDescriptor = default!;
-
-    private RepeatOption RepeatOption { get; set; } = RepeatOption.Once;
+    private ActionScope SelectedScope { get; set; } = ActionScope.All;
+    private Repeatability SelectedRepeatability { get; set; } = Repeatability.Once;
     private DateTime RepeatUntil { get; set; }
-    private int RepeatDays { get; set; } = 1;
-
-    private RepeatOption[] RepetitionOptions => (RepeatOption[])Enum.GetValues(typeof(RepeatOption));
-    private ActionScope[] Scopes => (ActionScope[])Enum.GetValues(typeof(ActionScope));
+    private int RepeatAfterDays { get; set; } = 1;
 
     protected override void OnParametersSet()
     {
-        if (EventDescriptor.GroupId is null)
-            Scope = ActionScope.Single;
+        if (OriginalEventDescriptor.GroupId is null)
+            SelectedScope = ActionScope.Single;
 
-        RepeatUntil = EventDescriptor.DateFrom.AddMonths(1);
+        RepeatUntil = OriginalEventDescriptor.DateFrom.AddMonths(1);
 
-        _eventDescriptor = State == EventModalState.Create
-            ? EventDescriptor
-            : EventDescriptor.Copy();
+        EventDescriptor = State == EventModalState.Create
+            ? OriginalEventDescriptor
+            : OriginalEventDescriptor.Copy();
     }
 
-    private string? ValidateTitle(string title)
-    {
-        if (string.IsNullOrWhiteSpace(title)) return "Title is required";
-        if (title.Length > 40) return "Max 40 chars";
-        return null;
-    }
-
-    private string? ValidateDateTo(DateTime d)
-    {
-        if (d <= _eventDescriptor.DateFrom) return "End must be after start";
-
-        if (Config.TimeTo < _eventDescriptor.DateTo.TimeOfDay.ToTimeOnly())
-            return "something is wrong i can feel it";
-
-        return null;
-    }
+    private void RegisterValidation(Func<bool> fn)
+        => _validationFuncs.Add(fn);
 
     private async Task SaveAsync()
     {
@@ -73,24 +58,39 @@ public partial class EventModal<TEvent> where TEvent : class
         {
             var createProps = new CreateProps<TEvent>
             {
-                Repetition = RepeatOption,
+                Repetition = SelectedRepeatability,
                 RepeatUntil = RepeatUntil.ToDateOnly(),
-                RepeatDays = RepeatDays,
-                EventDescriptor = _eventDescriptor
+                RepeatDays = RepeatAfterDays,
+                EventDescriptor = EventDescriptor
             };
             await OnCreate.InvokeAsync(createProps);
         }
         else
         {
-            var p = new UpdateProps<TEvent>
+            var updateProps = new UpdateProps<TEvent>
             {
-                Original = EventDescriptor,
-                New = _eventDescriptor,
-                Scope = Scope
+                Original = OriginalEventDescriptor,
+                New = EventDescriptor,
+                Scope = SelectedScope
             };
-            await OnUpdate.InvokeAsync(p);
+            await OnUpdate.InvokeAsync(updateProps);
         }
 
+        ModalService.Close();
+    }
+
+
+    private void ToggleDelete()
+    {
+        State = State == EventModalState.DeleteConfirm
+            ? EventModalState.Edit
+            : EventModalState.DeleteConfirm;
+    }
+
+    private async Task DeleteAsync()
+    {
+        var p = new DeleteProps<TEvent> { EventDescriptor = OriginalEventDescriptor, Scope = SelectedScope };
+        await OnDelete.InvokeAsync(p);
         ModalService.Close();
     }
 
@@ -107,17 +107,53 @@ public partial class EventModal<TEvent> where TEvent : class
         return valid;
     }
 
-    private void ToggleDelete()
+    private static string? ValidateTitle(string title)
     {
-        State = State == EventModalState.DeleteConfirm
-            ? EventModalState.Edit
-            : EventModalState.DeleteConfirm;
+        if (string.IsNullOrWhiteSpace(title)) return "Required";
+
+        if (title.Length > 128) return "Max length 128";
+
+        return null;
     }
 
-    private async Task DeleteAsync()
+    private string? ValidateDateFrom(DateTime dateTimeTo)
     {
-        var p = new DeleteProps<TEvent> { EventDescriptor = EventDescriptor, Scope = Scope };
-        await OnDelete.InvokeAsync(p);
-        ModalService.Close();
+        if (dateTimeTo <= EventDescriptor.DateFrom)
+            return "Must be after start";
+
+        if (dateTimeTo.TimeOfDay.ToTimeOnly() > Config.TimeTo)
+            return $"Must start after {DateTimeHelper.FormatHour(Config.TimeFrom.Hour, Config.Is24HourFormat)}";
+
+        return ValidateDate(dateTimeTo);
+    }
+
+    private string? ValidateDateTo(DateTime dateTimeTo)
+    {
+        if (dateTimeTo <= EventDescriptor.DateFrom)
+            return "Must be after start";
+
+        if (dateTimeTo.TimeOfDay.ToTimeOnly() > Config.TimeTo)
+            return $"Must end by {DateTimeHelper.FormatHour(Config.TimeTo.Hour, Config.Is24HourFormat)}";
+
+        return ValidateDate(dateTimeTo);
+    }
+
+    private string? ValidateRepeatUntilDate(DateTime repeatUntilDate)
+    {
+        if (repeatUntilDate <= EventDescriptor.DateTo)
+            return "Must be after event end";
+
+        return null;
+    }
+
+    private string? ValidateDate(DateTime dateTime)
+    {
+        if (!Config.Months.Contains((Month)dateTime.Month))
+            return $"Invalid month: {dateTime.Month}";
+
+        if (!Config.Days.Contains(dateTime.DayOfWeek))
+            return $"Invalid day: {dateTime.DayOfWeek}";
+
+        return null;
     }
 }

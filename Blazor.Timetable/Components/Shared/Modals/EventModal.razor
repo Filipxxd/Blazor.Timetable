@@ -5,42 +5,47 @@
         <div class="modal-container">
             @if (State == EventModalState.Create || State == EventModalState.Edit)
             {
-                <Input Model=_eventDescriptor 
+                <Input Model=EventDescriptor 
                        Label="Title" 
                        Selector="x => x.Title" 
                        Validate=ValidateTitle />
 
-                <InputDateTime Model=_eventDescriptor 
+                <InputDateTime Model=EventDescriptor 
                                Label="Start"
-                               Selector="x => x.DateFrom" />
+                               Selector="x => x.DateFrom" 
+                               Validate=ValidateDateFrom />
 
-                <InputDateTime Model=_eventDescriptor 
+                <InputDateTime Model=EventDescriptor 
                                Label="End" 
                                Selector="x => x.DateTo" 
                                Validate=ValidateDateTo />
 
                 @if (AdditionalFields != null)
                 {
-                    @AdditionalFields(_eventDescriptor.Event)
+                    @AdditionalFields(EventDescriptor.Event)
                 }
 
                 @if (State == EventModalState.Create)
                 {
                     <Dropdown Model=this 
                               Label="Repeat" 
-                              Selector="x => x.RepeatOption"
+                              Selector="x => x.SelectedRepeatability"
                               Options=RepetitionOptions />
 
-                    @if (RepeatOption != RepeatOption.Once)
+                    @if (SelectedRepeatability != Repeatability.Once)
                     {
-                        <InputDateTime Model=this Label="Repeat Till" Selector="x => x.RepeatUntil" Type="InputDateType.Date" />
+                        <InputDateTime Model=this 
+                                       Label="Repeat Till" 
+                                       Selector="x => x.RepeatUntil" 
+                                       Type=InputDateType.Date
+                                       Validate=ValidateRepeatUntilDate />
                     }
 
-                    @if (RepeatOption == RepeatOption.Custom)
+                    @if (SelectedRepeatability == Repeatability.Custom)
                     {
                         <div style="margin-top: 0.5rem;">
                             <label>Every (days):</label>
-                            <input type="number" class="form-control" @bind=RepeatDays min="1" />
+                            <input type="number" class="form-control" @bind=RepeatAfterDays min="1" />
                         </div>
                     }
                 }
@@ -55,9 +60,9 @@
             }
             else
             {
-                @if (_eventDescriptor.HasGroupdAssigned)
+                @if (EventDescriptor.HasGroupdAssigned)
                 {
-                    <Dropdown Model=this Label="Select" Selector="x => x.Scope" Options="Scopes" />
+                    <Dropdown Model=this Label="Select" Selector="x => x.SelectedScope" Options="Scopes" />
                 }
 
                 <div>

@@ -65,7 +65,7 @@
                               RowIndex=1
                               OnClick=@(() => HandleChangedToDay(column.DayOfWeek))
                               ColumnIndex=@(isMonthView ? column.Index : (column.Index + 1))>
-                        @(DateHelper.GetLocalizedName(column.DayOfWeek).Capitalize())
+                        @(DateTimeHelper.GetLocalizedName(column.DayOfWeek).Capitalize())
                     </GridItem>
 
                     @foreach (var cell in column.Cells)
