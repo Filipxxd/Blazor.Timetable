@@ -40,9 +40,9 @@ internal sealed class DailyService : IDisplayService
                 return (spansMultipleDays && dateStart < date || dateStart == date)
                     && (outOfRange || spansMultipleDays);
             })
-            .Select(@event => new CellItem<TEvent>
+            .Select(timetableEvent => new CellItem<TEvent>
             {
-                EventDescriptor = new EventDescriptor<TEvent>(@event, props),
+                EventDescriptor = new EventDescriptor<TEvent>(timetableEvent, props),
                 Span = 1
             })
             .OrderByDescending(ci => (ci.EventDescriptor.DateTo - ci.EventDescriptor.DateFrom).TotalHours)
