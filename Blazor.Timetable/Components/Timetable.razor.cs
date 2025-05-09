@@ -54,6 +54,8 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter] public EventCallback<IList<TEvent>> OnGroupEventChanged { get; set; } = default!;
     [Parameter] public EventCallback<TEvent> OnEventDeleted { get; set; } = default!;
     [Parameter] public EventCallback<IList<TEvent>> OnGroupEventDeleted { get; set; } = default!;
+    [Parameter] public EventCallback<TEvent> OnEventCreated { get; set; } = default!;
+    [Parameter] public EventCallback<IList<TEvent>> OnGroupEventCreated { get; set; } = default!;
     [Parameter] public EventCallback<DayOfWeek> OnChangedToDay { get; set; } = default!;
     #endregion
 
@@ -122,6 +124,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         }
     }
 
+    // TODO: GroupEventChanged
     [JSInvokable]
     public async Task MoveEvent(Guid eventId, Guid targetCellId)
     {
@@ -304,11 +307,11 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
             if (eventsToCreate.Count == 1)
             {
-                await OnEventChanged.InvokeAsync(eventsToCreate[0]);
+                await OnEventCreated.InvokeAsync(eventsToCreate[0]);
             }
             else
             {
-                await OnGroupEventChanged.InvokeAsync(eventsToCreate);
+                await OnGroupEventCreated.InvokeAsync(eventsToCreate);
             }
 
             UpdateGrid();
