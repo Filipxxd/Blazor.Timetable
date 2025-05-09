@@ -50,13 +50,13 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter] public EventCallback OnNextClicked { get; set; } = default!;
     [Parameter] public EventCallback<TEvent> OnTitleClicked { get; set; } = default!;
     [Parameter] public EventCallback<DisplayType> OnDisplayTypeChanged { get; set; }
+    [Parameter] public EventCallback<DayOfWeek> OnChangedToDay { get; set; } = default!;
+    [Parameter] public EventCallback<TEvent> OnEventCreated { get; set; } = default!;
+    [Parameter] public EventCallback<IList<TEvent>> OnGroupEventCreated { get; set; } = default!;
     [Parameter] public EventCallback<TEvent> OnEventChanged { get; set; } = default!;
     [Parameter] public EventCallback<IList<TEvent>> OnGroupEventChanged { get; set; } = default!;
     [Parameter] public EventCallback<TEvent> OnEventDeleted { get; set; } = default!;
     [Parameter] public EventCallback<IList<TEvent>> OnGroupEventDeleted { get; set; } = default!;
-    [Parameter] public EventCallback<TEvent> OnEventCreated { get; set; } = default!;
-    [Parameter] public EventCallback<IList<TEvent>> OnGroupEventCreated { get; set; } = default!;
-    [Parameter] public EventCallback<DayOfWeek> OnChangedToDay { get; set; } = default!;
     #endregion
 
     protected override void OnInitialized()
@@ -191,15 +191,15 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
     private async Task HandleEventUpdated(UpdateProps<TEvent> props)
     {
-        if (props.Scope != ActionScope.Single)
-        {
-            var updatedEvents = _timetableManager.UpdateEvents(Events, props);
-            await OnGroupEventChanged.InvokeAsync(updatedEvents);
-        }
-        else
+        if (props.Scope == ActionScope.Single)
         {
             var updatedEvent = _timetableManager.UpdateEvent(props);
             await OnEventChanged.InvokeAsync(updatedEvent);
+        }
+        else
+        {
+            var updatedEvents = _timetableManager.UpdateGroupEvent(Events, props);
+            await OnGroupEventChanged.InvokeAsync(updatedEvents);
         }
 
         UpdateGrid();
@@ -207,15 +207,15 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
     private void HandleEventDeleted(DeleteProps<TEvent> deleteProps)
     {
-        var deleted = _timetableManager.DeleteEvent(Events, deleteProps);
-
         if (deleteProps.Scope == ActionScope.Single)
         {
-            OnEventDeleted.InvokeAsync(deleted[0]);
+            var deletedEvent = _timetableManager.DeleteEvent(Events, deleteProps);
+            OnEventDeleted.InvokeAsync(deletedEvent);
         }
         else
         {
-            OnGroupEventDeleted.InvokeAsync(deleted);
+            var deletedEvents = _timetableManager.DeleteGroupEvent(Events, deleteProps);
+            OnGroupEventDeleted.InvokeAsync(deletedEvents);
         }
 
         UpdateGrid();
@@ -243,9 +243,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         if (props.Type == ImportType.Append)
         {
             foreach (var item in props.Events)
-            {
                 Events.Add(item);
-            }
         }
         else
         {
@@ -255,111 +253,38 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         UpdateGrid();
     }
 
-    private void HandleOpenCreateModal(DateTime dateTime)
+    private void HandleOpenCreateModal(DateTime cellDate)
     {
-        if (_timetableManager.DisplayType == DisplayType.Month && dateTime.Month != _timetableManager.CurrentDate.Month)
+        if (_timetableManager.DisplayType == DisplayType.Month && cellDate.Month != _timetableManager.CurrentDate.Month)
             return;
 
-        var newEvent = Activator.CreateInstance<TEvent>();
+        var template = Activator.CreateInstance<TEvent>();
+        _eventProps.SetDateFrom(template, cellDate);
+        _eventProps.SetDateTo(template, cellDate.AddMinutes(TimetableConstants.TimeSlotInterval));
+        _eventProps.SetTitle(template, string.Empty);
 
-        _eventProps.SetTitle(newEvent, string.Empty);
-        _eventProps.SetDateFrom(newEvent, dateTime);
-        _eventProps.SetDateTo(newEvent, dateTime.AddMinutes(TimetableConstants.TimeSlotInterval));
+        var templateDesc = new EventDescriptor<TEvent>(template, _eventProps);
 
-        var eventDescriptor = new EventDescriptor<TEvent>(newEvent, _eventProps)
+        var onCreate = EventCallback.Factory.Create<CreateProps<TEvent>>(this, async props =>
         {
-            GroupId = null
-        };
+            var created = _timetableManager.CreateEvents(templateDesc, props.Repetition, props.RepeatUntil, props.RepeatDays);
 
-        var handleCreate = EventCallback.Factory.Create(this, async (CreateProps<TEvent> props) =>
-        {
-            var EventDescriptor = props.EventDescriptor;
-
-            var eventsToCreate = new List<TEvent>();
-            var baseStart = EventDescriptor.DateFrom;
-            var baseEnd = EventDescriptor.DateTo;
-
-            eventsToCreate.Add(EventDescriptor.Event);
-
-            if (props.Repetition != Repeatability.Once)
-            {
-                var groupId = Guid.NewGuid().ToString();
-                EventDescriptor.Props.SetGroupId(EventDescriptor.Event, groupId);
-
-                if (props.Repetition == Repeatability.Custom && !props.RepeatDays.HasValue)
-                    throw new Exception();
-
-                var i = 1;
-                while (true)
-                {
-                    DateTime offsetStart, offsetEnd;
-                    switch (props.Repetition)
-                    {
-                        case Repeatability.Daily:
-                            offsetStart = baseStart.AddDays(1 * i);
-                            offsetEnd = baseEnd.AddDays(1 * i);
-                            break;
-                        case Repeatability.Weekly:
-                            offsetStart = baseStart.AddDays(7 * i);
-                            offsetEnd = baseEnd.AddDays(7 * i);
-                            break;
-                        case Repeatability.Monthly:
-                            offsetStart = baseStart.AddMonths(i);
-                            offsetEnd = baseEnd.AddMonths(i);
-                            break;
-                        case Repeatability.Custom:
-                            offsetStart = baseStart.AddDays(props.RepeatDays!.Value * i);
-                            offsetEnd = baseEnd.AddDays(props.RepeatDays.Value * i);
-                            break;
-                        default:
-                            offsetStart = baseStart;
-                            offsetEnd = baseEnd;
-                            break;
-                    }
-
-                    if (offsetStart.ToDateOnly() > props.RepeatUntil)
-                        break;
-
-                    TEvent newEvent = Activator.CreateInstance<TEvent>();
-                    EventDescriptor.Props.SetTitle(newEvent, EventDescriptor.Title);
-                    EventDescriptor.Props.SetDateFrom(newEvent, offsetStart);
-                    EventDescriptor.Props.SetDateTo(newEvent, offsetEnd);
-                    EventDescriptor.Props.SetGroupId(newEvent, groupId);
-
-                    foreach (var (getter, setter) in EventDescriptor.Props.AdditionalProperties)
-                    {
-                        var updatedValue = getter(props.EventDescriptor.Event);
-                        setter(newEvent, updatedValue);
-                    }
-
-
-                    eventsToCreate.Add(newEvent);
-                    i++;
-                }
-            }
-
-            foreach (var e in eventsToCreate)
-            {
+            foreach (var e in created)
                 Events.Add(e);
-            }
 
-            if (eventsToCreate.Count == 1)
-            {
-                await OnEventCreated.InvokeAsync(eventsToCreate[0]);
-            }
+            if (created.Count == 1)
+                await OnEventCreated.InvokeAsync(created[0]);
             else
-            {
-                await OnGroupEventCreated.InvokeAsync(eventsToCreate);
-            }
+                await OnGroupEventCreated.InvokeAsync(created);
 
             UpdateGrid();
         });
 
         var parameters = new Dictionary<string, object>
         {
-            { "OriginalEventDescriptor", eventDescriptor },
+            { "OriginalEventDescriptor", templateDesc },
             { "State", EventModalState.Create },
-            { "OnCreate", handleCreate },
+            { "OnCreate", onCreate },
             { "AdditionalFields", AdditionalFields }
         };
 

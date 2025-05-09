@@ -1,5 +1,5 @@
-﻿using System.Text;
-using Blazor.Timetable.Services.DataExchange.Export;
+﻿using Blazor.Timetable.Services.DataExchange.Export;
+using System.Text;
 
 namespace Blazor.Timetable.Services.DataExchange.Import;
 
@@ -24,43 +24,42 @@ internal sealed class CsvImportTransformer<TEvent> : IImportTransformer<TEvent>
     {
         var eventsList = new List<TEvent>();
 
-        using (var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: false))
+        using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: false);
+
+        var headerLine = reader.ReadLine();
+        if (headerLine is null) return eventsList;
+
+        var headers = headerLine
+                        .Split(CsvGenerator.Separator)
+                        .Select(h => h.Trim())
+                        .ToArray();
+
+        var indexMap = new Dictionary<int, IImportSelector<TEvent>>();
+        for (var i = 0; i < headers.Length; i++)
         {
-            var headerLine = reader.ReadLine();
-            if (headerLine is null) return eventsList;
+            var colName = headers[i];
+            var mapper = _mappers.FirstOrDefault(m => m.Name == colName);
+            if (mapper != null)
+                indexMap[i] = mapper;
+        }
 
-            var headers = headerLine
-                            .Split(CsvGenerator.Separator)
-                            .Select(h => h.Trim())
-                            .ToArray();
+        string? row;
+        while ((row = reader.ReadLine()) != null)
+        {
+            var entity = Activator.CreateInstance<TEvent>()
+                            ?? throw new InvalidOperationException(
+                                $"Cannot create instance of {typeof(TEvent)}");
 
-            var indexMap = new Dictionary<int, IImportSelector<TEvent>>();
-            for (var i = 0; i < headers.Length; i++)
+            var fields = row.Split(CsvGenerator.Separator);
+            foreach (var kv in indexMap)
             {
-                var colName = headers[i];
-                var mapper = _mappers.FirstOrDefault(m => m.Name == colName);
-                if (mapper != null)
-                    indexMap[i] = mapper;
+                var raw = fields.Length > kv.Key
+                            ? CsvGenerator.Unescape(fields[kv.Key])
+                            : string.Empty;
+                kv.Value.SetValue(entity, raw);
             }
 
-            string? row;
-            while ((row = reader.ReadLine()) != null)
-            {
-                var entity = Activator.CreateInstance<TEvent>()
-                             ?? throw new InvalidOperationException(
-                                  $"Cannot create instance of {typeof(TEvent)}");
-
-                var fields = row.Split(CsvGenerator.Separator);
-                foreach (var kv in indexMap)
-                {
-                    var raw = fields.Length > kv.Key
-                              ? CsvGenerator.Unescape(fields[kv.Key])
-                              : string.Empty;
-                    kv.Value.SetValue(entity, raw);
-                }
-
-                eventsList.Add(entity);
-            }
+            eventsList.Add(entity);
         }
 
         return eventsList;

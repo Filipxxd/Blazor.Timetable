@@ -3,44 +3,23 @@
 public sealed class EventGenerator
 {
     private int _currentEventId = 1;
-
     public List<TimetableEvent> GenerateHardcodedEvents()
     {
-        var now = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 6, 0, 0);
+        var now = DateTime.Now.Date.AddDays(1);
+
         var events = new List<TimetableEvent>
         {
-            CreateEvent("Math Class", now.AddDays(-10).AddHours(9), 1),
-            CreateEvent("Science Class", now.AddDays(-8).AddHours(14), 2),
+            CreateEvent("Math Class", now.AddDays(-5).AddHours(9), 1.5),
+            CreateEvent("English Class", now.AddDays(-4).AddHours(10), 1),
+            CreateEvent("Science Class", now.AddDays(-3).AddHours(11), 2),
+            CreateEvent("History Class", now.AddDays(-2).AddHours(13), 1),
+            CreateEvent("Art Class", now.AddDays(-1).AddHours(14), 1.5),
 
-            CreateEvent("History Class", now.AddDays(-1).Date, 49),
-            CreateEvent("Art Class", now.AddHours(3), 2),
-
-            CreateEvent("English Class", now.AddDays(3).AddHours(11), 25),
-            CreateEvent("Biology Class", now.AddDays(5).Date, 72),
-            CreateEvent("Chemistry Class", now.AddDays(8).AddHours(15), 2),
-
-            CreateEvent("Football Practice", now.AddDays(1).AddHours(16),152),
-            CreateEvent("Football Practice", now.AddDays(1).AddHours(16),72),
-            CreateEvent("Guitar Lesson", now.AddDays(-6).AddHours(1),2),
-            CreateEvent("Yoga Session", now.AddDays(-3).AddHours(1), 1),
-            CreateEvent("Drums Session", now.AddDays(-3).AddHours(4), 1),
-            CreateEvent("Other Session", now.AddDays(-3).AddHours(7), 2),
-            CreateEvent("Different Session", now.AddDays(-3).AddHours(7), 4),
-            CreateEvent("Second Different Session", now.AddDays(-3).AddHours(7), 3),
-            new() {
-                Id = _currentEventId++,
-                Title = "test lesson",
-                StartTime = now.AddDays(-6).AddHours(2),
-                EndTime = now.AddDays(-6).AddHours(2).AddMinutes(15),
-                Description = "Hardcoded event"
-            },
-            new() {
-                Id = _currentEventId++,
-                Title = "HHHHH lesson",
-                StartTime = now.AddDays(-1).Date,
-                EndTime = now.AddDays(6).Date.AddMinutes(1),
-                Description = "Hardcoded event"
-            }
+            CreateEvent("Biology Class", now.AddHours(8), 2),
+            CreateEvent("Chemistry Class", now.AddHours(11), untilEndOfDay: true),
+            CreateEvent("Music Class", now.AddDays(1).AddHours(9), 1),
+            CreateEvent("Physical Education", now.AddDays(2).AddHours(10), 2),
+            CreateEvent("Drama Class", now.AddDays(3).AddHours(12), 1.5)
         };
 
         // preformance test
@@ -54,17 +33,20 @@ public sealed class EventGenerator
         return events;
     }
 
-    private TimetableEvent CreateEvent(string title, DateTime start, int durationHours)
+    private TimetableEvent CreateEvent(string title, DateTime start, double? durationHours = null, bool untilEndOfDay = false)
     {
+        var end = untilEndOfDay
+            ? new DateTime(start.Year, start.Month, start.Day, 23, 59, 0)
+            : start.AddHours(durationHours ?? 1);
+
         var ev = new TimetableEvent
         {
             Id = _currentEventId++,
             Title = title,
             StartTime = start,
-            EndTime = start.AddHours(durationHours),
-            Description = "Hardcoded event"
+            EndTime = end,
+            Description = "Scheduled school class"
         };
-
         return ev;
     }
 }
