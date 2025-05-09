@@ -90,7 +90,52 @@ internal sealed class TimetableManager<TEvent> where
             targetCell.Items.Add(cellItem);
         }
 
+        cellItem.EventDescriptor.GroupId = null;
+
         return cellItem.EventDescriptor.Event;
+    }
+
+    public IList<TEvent>? MoveEventGroup(IList<TEvent> events, Guid cellItemId, Guid targetCellId)
+    {
+        var currentCell = Grid.FindCellByEventId(cellItemId);
+        if (currentCell is null)
+            return null;
+
+        var cellItem = currentCell.Items.FirstOrDefault(cellItem => cellItem.Id == cellItemId);
+        if (cellItem is null)
+            return null;
+
+        var targetCell = Grid.FindCellById(targetCellId);
+        if (targetCell is null || currentCell.Type != targetCell.Type || targetCell.Type == CellType.Disabled)
+            return null;
+
+        var groupId = cellItem.EventDescriptor.GroupId;
+        if (groupId is null)
+            return null;
+
+        var relatedEvents = events.Where(e =>
+            groupId.Equals(Props.GetGroupId(e))
+        ).ToList();
+
+        if (relatedEvents.Count == 0)
+            return null;
+
+        var originalDateFrom = cellItem.EventDescriptor.DateFrom;
+        var offset = targetCell.DateTime - originalDateFrom;
+
+        foreach (var eventItem in relatedEvents)
+        {
+            var eventFrom = Props.GetDateFrom(eventItem);
+            var eventTo = Props.GetDateTo(eventItem);
+
+            var newEventFrom = eventFrom + offset;
+            var newEventTo = eventTo + offset;
+
+            Props.SetDateFrom(eventItem, newEventFrom);
+            Props.SetDateTo(eventItem, newEventTo);
+        }
+
+        return relatedEvents;
     }
 
     public IList<TEvent> UpdateEvents(IList<TEvent> events, UpdateProps<TEvent> props)

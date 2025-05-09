@@ -116,15 +116,12 @@ public partial class EventModal<TEvent> where TEvent : class
         return null;
     }
 
-    private string? ValidateDateFrom(DateTime dateTimeTo)
+    private string? ValidateDateFrom(DateTime dateTimeFrom)
     {
-        if (dateTimeTo <= EventDescriptor.DateFrom)
-            return "Must be after start";
-
-        if (dateTimeTo.TimeOfDay.ToTimeOnly() > Config.TimeTo)
+        if (dateTimeFrom.TimeOfDay.ToTimeOnly() < Config.TimeFrom)
             return $"Must start after {DateTimeHelper.FormatHour(Config.TimeFrom.Hour, Config.Is24HourFormat)}";
 
-        return ValidateDate(dateTimeTo);
+        return ValidateDate(dateTimeFrom);
     }
 
     private string? ValidateDateTo(DateTime dateTimeTo)

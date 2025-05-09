@@ -1,0 +1,35 @@
+﻿<p class="modal-title" style="max-width: 15rem; text-align: center; margin: 1rem auto;">
+    This event is part of a group. Do you want to move all related events in the same manner?
+</p>
+
+<div class="action-buttons">
+    <Button Title="This Event" OnClick=MoveSingle ButtonType=ButtonType.Confirm />
+    <Button Title="All Events" OnClick=MoveGroup ButtonType=ButtonType.Confirm Style="margin-left: 1rem;" />
+    <Button Title="Cancel" OnClick=Cancel ButtonType=ButtonType.Cancel Style="margin-left: 1rem;" />
+</div>
+
+@code {
+    [Inject] internal ModalService ModalService { get; set; } = default!;
+
+    [Parameter] public EventCallback OnSingleMove { get; set; } = default!;
+    [Parameter] public EventCallback OnGroupMove { get; set; } = default!;
+    [Parameter] public EventCallback OnCancel { get; set; } = default!;
+
+    private async Task MoveSingle()
+    {
+        await OnSingleMove.InvokeAsync();
+        ModalService.Close();
+    }
+
+    private async Task MoveGroup()
+    {
+        await OnGroupMove.InvokeAsync();
+        ModalService.Close();
+    }
+
+    private async Task Cancel()
+    {
+        await OnCancel.InvokeAsync();
+        ModalService.Close();
+    }
+}

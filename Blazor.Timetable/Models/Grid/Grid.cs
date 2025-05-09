@@ -7,6 +7,13 @@ internal sealed class Grid<TEvent> where
     public ICollection<Column<TEvent>> Columns { get; init; } = [];
     public IEnumerable<string> RowTitles { get; init; } = [];
 
+    public CellItem<TEvent>? FindItemByItemId(Guid itemId)
+    {
+        return Columns.SelectMany(col => col.Cells)
+                           .SelectMany(cell => cell.Items)
+                           .FirstOrDefault(item => item.Id == itemId);
+    }
+
     public Cell<TEvent>? FindCellByEventId(Guid eventId)
     {
         return Columns.SelectMany(col => col.Cells)

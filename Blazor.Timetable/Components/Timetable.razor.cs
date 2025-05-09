@@ -124,17 +124,55 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         }
     }
 
-    // TODO: GroupEventChanged
     [JSInvokable]
     public async Task MoveEvent(Guid eventId, Guid targetCellId)
     {
-        var timetableEvent = _timetableManager.MoveEvent(eventId, targetCellId);
-        if (timetableEvent is not null)
-        {
-            await OnEventChanged.InvokeAsync(timetableEvent);
-        }
+        var eventItem = _timetableManager.Grid.FindItemByItemId(eventId);
 
-        UpdateGrid();
+        if (eventItem is null)
+            return;
+
+        if (eventItem.EventDescriptor.HasGroupdAssigned)
+        {
+            var handleMoveSingle = EventCallback.Factory.Create(this, async () =>
+            {
+                var timetableEvent = _timetableManager.MoveEvent(eventId, targetCellId);
+                if (timetableEvent is not null)
+                {
+                    await OnEventChanged.InvokeAsync(timetableEvent);
+                }
+                UpdateGrid();
+            });
+
+            var handleMoveGroup = EventCallback.Factory.Create(this, async () =>
+            {
+                var timetableEvents = _timetableManager.MoveEventGroup(Events, eventId, targetCellId);
+                if (timetableEvents?.Count != 0)
+                {
+                    await OnGroupEventChanged.InvokeAsync(timetableEvents);
+                }
+                UpdateGrid();
+            });
+
+            var parameters = new Dictionary<string, object>
+            {
+                { "OnSingleMove", handleMoveSingle },
+                { "OnGroupMove", handleMoveGroup },
+                { "OnCancel", EventCallback.Factory.Create(this, UpdateGrid)}
+            };
+
+            ModalService.Show<GroupMoveModal>("Move", parameters);
+        }
+        else
+        {
+            var timetableEvent = _timetableManager.MoveEvent(eventId, targetCellId);
+            if (timetableEvent is not null)
+            {
+                await OnEventChanged.InvokeAsync(timetableEvent);
+            }
+
+            UpdateGrid();
+        }
     }
 
     private async Task HandleNextClicked()
