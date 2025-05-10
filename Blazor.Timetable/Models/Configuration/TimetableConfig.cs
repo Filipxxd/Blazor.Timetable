@@ -41,24 +41,22 @@ public sealed class TimetableConfig
     /// <summary>
     /// Initial display type of the timetable. Defaults to <see cref="DisplayType.Week"/>.
     /// </summary>
-    public DisplayType DefaultDisplayType { get; set; } = DisplayType.Week;
+    public DisplayType DefaultDisplayType { get; init; } = DisplayType.Week;
 
     /// <summary>
     /// Default date for the timetable. Defaults to <see cref="DateTime.Now"/>.
     /// </summary>
-    public DateOnly DefaultDate { get; set; } = DateTime.Now.ToDateOnly();
-
-    internal IEnumerable<int> Hours => Enumerable.Range(TimeFrom.Hour, TimeTo.Hour - TimeFrom.Hour);
+    public DateOnly DefaultDate { get; init; } = DateTime.Now.ToDateOnly();
 
     internal void Validate()
     {
-        if (TimeTo <= TimeFrom)
+        if (TimeTo <= TimeFrom && TimeTo < TimetableConstants.EndOfDay)
             throw new InvalidSetupException($"{nameof(TimeTo)} must be greater than ${nameof(TimeFrom)}.");
 
         if (TimeFrom.Minute % TimetableConstants.TimeSlotInterval != 0)
             throw new InvalidOperationException($"{nameof(TimeFrom)} must be a quarter-hour interval (0, 15, 30, 45 minutes).");
 
-        if (TimeTo.Minute % TimetableConstants.TimeSlotInterval != 0)
+        if (TimeTo.Minute % TimetableConstants.TimeSlotInterval != 0 && TimeTo < TimetableConstants.EndOfDay)
             throw new InvalidOperationException($"{nameof(TimeTo)} must be a quarter-hour interval (0, 15, 30, 45 minutes).");
 
         if (Months.Count == 0)

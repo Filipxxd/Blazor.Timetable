@@ -5,21 +5,30 @@ namespace Blazor.Timetable.Common.Helpers;
 internal static class DisplayServiceHelper
 {
     public static IEnumerable<string> GetRowTitles(TimeOnly from, TimeOnly to, bool is24Format = true)
-        => Enumerable
-            .Range(from.Hour, to.Hour - from.Hour)
+    {
+        var hourTo = to >= TimetableConstants.EndOfDay ? 24 : to.Hour;
+
+        return Enumerable
+            .Range(from.Hour, hourTo - from.Hour)
             .Select(hour => DateTimeHelper.FormatHour(hour, is24Format));
+    }
 
     public static IList<TimeOnly> GetTimeSlots(TimeOnly timeFrom, TimeOnly timeTo)
     {
         var timeSlots = new List<TimeOnly>();
         var currentTime = timeFrom;
 
+        TimeOnly prevTime;
+
         while (currentTime < timeTo)
         {
             timeSlots.Add(currentTime);
+
+            prevTime = currentTime;
+
             currentTime = currentTime.AddMinutes(TimetableConstants.TimeSlotInterval);
 
-            if (currentTime > timeTo)
+            if (prevTime > currentTime || currentTime > timeTo)
                 break;
         }
 
@@ -35,10 +44,17 @@ internal static class DisplayServiceHelper
         var endTime = new TimeOnly(eventEnd.Hour, eventEnd.Minute);
         var span = 0;
 
-        while (slotTime < timeTo && slotTime < endTime)
+        var isEndOfDay = timeTo >= TimetableConstants.EndOfDay;
+
+        while (slotTime < endTime && (!isEndOfDay || slotTime < TimetableConstants.EndOfDay))
         {
-            slotTime = slotTime.AddMinutes(TimetableConstants.TimeSlotInterval);
             span++;
+            slotTime = slotTime.AddMinutes(TimetableConstants.TimeSlotInterval);
+
+            if (isEndOfDay && slotTime.Hour == 0 && slotTime.Minute == 0)
+            {
+                break;
+            }
         }
 
         return span;

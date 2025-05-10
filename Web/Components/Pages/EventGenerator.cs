@@ -36,7 +36,7 @@ public sealed class EventGenerator
     private TimetableEvent CreateEvent(string title, DateTime start, double? durationHours = null, bool untilEndOfDay = false)
     {
         var end = untilEndOfDay
-            ? new DateTime(start.Year, start.Month, start.Day, 23, 59, 0)
+            ? new DateTime(start.Year, start.Month, start.Day, 23, 59, 59)
             : start.AddHours(durationHours ?? 1);
 
         var ev = new TimetableEvent

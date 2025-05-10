@@ -36,6 +36,9 @@ internal sealed class WeeklyService : IDisplayService
                     var startDate = eventStart.ToDateOnly();
                     var endDate = eventEnd.ToDateOnly();
 
+                    //var isSingleDayOutsideTimeRange = startDate == columnDate && startDate == endDate && (startTime < config.TimeFrom || endTime > config.TimeTo);
+                    //var isMultiDay = startDate == columnDate && startDate != endDate;
+
                     var outOfRange = startTime > config.TimeTo || endTime > config.TimeTo || startTime < config.TimeFrom;
                     var spansMultipleDays = eventStart.Day != eventEnd.Day;
                     var startedBefore = spansMultipleDays
