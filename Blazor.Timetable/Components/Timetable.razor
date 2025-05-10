@@ -79,7 +79,7 @@
                                       RowIndex=@(cell.Type == CellType.Header ? 2 : cell.RowIndex + 1)
                                       Span=@cellItem.Span>
                                 <TimetableEvent CellItem=@cellItem
-                                                OnEventUpdated="(UpdatActions<TEvent> props) => HandleEventUpdated(props)"
+                                                OnEventUpdated="(UpdateAction<TEvent> props) => HandleEventUpdated(props)"
                                                 OnEventDelete="(DeleteAction<TEvent> props) => HandleEventDeleted(props)"
                                                 AdditionalFields="@AdditionalFields"
                                                 Order=@cell.Items.IndexOf(cellItem)
