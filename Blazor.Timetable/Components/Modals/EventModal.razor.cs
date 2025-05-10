@@ -1,13 +1,13 @@
 ﻿using Blazor.Timetable.Common.Enums;
 using Blazor.Timetable.Common.Extensions;
 using Blazor.Timetable.Common.Helpers;
+using Blazor.Timetable.Models.Actions;
 using Blazor.Timetable.Models.Configuration;
 using Blazor.Timetable.Models.Grid;
-using Blazor.Timetable.Models.Props;
 using Blazor.Timetable.Services;
 using Microsoft.AspNetCore.Components;
 
-namespace Blazor.Timetable.Components.Shared.Modals;
+namespace Blazor.Timetable.Components.Modals;
 
 public partial class EventModal<TEvent> where TEvent : class
 {
@@ -21,9 +21,9 @@ public partial class EventModal<TEvent> where TEvent : class
     [Parameter] public EventDescriptor<TEvent> OriginalEventDescriptor { get; set; } = default!;
     [Parameter] public RenderFragment<TEvent>? AdditionalFields { get; set; }
 
-    [Parameter] public EventCallback<CreateProps<TEvent>> OnCreate { get; set; }
-    [Parameter] public EventCallback<UpdateProps<TEvent>> OnUpdate { get; set; }
-    [Parameter] public EventCallback<DeleteProps<TEvent>> OnDelete { get; set; }
+    [Parameter] public EventCallback<CreateAction<TEvent>> OnCreate { get; set; }
+    [Parameter] public EventCallback<UpdateAction<TEvent>> OnUpdate { get; set; }
+    [Parameter] public EventCallback<DeleteAction<TEvent>> OnDelete { get; set; }
 
     [CascadingParameter] public TimetableConfig Config { get; set; } = default!;
 
@@ -56,7 +56,7 @@ public partial class EventModal<TEvent> where TEvent : class
 
         if (State == EventModalState.Create)
         {
-            var createProps = new CreateProps<TEvent>
+            var createProps = new CreateAction<TEvent>
             {
                 Repetition = SelectedRepeatability,
                 RepeatUntil = RepeatUntil.ToDateOnly(),
@@ -67,7 +67,7 @@ public partial class EventModal<TEvent> where TEvent : class
         }
         else
         {
-            var updateProps = new UpdateProps<TEvent>
+            var updateProps = new UpdateAction<TEvent>
             {
                 Original = OriginalEventDescriptor,
                 New = EventDescriptor,
@@ -89,7 +89,7 @@ public partial class EventModal<TEvent> where TEvent : class
 
     private async Task DeleteAsync()
     {
-        var p = new DeleteProps<TEvent> { EventDescriptor = OriginalEventDescriptor, Scope = SelectedScope };
+        var p = new DeleteAction<TEvent> { EventDescriptor = OriginalEventDescriptor, Scope = SelectedScope };
         await OnDelete.InvokeAsync(p);
         ModalService.Close();
     }

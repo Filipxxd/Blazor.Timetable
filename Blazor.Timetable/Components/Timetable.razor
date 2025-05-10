@@ -8,7 +8,7 @@
                  CurrentDisplayType=@_timetableManager.DisplayType
                  ExportConfig=@ExportConfig
                  ImportConfig=@ImportConfig
-                 OnImport=@((ImportProps<TEvent> props) => HandleImport(props))
+                 OnImport=@((ImportAction<TEvent> props) => HandleImport(props))
                  OnCreateClicked=@(() => HandleOpenCreateModal(_timetableManager.CurrentDate.ToDateTimeMidnight()))
                  OnDisplayTypeChanged=HandleDisplayTypeChanged />
 
@@ -79,8 +79,8 @@
                                       RowIndex=@(cell.Type == CellType.Header ? 2 : cell.RowIndex + 1)
                                       Span=@cellItem.Span>
                                 <TimetableEvent CellItem=@cellItem
-                                                OnEventUpdated="(UpdateProps<TEvent> props) => HandleEventUpdated(props)"
-                                                OnEventDelete="(DeleteProps<TEvent> props) => HandleEventDeleted(props)"
+                                                OnEventUpdated="(UpdatActions<TEvent> props) => HandleEventUpdated(props)"
+                                                OnEventDelete="(DeleteAction<TEvent> props) => HandleEventDeleted(props)"
                                                 AdditionalFields="@AdditionalFields"
                                                 Order=@cell.Items.IndexOf(cellItem)
                                                 Direction=@direction

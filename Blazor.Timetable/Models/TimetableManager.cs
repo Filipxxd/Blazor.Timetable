@@ -1,7 +1,7 @@
 ﻿using Blazor.Timetable.Common.Enums;
 using Blazor.Timetable.Common.Extensions;
+using Blazor.Timetable.Models.Actions;
 using Blazor.Timetable.Models.Grid;
-using Blazor.Timetable.Models.Props;
 
 namespace Blazor.Timetable.Models;
 
@@ -147,7 +147,7 @@ internal sealed class TimetableManager<TEvent> where
         return relatedEvents;
     }
 
-    public TEvent UpdateEvent(UpdateProps<TEvent> props)
+    public TEvent UpdateEvent(UpdateAction<TEvent> props)
     {
         if (props.Original.HasGroupdAssigned)
             props.New.GroupId = null;
@@ -157,7 +157,7 @@ internal sealed class TimetableManager<TEvent> where
         return props.Original.Event;
     }
 
-    public IList<TEvent> UpdateGroupEvent(IList<TEvent> events, UpdateProps<TEvent> props)
+    public IList<TEvent> UpdateGroupEvent(IList<TEvent> events, UpdateAction<TEvent> props)
     {
         var originalGroup = props.Original.GroupId
             ?? throw new InvalidOperationException("Cannot update grouped events without group identifier.");
@@ -204,13 +204,13 @@ internal sealed class TimetableManager<TEvent> where
         return updatedEvents;
     }
 
-    public TEvent DeleteEvent(IList<TEvent> events, DeleteProps<TEvent> deleteProps)
+    public TEvent DeleteEvent(IList<TEvent> events, DeleteAction<TEvent> deleteProps)
     {
         events.Remove(deleteProps.EventDescriptor.Event);
         return deleteProps.EventDescriptor.Event;
     }
 
-    public IList<TEvent> DeleteGroupEvent(IList<TEvent> events, DeleteProps<TEvent> deleteProps)
+    public IList<TEvent> DeleteGroupEvent(IList<TEvent> events, DeleteAction<TEvent> deleteProps)
     {
         if (!deleteProps.EventDescriptor.HasGroupdAssigned)
             throw new InvalidOperationException("Cannot delete grouped events without group identifier.");

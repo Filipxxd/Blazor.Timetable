@@ -1,8 +1,8 @@
 ﻿using Blazor.Timetable.Common;
 using Blazor.Timetable.Common.Enums;
-using Blazor.Timetable.Components.Shared.Modals;
+using Blazor.Timetable.Components.Modals;
+using Blazor.Timetable.Models.Actions;
 using Blazor.Timetable.Models.Grid;
-using Blazor.Timetable.Models.Props;
 using Blazor.Timetable.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -21,8 +21,8 @@ public partial class TimetableEvent<TEvent>
     [Parameter] public SpanDirection Direction { get; set; }
     [Parameter] public int Order { get; set; }
     [Parameter] public RenderFragment<TEvent> AdditionalFields { get; set; } = default!;
-    [Parameter] public EventCallback<UpdateProps<TEvent>> OnEventUpdated { get; set; } = default!;
-    [Parameter] public EventCallback<DeleteProps<TEvent>> OnEventDelete { get; set; } = default!;
+    [Parameter] public EventCallback<UpdateAction<TEvent>> OnEventUpdated { get; set; } = default!;
+    [Parameter] public EventCallback<DeleteAction<TEvent>> OnEventDelete { get; set; } = default!;
 
     private string EventStyle =>
         $"background-color: {BackgroundColor}; " +

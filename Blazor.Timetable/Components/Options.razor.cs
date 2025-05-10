@@ -1,7 +1,7 @@
 ﻿using Blazor.Timetable.Common.Enums;
-using Blazor.Timetable.Components.Shared.Modals;
+using Blazor.Timetable.Components.Modals;
+using Blazor.Timetable.Models.Actions;
 using Blazor.Timetable.Models.Configuration;
-using Blazor.Timetable.Models.Props;
 using Blazor.Timetable.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -24,7 +24,7 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter] public DisplayType CurrentDisplayType { get; set; } = default!;
     [Parameter] public EventCallback<DisplayType> OnDisplayTypeChanged { get; set; }
     [Parameter] public EventCallback OnCreateClicked { get; set; }
-    [Parameter] public EventCallback<ImportProps<TEvent>> OnImport { get; set; }
+    [Parameter] public EventCallback<ImportAction<TEvent>> OnImport { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

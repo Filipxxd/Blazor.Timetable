@@ -1,7 +1,7 @@
 ﻿using Blazor.Timetable.Services;
 using Microsoft.AspNetCore.Components;
 
-namespace Blazor.Timetable.Components.Shared.Modals;
+namespace Blazor.Timetable.Components.Modals;
 
 public partial class ModalContainer : IDisposable
 {

@@ -1,8 +1,8 @@
 ﻿using Blazor.Timetable.Common.Enums;
 
-namespace Blazor.Timetable.Models.Props;
+namespace Blazor.Timetable.Models.Actions;
 
-public class ImportProps<TEvent> where TEvent : class
+public class ImportAction<TEvent> where TEvent : class
 {
     public IList<TEvent> Events { get; set; } = [];
     public ImportType Type { get; set; } = ImportType.Append;

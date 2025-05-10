@@ -2,12 +2,12 @@
 using Blazor.Timetable.Common.Enums;
 using Blazor.Timetable.Common.Extensions;
 using Blazor.Timetable.Common.Helpers;
-using Blazor.Timetable.Components.Shared.Modals;
+using Blazor.Timetable.Components.Modals;
 using Blazor.Timetable.Models;
+using Blazor.Timetable.Models.Actions;
 using Blazor.Timetable.Models.Configuration;
 using Blazor.Timetable.Models.DataExchange;
 using Blazor.Timetable.Models.Grid;
-using Blazor.Timetable.Models.Props;
 using Blazor.Timetable.Services;
 using Blazor.Timetable.Services.DataExchange.Export;
 using Blazor.Timetable.Services.DataExchange.Import;
@@ -190,7 +190,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         UpdateGrid();
     }
 
-    private async Task HandleEventUpdated(UpdateProps<TEvent> props)
+    private async Task HandleEventUpdated(UpdateAction<TEvent> props)
     {
         if (props.Scope == ActionScope.Single)
         {
@@ -206,7 +206,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         UpdateGrid();
     }
 
-    private void HandleEventDeleted(DeleteProps<TEvent> deleteProps)
+    private void HandleEventDeleted(DeleteAction<TEvent> deleteProps)
     {
         if (deleteProps.Scope == ActionScope.Single)
         {
@@ -239,7 +239,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         UpdateGrid();
     }
 
-    private void HandleImport(ImportProps<TEvent> props)
+    private void HandleImport(ImportAction<TEvent> props)
     {
         if (props.Type == ImportType.Append)
         {
@@ -266,7 +266,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
         var templateDesc = new EventDescriptor<TEvent>(template, _eventProps);
 
-        var onCreate = EventCallback.Factory.Create<CreateProps<TEvent>>(this, async props =>
+        var onCreate = EventCallback.Factory.Create<CreateAction<TEvent>>(this, async props =>
         {
             var created = _timetableManager.CreateEvents(templateDesc, props.Repetition, props.RepeatUntil, props.RepeatDays);
 
