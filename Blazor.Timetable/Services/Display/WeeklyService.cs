@@ -137,13 +137,9 @@ internal sealed class WeeklyService : IDisplayService
             };
         }).ToList();
 
-        var title = weekStart.Month == weekEnd.Month
-            ? $"{weekStart:dddd d.} - {weekEnd:dddd d. MMMM yyyy}"
-            : $"{weekStart:dddd d. MMMM} - {weekEnd:dddd d. MMMM yyyy}";
-
         return new Grid<TEvent>
         {
-            Title = title.CapitalizeWords(),
+            Title = GetTitle(weekStart, weekEnd).CapitalizeWords(),
             RowTitles = DisplayServiceHelper.GetRowTitles(config.TimeFrom, config.TimeTo, config.Is24HourFormat),
             Columns = columns
         };
@@ -167,5 +163,13 @@ internal sealed class WeeklyService : IDisplayService
         }
 
         return dates;
+    }
+
+    private static string GetTitle(DateOnly weekStart, DateOnly weekEnd)
+    {
+        var pattern = weekStart.Month == weekEnd.Month
+            ? "{0:dddd d.} - {1:dddd d., MMMM yyyy}"
+            : "{0:dddd d., MMMM} - {1:dddd d., MMMM yyyy}";
+        return string.Format(CultureConfig.CultureInfo, pattern, weekStart, weekEnd);
     }
 }

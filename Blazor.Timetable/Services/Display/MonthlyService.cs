@@ -96,9 +96,11 @@ internal sealed class MonthlyService : IDisplayService
             columns.Add(column);
         }
 
+        var title = string.Format(CultureConfig.CultureInfo, "{0:MMMM yyyy}", date);
+
         return new Grid<TEvent>
         {
-            Title = $"{date:MMMM yyyy}".CapitalizeWords(),
+            Title = title.CapitalizeWords(),
             Columns = columns
         };
     }

@@ -1,4 +1,6 @@
-﻿namespace Blazor.Timetable.Common.Helpers;
+﻿using Blazor.Timetable.Models.Configuration;
+
+namespace Blazor.Timetable.Common.Helpers;
 
 internal static class DateTimeHelper
 {
@@ -29,7 +31,7 @@ internal static class DateTimeHelper
         var today = DateTime.Today;
         var daysToAdd = ((int)dayOfWeek - (int)today.DayOfWeek + 7) % 7;
 
-        return today.AddDays(daysToAdd).ToString("dddd");
+        return today.AddDays(daysToAdd).ToString("dddd", CultureConfig.CultureInfo);
     }
 
     public static string FormatHour(int hour, bool use24HourFormat)

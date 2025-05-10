@@ -102,9 +102,11 @@ internal sealed class DailyService : IDisplayService
 
         column.Cells.AddRange(regularCells);
 
+        var title = string.Format(CultureConfig.CultureInfo, "{0:dddd d. MMMM yyyy}", date);
+
         return new Grid<TEvent>
         {
-            Title = $"{date:dddd d. MMMM yyyy}".CapitalizeWords(),
+            Title = title.CapitalizeWords(),
             RowTitles = DisplayServiceHelper.GetRowTitles(config.TimeFrom, config.TimeTo, config.Is24HourFormat),
             Columns = [column]
         };
