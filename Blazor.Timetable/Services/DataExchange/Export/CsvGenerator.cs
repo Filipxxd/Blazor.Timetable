@@ -1,10 +1,12 @@
-﻿namespace Blazor.Timetable.Services.DataExchange.Export;
+﻿using Blazor.Timetable.Models.DataExchange;
+
+namespace Blazor.Timetable.Services.DataExchange.Export;
 
 internal static class CsvGenerator
 {
     public const char Separator = ';';
 
-    public static string[][] CreateCsvContent<TEvent>(IEnumerable<TEvent> records, IList<IExportSelector<TEvent>> properties)
+    public static string[][] CreateCsvContent<TEvent>(IEnumerable<TEvent> records, IList<ISelector<TEvent>> properties)
         where TEvent : class
     {
         var csvContent = new List<string[]>();
@@ -22,7 +24,7 @@ internal static class CsvGenerator
         {
             var line = properties.Select(s =>
             {
-                var value = s.GetStringValue(record);
+                var value = s.GetValue(record);
                 var escapedValue = EscapeCsvValue(value).Trim();
                 if (escapedValue.Contains(Separator))
                     throw new InvalidOperationException($"Property value '{escapedValue}' cannot contain the separator character '{Separator}'.");
@@ -37,8 +39,7 @@ internal static class CsvGenerator
 
     public static string Unescape(string field)
     {
-        if (field.Length >= 2
-         && field[0] == '"' && field[^1] == '"')
+        if (field.Length >= 2 && field[0] == '"' && field[^1] == '"')
         {
             var inner = field[1..^1];
             return inner.Replace("\"\"", "\"");

@@ -1,6 +1,7 @@
-﻿using FluentAssertions;
-using System.Globalization;
+﻿using Blazor.Timetable.Models.DataExchange;
 using Blazor.Timetable.Services.DataExchange.Export;
+using FluentAssertions;
+using System.Globalization;
 
 namespace Blazor.Timetable.Tests;
 
@@ -24,10 +25,10 @@ public sealed class CsvGeneratorTests
         {
             new() { Property1 = "Value1", Property2 = "Value2" }
         };
-        var propertySelectors = new List<IExportSelector<TestEvent>>
+        var propertySelectors = new List<ISelector<TestEvent>>
         {
-            new ExportSelector<TestEvent, string>("Property1", e => e.Property1),
-            new ExportSelector<TestEvent, string>("Property2", e => e.Property2)
+            new Selector<TestEvent, string>("Property1", e => e.Property1),
+            new Selector<TestEvent, string>("Property2", e => e.Property2)
         };
         var result = CsvGenerator.CreateCsvContent(testRecords, propertySelectors);
         result.Should().HaveCount(2);
@@ -42,10 +43,10 @@ public sealed class CsvGeneratorTests
             new() { Property1 = "Value1", Property2 = "Value2" },
             new() { Property1 = "Value3", Property2 = "Value4" }
         };
-        var propertySelectors = new List<IExportSelector<TestEvent>>
+        var propertySelectors = new List<ISelector<TestEvent>>
         {
-            new ExportSelector<TestEvent, string>("Property1", e => e.Property1),
-            new ExportSelector<TestEvent, string>("Property2", e => e.Property2)
+            new Selector<TestEvent, string>("Property1", e => e.Property1),
+            new Selector<TestEvent, string>("Property2", e => e.Property2)
         };
 
         var result = CsvGenerator.CreateCsvContent(testRecords, propertySelectors);
@@ -70,13 +71,13 @@ public sealed class CsvGeneratorTests
                 DateTimeProperty = new DateTime(2023, 10, 10)
             }
         };
-        var propertySelectors = new List<IExportSelector<TestEvent>>
+        var propertySelectors = new List<ISelector<TestEvent>>
         {
-            new ExportSelector<TestEvent, string>("Property1", e => e.Property1),
-            new ExportSelector<TestEvent, int>("IntegerProperty", e => e.IntegerProperty),
-            new ExportSelector<TestEvent, double>("DoubleProperty", e => e.DoubleProperty),
-            new ExportSelector<TestEvent, bool>("BooleanProperty", e => e.BooleanProperty),
-            new ExportSelector<TestEvent, int?>("NullableIntegerProperty", e => e.NullableIntegerProperty)
+            new Selector<TestEvent, string>("Property1", e => e.Property1),
+            new Selector<TestEvent, int>("IntegerProperty", e => e.IntegerProperty),
+            new Selector<TestEvent, double>("DoubleProperty", e => e.DoubleProperty),
+            new Selector<TestEvent, bool>("BooleanProperty", e => e.BooleanProperty),
+            new Selector<TestEvent, int?>("NullableIntegerProperty", e => e.NullableIntegerProperty)
         };
 
         var result = CsvGenerator.CreateCsvContent(testRecords, propertySelectors);
@@ -100,11 +101,11 @@ public sealed class CsvGeneratorTests
                 DateTimeProperty = new DateTime(2023, 10, 10)
             }
         };
-        var propertySelectors = new List<IExportSelector<TestEvent>>
+        var propertySelectors = new List<ISelector<TestEvent>>
         {
-            new ExportSelector<TestEvent, double>("DoubleProperty", e => e.DoubleProperty, doubleProperty => ((int)Math.Floor(doubleProperty)).ToString()),
-            new ExportSelector<TestEvent, bool>("BooleanProperty", e => e.BooleanProperty, boolProperty => "hardcoded"),
-            new ExportSelector<TestEvent, DateTime>("DateTimeProperty", e => e.DateTimeProperty, dateTimeProperty => dateTimeProperty.ToString("dd/MM"))
+            new Selector<TestEvent, double>("DoubleProperty", e => e.DoubleProperty, doubleProperty => ((int)Math.Floor(doubleProperty)).ToString()),
+            new Selector<TestEvent, bool>("BooleanProperty", e => e.BooleanProperty, boolProperty => "hardcoded"),
+            new Selector<TestEvent, DateTime>("DateTimeProperty", e => e.DateTimeProperty, dateTimeProperty => dateTimeProperty.ToString("dd/MM"))
         };
 
         var result = CsvGenerator.CreateCsvContent(testRecords, propertySelectors);
@@ -120,9 +121,9 @@ public sealed class CsvGeneratorTests
         {
             new() { Property1 = "Value1", Property2 = "Value2" }
         };
-        var propertySelectors = new List<IExportSelector<TestEvent>>
+        var propertySelectors = new List<ISelector<TestEvent>>
         {
-            new ExportSelector<TestEvent, string>("Invalid;Property", e => e.Property1)
+            new Selector<TestEvent, string>("Invalid;Property", e => e.Property1)
         };
 
         Action act = () => CsvGenerator.CreateCsvContent(testRecords, propertySelectors);
@@ -137,9 +138,9 @@ public sealed class CsvGeneratorTests
         {
             new() { Property1 = "NormalValue", Property2 = "Value2" }
         };
-        var propertySelectors = new List<IExportSelector<TestEvent>>
+        var propertySelectors = new List<ISelector<TestEvent>>
         {
-            new ExportSelector<TestEvent, string>("NormalProperty", e => e.Property1)
+            new Selector<TestEvent, string>("NormalProperty", e => e.Property1)
         };
 
         Action act = () => CsvGenerator.CreateCsvContent(testRecords, propertySelectors);

@@ -1,11 +1,12 @@
-﻿using Microsoft.JSInterop;
+﻿using Blazor.Timetable.Models.DataExchange;
+using Microsoft.JSInterop;
 using System.Text;
 
 namespace Blazor.Timetable.Services.DataExchange.Export;
 
 internal sealed class CsvTransformer : IExportTransformer
 {
-    public IExportInfo Transform<TEvent>(IEnumerable<TEvent> records, IList<IExportSelector<TEvent>> properties)
+    public IExportInfo Transform<TEvent>(IEnumerable<TEvent> records, IList<ISelector<TEvent>> properties)
         where TEvent : class
     {
         var csvContent = CsvGenerator.CreateCsvContent(records, properties);

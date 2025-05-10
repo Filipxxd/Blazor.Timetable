@@ -1,12 +1,6 @@
 ﻿using Microsoft.JSInterop;
 
-namespace Blazor.Timetable.Services.DataExchange.Export;
-
-public interface IExportInfo
-{
-    DotNetStreamReference StreamReference { get; init; }
-    string FileExtension { get; init; }
-}
+namespace Blazor.Timetable.Models.DataExchange;
 
 internal sealed class ExportInfo : IExportInfo
 {

@@ -5,6 +5,7 @@ using Blazor.Timetable.Common.Helpers;
 using Blazor.Timetable.Components.Shared.Modals;
 using Blazor.Timetable.Models;
 using Blazor.Timetable.Models.Configuration;
+using Blazor.Timetable.Models.DataExchange;
 using Blazor.Timetable.Models.Grid;
 using Blazor.Timetable.Models.Props;
 using Blazor.Timetable.Services;
@@ -75,9 +76,9 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             FileName = "EventExport",
             Transformer = new CsvTransformer(),
             Properties = [
-                new ExportSelector<TEvent, DateTime>("DateFrom", DateFrom),
-                new ExportSelector<TEvent, DateTime>("DateTo", DateTo),
-                new ExportSelector<TEvent, string>("Title", Title)
+                new Selector<TEvent, DateTime>("DateFrom", DateFrom),
+                new Selector<TEvent, DateTime>("DateTo", DateTo),
+                new Selector<TEvent, string>("Title", Title!)
             ]
         };
 
@@ -86,9 +87,9 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             AllowedExtensions = ["csv"],
             MaxFileSizeBytes = 5_000_000,
             Transformer = new CsvImportTransformer<TEvent>([
-              new ImportSelector<TEvent,DateTime>("DateFrom", DateFrom),
-              new ImportSelector<TEvent,DateTime>("DateTo", DateTo),
-              new ImportSelector<TEvent,string>("Title", Title!)
+              new Selector<TEvent,DateTime>("DateFrom", DateFrom),
+              new Selector<TEvent,DateTime>("DateTo", DateTo),
+              new Selector<TEvent,string>("Title", Title!)
             ])
         };
     }

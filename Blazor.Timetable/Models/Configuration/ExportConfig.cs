@@ -1,4 +1,5 @@
 ﻿using Blazor.Timetable.Common.Exceptions;
+using Blazor.Timetable.Models.DataExchange;
 using Blazor.Timetable.Services.DataExchange.Export;
 
 namespace Blazor.Timetable.Models.Configuration;
@@ -18,7 +19,7 @@ public sealed class ExportConfig<TEvent> where TEvent : class
     /// <summary>
     /// Properties to export. This is a list of properties that will be included in the export.
     /// </summary>
-	public IList<IExportSelector<TEvent>> Properties { get; init; } = [];
+	public IList<ISelector<TEvent>> Properties { get; init; } = [];
 
     internal void Validate()
     {
