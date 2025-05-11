@@ -10,7 +10,7 @@ public sealed class TimetableConfig
     /// <summary>
     /// Months shown in the timetable. Must be consecutive. First item treated as start of year month. Defaults to all months of the year.
     /// </summary>
-    public ICollection<Month> Months { get; init; } = [
+    public IList<Month> Months { get; init; } = [
         Month.January, Month.February, Month.March, Month.April, Month.May, Month.June,
         Month.July, Month.August, Month.September, Month.October, Month.November, Month.December
     ];
@@ -24,14 +24,14 @@ public sealed class TimetableConfig
     ];
 
     /// <summary>
-    /// Start time for displayed events. Defaults to 00:00 (0AM).
+    /// Start time for displayed events. Defaults to 08:00 (8AM).
     /// </summary>
-    public TimeOnly TimeFrom { get; init; } = new(0, 0);
+    public TimeOnly TimeFrom { get; init; } = new(8, 0);
 
     /// <summary>
-    /// End time for displayed events. Defaults to 23:00 (11PM).
+    /// End time for displayed events. Defaults to 20:00 (8PM).
     /// </summary>
-    public TimeOnly TimeTo { get; init; } = new(23, 0);
+    public TimeOnly TimeTo { get; init; } = new(20, 0);
 
     /// <summary>
     /// Use 24-hour format for display times. Defaults to <see cref="true"/>.
@@ -44,7 +44,7 @@ public sealed class TimetableConfig
     public DisplayType DefaultDisplayType { get; init; } = DisplayType.Week;
 
     /// <summary>
-    /// Default date for the timetable. Defaults to <see cref="DateTime.Now"/>.
+    /// Default date for the timetable. Defaults to date of <see cref="DateTime.Now"/>.
     /// </summary>
     public DateOnly DefaultDate { get; init; } = DateTime.Now.ToDateOnly();
 
