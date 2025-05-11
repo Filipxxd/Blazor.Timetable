@@ -14,6 +14,7 @@
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<AssemblyName>Blazor.Timetable</AssemblyName>		
+		<WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>		
     </PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'" />
