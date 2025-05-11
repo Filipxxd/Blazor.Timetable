@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System.Globalization;
-using Blazor.Timetable.Models.Configuration;
+﻿using Blazor.Timetable.Models.Configuration;
 using Blazor.Timetable.Services;
 using Blazor.Timetable.Services.Display;
+using Microsoft.Extensions.DependencyInjection;
+using System.Globalization;
 
 namespace Blazor.Timetable.Common.Extensions;
 
@@ -15,6 +15,12 @@ public static class ServiceExtensions
         services.AddScoped<IDisplayService, MonthlyService>();
 
         services.AddScoped<ModalService>();
+
+        var resourcesNamespace = typeof(Resources.GlobalResource).FullName
+            ?? throw new ArgumentException("Resource namespace not found.");
+
+        services.AddLocalization(options => options.ResourcesPath = "Resources")
+                .AddSingleton(s => new Localizer(resourcesNamespace, typeof(Resources.GlobalResource).Assembly));
 
         return services;
     }

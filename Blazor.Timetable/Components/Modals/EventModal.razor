@@ -5,18 +5,18 @@
         <div class="modal-container">
             @if (State == EventModalState.Create || State == EventModalState.Edit)
             {
-                <Input Model=EventDescriptor 
-                       Label="Title" 
+                <Input Model=EventDescriptor
+                       Label=@Localizer["EventTitle"]
                        Selector="x => x.Title" 
                        Validate=ValidateTitle />
 
                 <InputDateTime Model=EventDescriptor 
-                               Label="Start"
+                               Label=@Localizer["EventStart"]
                                Selector="x => x.DateFrom" 
                                Validate=ValidateDateFrom />
 
-                <InputDateTime Model=EventDescriptor 
-                               Label="End" 
+                <InputDateTime Model=EventDescriptor
+                               Label=@Localizer["EventEnd"]
                                Selector="x => x.DateTo" 
                                Validate=ValidateDateTo />
 
@@ -27,15 +27,15 @@
 
                 @if (State == EventModalState.Create)
                 {
-                    <Dropdown Model=this 
-                              Label="Repeat" 
+                    <Dropdown Model=this
+                              Label=@Localizer["EventRepetitionType"]
                               Selector="x => x.SelectedRepeatability"
                               Options=RepetitionOptions />
 
                     @if (SelectedRepeatability != Repeatability.Once)
                     {
-                        <InputDateTime Model=this 
-                                       Label="Repeat Till" 
+                        <InputDateTime Model=this
+                                       Label=@Localizer["EventRepeatUntil"]
                                        Selector="x => x.RepeatUntil" 
                                        Type=InputDateType.Date
                                        Validate=ValidateRepeatUntilDate />
@@ -44,17 +44,23 @@
                     @if (SelectedRepeatability == Repeatability.Custom)
                     {
                         <div style="margin-top: 0.5rem;">
-                            <label>Every (days):</label>
+                            <label>@Localizer["EventRepeatCustomDays"]:</label>
                             <input type="number" class="form-control" @bind=RepeatAfterDays min="1" />
                         </div>
                     }
                 }
 
                 <div style="margin-top: 1rem">
-                    <Button Title="Save" OnClick=SaveAsync ButtonType=ButtonType.Confirm />
+                    <Button Title=@Localizer["ButtonSave"]
+                            OnClick=SaveAsync 
+                            ButtonType=ButtonType.Confirm />
+
                     @if (State == EventModalState.Edit)
                     {
-                        <Button Title="Delete" OnClick=ToggleDelete ButtonType=ButtonType.Delete Style="margin-left: 1rem;" />
+                        <Button Title=@Localizer["ButtonDelete"]
+                                OnClick=ToggleDelete 
+                                ButtonType=ButtonType.Delete 
+                                Style="margin-left: 1rem;" />
                     }
                 </div>
             }
@@ -62,12 +68,21 @@
             {
                 @if (EventDescriptor.HasGroupdAssigned)
                 {
-                    <Dropdown Model=this Label="Select" Selector="x => x.SelectedScope" Options="Scopes" />
+                    <Dropdown Model=this
+                              Label=@Localizer["ButtonClose"]
+                              Selector="x => x.SelectedScope" 
+                              Options="Scopes" />
                 }
 
                 <div>
-                    <Button Title="Delete" OnClick=DeleteAsync ButtonType=ButtonType.Delete />
-                    <Button Title="Cancel" OnClick=ModalService.Close ButtonType=ButtonType.Cancel Style="margin-left: 1rem;" />
+                    <Button Title=@Localizer["ButtonDelete"]
+                            OnClick=DeleteAsync 
+                            ButtonType=ButtonType.Delete />
+
+                    <Button Title=@Localizer["ButtonClose"] 
+                            OnClick=ModalService.Close 
+                            ButtonType=ButtonType.Cancel 
+                            Style="margin-left: 1rem;" />
                 </div>
             }
         </div>

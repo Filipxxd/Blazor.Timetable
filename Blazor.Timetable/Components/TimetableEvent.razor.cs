@@ -15,6 +15,7 @@ public partial class TimetableEvent<TEvent>
     private readonly Stopwatch _clickStopwatch = new();
 
     [Inject] private ModalService ModalService { get; set; } = default!;
+    [Inject] private Localizer Localizer { get; set; } = default!;
 
     [Parameter] public CellItem<TEvent> CellItem { get; set; } = default!;
     [Parameter] public string BackgroundColor { get; set; } = default!;
@@ -55,6 +56,6 @@ public partial class TimetableEvent<TEvent>
             { "AdditionalFields", AdditionalFields }
         };
 
-        ModalService.Show<EventModal<TEvent>>("Edit", parameters);
+        ModalService.Show<EventModal<TEvent>>("", parameters);
     }
 }

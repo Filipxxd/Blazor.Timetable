@@ -12,6 +12,7 @@ namespace Blazor.Timetable.Components.Modals;
 public partial class EventModal<TEvent> where TEvent : class
 {
     [Inject] private ModalService ModalService { get; set; } = default!;
+    [Inject] private Localizer Localizer { get; set; } = default!;
 
     private readonly IList<Func<bool>> _validationFuncs = [];
     private readonly Repeatability[] RepetitionOptions = (Repeatability[])Enum.GetValues(typeof(Repeatability));

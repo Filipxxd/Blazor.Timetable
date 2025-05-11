@@ -1,11 +1,13 @@
 ﻿@typeparam TEvent where TEvent : class
 
-<h3>ImportModal</h3>
-
 <Dropdown Model=this
-          Label="Import type"
+          Label=@Localizer["ImportType"]
           Selector="x => x.Type"
           Options=ImportTypes />
 
-<Button Title="Confirm" OnClick=SubmitAsync />
-<Button Title="Cancel" OnClick=ModalService.Close ButtonType="ButtonType.Cancel" />
+<Button Title=@Localizer["ButtonSave"]
+        OnClick=SubmitAsync />
+
+<Button Title=@Localizer["ButtonCancel"]
+    OnClick=ModalService.Close 
+    ButtonType=ButtonType.Cancel />

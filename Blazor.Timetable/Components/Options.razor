@@ -4,7 +4,7 @@
     <div>
         <div @onclick=HandleCreateClicked class="icon-button">
             <PlusIcon />
-            <span>Add</span>
+            <span>@Localizer["ButtonCreate"]</span>
         </div>
     </div>
     <div class="buttons">
@@ -18,7 +18,7 @@
             <span>Export</span>
         </div>
 
-        @foreach (var displayType in _displayTypes.Where(x => x != CurrentDisplayType).OrderBy(x => x))
+        @foreach (var displayType in AvailableDisplayTypes)
         {
             <span @onclick="() => OnDisplayTypeChanged.InvokeAsync(displayType)" class="icon-button">
                 @switch (displayType)

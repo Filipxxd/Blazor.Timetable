@@ -8,6 +8,7 @@ namespace Blazor.Timetable.Components.Modals;
 public partial class ImportModal<TEvent> where TEvent : class
 {
     [Inject] private ModalService ModalService { get; set; } = default!;
+    [Inject] private Localizer Localizer { get; set; } = default!;
 
     public ImportType Type { get; set; } = ImportType.Append;
 
