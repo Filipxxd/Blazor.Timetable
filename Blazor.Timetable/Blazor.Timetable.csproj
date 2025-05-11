@@ -5,30 +5,48 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>Blazor.Timetable</RootNamespace>
+		<IsPackable>true</IsPackable>
+		<PackageId>Blazor.Timetable</PackageId>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Title>Blazor Timetable</Title>
+		<Version>0.9.5</Version>
+		<Authors>Filipxxd</Authors>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<AssemblyName>Blazor.Timetable</AssemblyName>		
     </PropertyGroup>
 
-    <ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'" />
+
+	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.15" />
 		<PackageReference Include="Microsoft.Extensions.Localization" Version="9.0.4" />
     </ItemGroup>
 
-    <ItemGroup>
-        <EmbeddedResource Include="wwwroot\**" Pack="true" />
-    </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="wwwroot\**" Pack="true" />
+	</ItemGroup>
 
-    <ItemGroup>
-      <Compile Update="Resources\GlobalResource.Designer.cs">
-        <DesignTime>True</DesignTime>
-        <AutoGen>True</AutoGen>
-        <DependentUpon>GlobalResource.resx</DependentUpon>
-      </Compile>
-    </ItemGroup>
+	<ItemGroup>
+		<None Include="..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
-    <ItemGroup>
-      <EmbeddedResource Update="Resources\GlobalResource.resx">
-        <Generator>ResXFileCodeGenerator</Generator>
-        <LastGenOutput>GlobalResource.Designer.cs</LastGenOutput>
-      </EmbeddedResource>
-    </ItemGroup>
-    
+	<ItemGroup>
+		<Compile Update="Resources\GlobalResource.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>GlobalResource.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Update="Resources\GlobalResource.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>GlobalResource.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>	
+	
 </Project>
