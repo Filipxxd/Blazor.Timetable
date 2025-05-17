@@ -3,13 +3,13 @@
 @inherits BaseInput<TEvent, TType>
 
 <div class="selectfield @(HasError ? "error" : "")">
-    <select id=@_id @bind=BindProperty>
+    <select id=@Id @bind=BindProperty>
         @foreach (var option in Options)
         {
             <option value="@option?.ToString()">@option</option>
         }
     </select>
-    <label for=@_id>@Label</label>
+    <label for=@Id>@Label</label>
 
     @if (!HasError)
     {

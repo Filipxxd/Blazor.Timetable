@@ -3,8 +3,8 @@
 @inherits BaseInput<TEvent, TType>
 
 <div class="textfield @(HasError ? "error" : "")">
-    <input type="@GetInputType()" @bind=BindProperty id=@_id placeholder=" " />
-    <label for=@_id>@Label</label>
+    <input type="@GetInputType()" @bind=BindProperty id=@Id placeholder=" " />
+    <label for=@Id>@Label</label>
 
     @if (!HasError)
     {
