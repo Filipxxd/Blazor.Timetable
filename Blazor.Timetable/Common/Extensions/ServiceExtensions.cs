@@ -25,9 +25,9 @@ public static class ServiceExtensions
         return services;
     }
 
-    public static IServiceCollection UseCulture(this IServiceCollection services, CultureInfo cultureInfo)
+    public static IServiceCollection Localize(this IServiceCollection services, string culture)
     {
-        CultureConfig.SetCulture(cultureInfo);
+        CultureConfig.SetCulture(new CultureInfo(culture));
 
         return services;
     }
