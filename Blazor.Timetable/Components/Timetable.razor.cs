@@ -119,7 +119,6 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     {
         if (firstRender)
         {
-            await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Blazor.Timetable/interact.min.js");
             _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Blazor.Timetable/Components/Timetable.razor.js");
             await _jsModule.InvokeVoidAsync("dragDrop.init", _objectReference);
             _firstRender = false;

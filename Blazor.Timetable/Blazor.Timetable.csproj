@@ -9,7 +9,7 @@
 		<PackageId>Blazor.Timetable</PackageId>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>Blazor Timetable</Title>
-		<Version>0.9.5</Version>
+		<Version>0.9.6</Version>
 		<Authors>Filipxxd</Authors>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
@@ -23,10 +23,6 @@
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.15" />
 		<PackageReference Include="Microsoft.Extensions.Localization" Version="9.0.4" />
     </ItemGroup>
-
-	<ItemGroup>
-		<EmbeddedResource Include="wwwroot\**" Pack="true" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="..\LICENSE">
