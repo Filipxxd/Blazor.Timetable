@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Blazor.Timetable.Services.DataExchange.Import;
 
-internal sealed class CsvImportTransformer<TEvent> : IImportTransformer<TEvent>
+public sealed class CsvImportTransformer<TEvent> : IImportTransformer<TEvent>
     where TEvent : class
 {
     private readonly IList<ISelector<TEvent>> _mappers;
