@@ -51,6 +51,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter] public EventCallback<TEvent> OnTitleClicked { get; set; } = default!;
     [Parameter] public EventCallback<DisplayType> OnDisplayTypeChanged { get; set; }
     [Parameter] public EventCallback<DayOfWeek> OnChangedToDay { get; set; } = default!;
+    [Parameter] public EventCallback<ImportAction<TEvent>> OnEventsImported { get; set; } = default!;
     [Parameter] public EventCallback<TEvent> OnEventCreated { get; set; } = default!;
     [Parameter] public EventCallback<IList<TEvent>> OnGroupEventCreated { get; set; } = default!;
     [Parameter] public EventCallback<TEvent> OnEventChanged { get; set; } = default!;
@@ -233,7 +234,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         UpdateGrid();
     }
 
-    private void HandleImport(ImportAction<TEvent> props)
+    private async Task HandleImport(ImportAction<TEvent> props)
     {
         if (props.Type == ImportType.Append)
         {
@@ -244,6 +245,8 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         {
             Events = props.Events;
         }
+
+        await OnEventsImported.InvokeAsync(props);
 
         UpdateGrid();
     }
