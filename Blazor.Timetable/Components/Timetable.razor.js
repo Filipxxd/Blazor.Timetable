@@ -72,7 +72,7 @@ export const dragDrop = {
                         return;
                     }
 
-                    await objRef.invokeMethodAsync('MoveEvent', eventId, targetSlotId)
+                    await objRef.invokeMethodAsync('MoveEventAsync', eventId, targetSlotId)
                         .catch(error => {
                             console.error("Error moving event: ", error);
                         });

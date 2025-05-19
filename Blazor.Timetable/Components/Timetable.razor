@@ -8,14 +8,14 @@
                  CurrentDisplayType=@_timetableManager.DisplayType
                  ExportConfig=@ExportConfig
                  ImportConfig=@ImportConfig
-                 OnImport=@((ImportAction<TEvent> props) => HandleImport(props))
+                 OnImport=@((ImportAction<TEvent> props) => HandleImportAsync(props))
                  OnCreateClicked=@(() => HandleOpenCreateModal(_timetableManager.CurrentDate.ToDateTimeMidnight()))
-                 OnDisplayTypeChanged=HandleDisplayTypeChanged />
+                 OnDisplayTypeChanged=HandleDisplayTypeChangedAsync />
 
         <div class="timetable">
             <Header Title=@_timetableManager.Grid.Title
-                    OnNextClicked=HandleNextClicked
-                    OnPreviousClicked=HandlePreviousClicked />
+                    OnNextClicked=HandleNextClickedAsync
+                    OnPreviousClicked=HandlePreviousClickedAsync />
 
             <ModalContainer />
 
@@ -63,7 +63,7 @@
                     <GridItem CssClass="timetable-head-title grid-border"
                               Direction=SpanDirection.Horizontal  
                               RowIndex=1
-                              OnClick=@(() => HandleChangedToDay(column.DayOfWeek))
+                              OnClick=@(() => HandleChangedToDayAsync(column.DayOfWeek))
                               ColumnIndex=@(isMonthView ? column.Index : (column.Index + 1))>
                         @(DateTimeHelper.GetLocalizedName(column.DayOfWeek).Capitalize())
                     </GridItem>
@@ -79,8 +79,8 @@
                                       RowIndex=@(cell.Type == CellType.Header ? 2 : cell.RowIndex + 1)
                                       Span=@cellItem.Span>
                                 <TimetableEvent CellItem=@cellItem
-                                                OnEventUpdated="(UpdateAction<TEvent> props) => HandleEventUpdated(props)"
-                                                OnEventDelete="(DeleteAction<TEvent> props) => HandleEventDeleted(props)"
+                                                OnEventUpdated="(UpdateAction<TEvent> props) => HandleEventUpdatedAsync(props)"
+                                                OnEventDelete="(DeleteAction<TEvent> props) => HandleEventDeletedAsync(props)"
                                                 AdditionalFields="@AdditionalFields"
                                                 Order=@cell.Items.IndexOf(cellItem)
                                                 Direction=@direction

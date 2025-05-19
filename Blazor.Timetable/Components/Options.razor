@@ -2,18 +2,18 @@
 
 <div class="options">
     <div>
-        <div @onclick=HandleCreateClicked class="icon-button">
+        <div @onclick=HandleCreateClickedAsync class="icon-button">
             <PlusIcon />
             <span>@Localizer["ButtonCreate"]</span>
         </div>
     </div>
     <div class="buttons">
-        <div @onclick=Import class="icon-button">
+        <div @onclick=HandleImportClickedAsync class="icon-button">
             <FileUploadIcon />
             <span>Import</span>
         </div>
 
-        <div @onclick=Export class="icon-button">
+        <div @onclick=HandleExportClickedAsync class="icon-button">
             <FileDownloadIcon />
             <span>Export</span>
         </div>

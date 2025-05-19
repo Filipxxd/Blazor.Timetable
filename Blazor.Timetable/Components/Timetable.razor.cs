@@ -121,7 +121,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     }
 
     [JSInvokable]
-    public async Task MoveEvent(Guid eventId, Guid targetCellId)
+    public async Task MoveEventAsync(Guid eventId, Guid targetCellId)
     {
         var eventItem = _timetableManager.Grid.FindItemByItemId(eventId);
 
@@ -171,21 +171,21 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         }
     }
 
-    private async Task HandleNextClicked()
+    private async Task HandleNextClickedAsync()
     {
         _timetableManager.CurrentDate = _timetableManager.CurrentDate.GetValidDateFor(_timetableManager.DisplayType, TimetableConfig.Days, TimetableConfig.Months, true);
         await OnNextClicked.InvokeAsync();
         UpdateGrid();
     }
 
-    private async Task HandlePreviousClicked()
+    private async Task HandlePreviousClickedAsync()
     {
         _timetableManager.CurrentDate = _timetableManager.CurrentDate.GetValidDateFor(_timetableManager.DisplayType, TimetableConfig.Days, TimetableConfig.Months, false);
         await OnPreviousClicked.InvokeAsync();
         UpdateGrid();
     }
 
-    private async Task HandleEventUpdated(UpdateAction<TEvent> props)
+    private async Task HandleEventUpdatedAsync(UpdateAction<TEvent> props)
     {
         if (props.Scope == ActionScope.Single)
         {
@@ -201,23 +201,23 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         UpdateGrid();
     }
 
-    private void HandleEventDeleted(DeleteAction<TEvent> deleteProps)
+    private async Task HandleEventDeletedAsync(DeleteAction<TEvent> deleteProps)
     {
         if (deleteProps.Scope == ActionScope.Single)
         {
             var deletedEvent = _timetableManager.DeleteEvent(Events, deleteProps);
-            OnEventDeleted.InvokeAsync(deletedEvent);
+            await OnEventDeleted.InvokeAsync(deletedEvent);
         }
         else
         {
             var deletedEvents = _timetableManager.DeleteGroupEvent(Events, deleteProps);
-            OnGroupEventDeleted.InvokeAsync(deletedEvents);
+            await OnGroupEventDeleted.InvokeAsync(deletedEvents);
         }
 
         UpdateGrid();
     }
 
-    private async Task HandleDisplayTypeChanged(DisplayType displayType)
+    private async Task HandleDisplayTypeChangedAsync(DisplayType displayType)
     {
         _timetableManager.DisplayType = displayType;
         _timetableManager.CurrentDate = TimetableConfig.DefaultDate;
@@ -225,7 +225,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         await OnNextClicked.InvokeAsync();
     }
 
-    private async Task HandleChangedToDay(DayOfWeek dayOfWeek)
+    private async Task HandleChangedToDayAsync(DayOfWeek dayOfWeek)
     {
         _timetableManager.CurrentDate = DateTimeHelper.GetDateForDay(_timetableManager.CurrentDate, dayOfWeek, TimetableConfig.Days.First());
         _timetableManager.DisplayType = DisplayType.Day;
@@ -234,7 +234,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         UpdateGrid();
     }
 
-    private async Task HandleImport(ImportAction<TEvent> props)
+    private async Task HandleImportAsync(ImportAction<TEvent> props)
     {
         if (props.Type == ImportType.Append)
         {

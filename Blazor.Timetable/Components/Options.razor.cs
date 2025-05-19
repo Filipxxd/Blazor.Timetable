@@ -38,19 +38,19 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
         }
     }
 
-    private async Task HandleCreateClicked()
+    private async Task HandleCreateClickedAsync()
     {
         await OnCreateClicked.InvokeAsync();
     }
 
-    private async Task Import()
+    private async Task HandleImportClickedAsync()
     {
         if (_jsModule is null || _dotNetRef is null) return;
         await _jsModule.InvokeVoidAsync("promptFileSelect", _dotNetRef, ImportConfig.MaxFileSizeBytes, ImportConfig.AllowedExtensions);
     }
 
     [JSInvokable]
-    public async Task ReceiveFileBase64(string base64)
+    public async Task ReceiveFileBase64Async(string base64)
     {
         var content = Convert.FromBase64String(base64);
         var stream = new MemoryStream(content, writable: false);
@@ -67,7 +67,7 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
         ModalService.Show<ImportModal<TEvent>>("Import", parameters);
     }
 
-    private async Task Export()
+    private async Task HandleExportClickedAsync()
     {
         if (_jsModule is null) return;
 
