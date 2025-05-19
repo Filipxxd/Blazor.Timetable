@@ -54,7 +54,7 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
     {
         var content = Convert.FromBase64String(base64);
         var stream = new MemoryStream(content, writable: false);
-        var items = ImportConfig.Transformer.Transform(stream);
+        var items = ImportConfig.Transformer.Transform(stream, ImportConfig.Selectors);
 
         await stream.DisposeAsync();
 
@@ -71,7 +71,7 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
     {
         if (_jsModule is null) return;
 
-        var transformResult = ExportConfig.Transformer.Transform(Events, ExportConfig.Properties);
+        var transformResult = ExportConfig.Transformer.Transform(Events, ExportConfig.Selectors);
         var fileName = $"{ExportConfig.FileName}.{transformResult.FileExtension}";
 
         using var stream = transformResult.StreamReference;

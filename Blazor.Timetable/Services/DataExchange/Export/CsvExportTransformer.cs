@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Blazor.Timetable.Services.DataExchange.Export;
 
-public sealed class CsvTransformer : IExportTransformer
+public sealed class CsvExportTransformer : IExportTransformer
 {
     public IExportInfo Transform<TEvent>(IEnumerable<TEvent> records, IList<ISelector<TEvent>> properties)
         where TEvent : class

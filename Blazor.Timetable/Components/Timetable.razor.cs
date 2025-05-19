@@ -9,8 +9,6 @@ using Blazor.Timetable.Models.Configuration;
 using Blazor.Timetable.Models.DataExchange;
 using Blazor.Timetable.Models.Grid;
 using Blazor.Timetable.Services;
-using Blazor.Timetable.Services.DataExchange.Export;
-using Blazor.Timetable.Services.DataExchange.Import;
 using Blazor.Timetable.Services.Display;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -72,26 +70,21 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             Props = _eventProps
         };
 
+        var selectors = new List<ISelector<TEvent>> {
+            new Selector<TEvent, DateTime>("DateFrom", DateFrom),
+            new Selector<TEvent, DateTime>("DateTo", DateTo),
+            new Selector<TEvent, string>("Title", Title!),
+            new Selector<TEvent, string>("GroupIdentifier", GroupId)
+        };
+
         ExportConfig = new ExportConfig<TEvent>
         {
-            FileName = "EventExport",
-            Transformer = new CsvTransformer(),
-            Properties = [
-                new Selector<TEvent, DateTime>("DateFrom", DateFrom),
-                new Selector<TEvent, DateTime>("DateTo", DateTo),
-                new Selector<TEvent, string>("Title", Title!)
-            ]
+            Selectors = selectors
         };
 
         ImportConfig = new ImportConfig<TEvent>
         {
-            AllowedExtensions = ["csv"],
-            MaxFileSizeBytes = 5_000_000,
-            Transformer = new CsvImportTransformer<TEvent>([
-              new Selector<TEvent,DateTime>("DateFrom", DateFrom),
-              new Selector<TEvent,DateTime>("DateTo", DateTo),
-              new Selector<TEvent,string>("Title", Title!)
-            ])
+            Selectors = selectors
         };
     }
 
@@ -110,6 +103,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
         TimetableConfig.Validate();
         ExportConfig.Validate();
+        ImportConfig.Validate();
         StyleConfig.Validate();
 
         UpdateGrid();

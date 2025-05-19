@@ -9,22 +9,22 @@ public sealed class ExportConfig<TEvent> where TEvent : class
     /// <summary>
     /// File name for the export. This is the name of the file that will be created without extension eg. "EventsExport".
     /// </summary>
-    public required string FileName { get; init; }
+    public string FileName { get; init; } = "EventExport";
 
     /// <summary>
     /// Transformer to use for the export. This is the class that will handle the transformation of the data.
     /// </summary>
-    public required IExportTransformer Transformer { get; init; }
+    public IExportTransformer Transformer { get; init; } = new CsvExportTransformer();
 
     /// <summary>
     /// Properties to export. This is a list of properties that will be included in the export.
     /// </summary>
-	public IList<ISelector<TEvent>> Properties { get; init; } = [];
+	public required IList<ISelector<TEvent>> Selectors { get; init; } = [];
 
     internal void Validate()
     {
-        if (!Properties.Any())
-            throw new InvalidSetupException("At least one property must be provided.");
+        if (!Selectors.Any())
+            throw new InvalidSetupException("At least one property selector must be provided.");
 
         if (string.IsNullOrWhiteSpace(FileName))
             throw new InvalidSetupException("FileName must be provided.");
