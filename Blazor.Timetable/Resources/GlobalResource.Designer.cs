@@ -61,6 +61,15 @@ namespace Blazor.Timetable.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Apply on.
+        /// </summary>
+        internal static string ActionScope {
+            get {
+                return ResourceManager.GetString("ActionScope", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
         internal static string ButtonCancel {
@@ -178,11 +187,56 @@ namespace Blazor.Timetable.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Custom.
+        /// </summary>
+        internal static string RepetitionCustom {
+            get {
+                return ResourceManager.GetString("RepetitionCustom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Daily.
+        /// </summary>
+        internal static string RepetitionDaily {
+            get {
+                return ResourceManager.GetString("RepetitionDaily", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Monthly.
+        /// </summary>
+        internal static string RepetitionMonthly {
+            get {
+                return ResourceManager.GetString("RepetitionMonthly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Once.
+        /// </summary>
+        internal static string RepetitionOnce {
+            get {
+                return ResourceManager.GetString("RepetitionOnce", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Repetition.
         /// </summary>
         internal static string RepetitionType {
             get {
                 return ResourceManager.GetString("RepetitionType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Weekly.
+        /// </summary>
+        internal static string RepetitionWeekly {
+            get {
+                return ResourceManager.GetString("RepetitionWeekly", resourceCulture);
             }
         }
     }

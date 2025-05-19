@@ -159,4 +159,22 @@
   <data name="ImportType" xml:space="preserve">
     <value>Import type</value>
   </data>
+  <data name="RepetitionOnce" xml:space="preserve">
+    <value>Once</value>
+  </data>
+  <data name="RepetitionDaily" xml:space="preserve">
+    <value>Daily</value>
+  </data>
+  <data name="RepetitionWeekly" xml:space="preserve">
+    <value>Weekly</value>
+  </data>
+  <data name="RepetitionMonthly" xml:space="preserve">
+    <value>Monthly</value>
+  </data>
+  <data name="RepetitionCustom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="ActionScope" xml:space="preserve">
+    <value>Apply on</value>
+  </data>
 </root>

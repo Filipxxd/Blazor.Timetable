@@ -151,12 +151,30 @@
     <value>Pouze tento</value>
   </data>
   <data name="MoveGroup" xml:space="preserve">
-    <value>Vše</value>
+    <value>Všechny</value>
   </data>
   <data name="GroupMoveDescription" xml:space="preserve">
     <value>Tato událost je součástí skupiny. Chcete změny aplikovat na celou skupinu nebo pouze na tuto událost?</value>
   </data>
   <data name="ImportType" xml:space="preserve">
     <value>Způsob importu</value>
+  </data>
+  <data name="RepetitionOnce" xml:space="preserve">
+    <value>Jednou</value>
+  </data>
+  <data name="RepetitionDaily" xml:space="preserve">
+    <value>Denně</value>
+  </data>
+  <data name="RepetitionWeekly" xml:space="preserve">
+    <value>Týdně</value>
+  </data>
+  <data name="RepetitionMonthly" xml:space="preserve">
+    <value>Měsíčně</value>
+  </data>
+  <data name="RepetitionCustom" xml:space="preserve">
+    <value>Vlastní</value>
+  </data>
+  <data name="ActionScope" xml:space="preserve">
+    <value>Aplikovat na</value>
   </data>
 </root>
