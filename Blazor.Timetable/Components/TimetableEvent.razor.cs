@@ -56,6 +56,6 @@ public partial class TimetableEvent<TEvent>
             { "AdditionalFields", AdditionalFields }
         };
 
-        ModalService.Show<EventModal<TEvent>>("", parameters);
+        ModalService.Show<EventModal<TEvent>>(parameters);
     }
 }

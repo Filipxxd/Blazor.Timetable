@@ -157,7 +157,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
                 { "OnCancel", EventCallback.Factory.Create(this, UpdateGrid)}
             };
 
-            ModalService.Show<GroupMoveModal>("Move", parameters);
+            ModalService.Show<GroupMoveModal>(parameters);
         }
         else
         {
@@ -286,7 +286,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             { "AdditionalFields", AdditionalFields }
         };
 
-        ModalService.Show<EventModal<TEvent>>("Add", parameters);
+        ModalService.Show<EventModal<TEvent>>(parameters);
     }
 
     private void UpdateGrid()

@@ -64,7 +64,7 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
             { "OnSubmit", OnImport }
         };
 
-        ModalService.Show<ImportModal<TEvent>>("Import", parameters);
+        ModalService.Show<ImportModal<TEvent>>(parameters);
     }
 
     private async Task HandleExportClickedAsync()
