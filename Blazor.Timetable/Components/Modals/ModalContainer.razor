@@ -2,10 +2,13 @@
      @onmousedown=Close>
     <div class="modal" @onmousedown:stopPropagation>
         <div class="modal-header">
-            <span class="modal-title"></span>
-            <div class="close-button" @onclick=Close>
-                <CloseIcon />
-            </div>
+            @if (ModalService.IsClosable)
+            {                
+                <span class="modal-title"></span>
+                <div class="close-button" @onclick=Close>
+                    <CloseIcon />
+                </div>
+            }
         </div>
         <div class="modal-body">
             @ModalService.ModalContent

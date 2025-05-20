@@ -3,93 +3,95 @@
 @attribute [CascadingTypeParameter(nameof(TEvent))]
 
 <CascadingValue IsFixed Value=TimetableConfig>
-    <div class="timetable-wrapper">
-        <Options Events=@Events
-                 CurrentDisplayType=@_timetableManager.DisplayType
-                 ExportConfig=@ExportConfig
-                 ImportConfig=@ImportConfig
-                 OnImport=@((ImportAction<TEvent> props) => HandleImportAsync(props))
-                 OnCreateClicked=@(() => HandleOpenCreateModal(_timetableManager.CurrentDate.ToDateTimeMidnight()))
-                 OnDisplayTypeChanged=HandleDisplayTypeChangedAsync />
+    <CascadingValue IsFixed Value=_modalService>
+        <div class="timetable-wrapper">
+            <Options Events=@Events
+                     CurrentDisplayType=@_timetableManager.DisplayType
+                     ExportConfig=@ExportConfig
+                     ImportConfig=@ImportConfig
+                     OnImport=@((ImportAction<TEvent> props) => HandleImportAsync(props))
+                     OnCreateClicked=@(() => HandleOpenCreateModal(_timetableManager.CurrentDate.ToDateTimeMidnight()))
+                     OnDisplayTypeChanged=HandleDisplayTypeChangedAsync />
 
-        <div class="timetable">
-            <Header Title=@_timetableManager.Grid.Title
-                    OnNextClicked=HandleNextClickedAsync
-                    OnPreviousClicked=HandlePreviousClickedAsync />
+            <div class="timetable">
+                <Header Title=@_timetableManager.Grid.Title
+                        OnNextClicked=HandleNextClickedAsync
+                        OnPreviousClicked=HandlePreviousClickedAsync />
 
-            <ModalContainer />
+                <ModalContainer />
 
-            @{var isMonthView = _timetableManager.DisplayType == DisplayType.Month;}
+                @{var isMonthView = _timetableManager.DisplayType == DisplayType.Month;}
 
-            <div class="timetable-grid @(isMonthView ? "" : "scrollable")"
-                 style="@(isMonthView
-                        ? $"grid-auto-columns: 1fr; grid-template-rows: 40px; grid-auto-rows: 1fr;"
-                        : $"grid-template-columns: 80px; grid-auto-columns: 1fr; grid-template-rows: 40px 60px; grid-auto-rows: 15px;")">
+                <div class="timetable-grid @(isMonthView ? "" : "scrollable")"
+                     style="@(isMonthView
+                            ? $"grid-auto-columns: 1fr; grid-template-rows: 40px; grid-auto-rows: 1fr;"
+                            : $"grid-template-columns: 80px; grid-auto-columns: 1fr; grid-template-rows: 40px 60px; grid-auto-rows: 15px;")">
 
-                @if (_timetableManager.Grid.RowTitles.Any())
-                {
-                    var rowSpan = 4;
-
-                    for (var i = 1; i <= _timetableManager.Grid.RowTitles.Count(); i++)
+                    @if (_timetableManager.Grid.RowTitles.Any())
                     {
-                        var startRow = i * rowSpan - 1;
-                        var title = _timetableManager.Grid.RowTitles.ElementAt(i - 1);
-                        <GridItem CssClass="timetable-row-title grid-border"
-                                  RowIndex=@startRow
-                                  ColumnIndex=1
-                                  Direction=SpanDirection.Vertical
-                                  Span=@rowSpan>
-                            @title
-                        </GridItem>
-                    }
-                }
+                        var rowSpan = 4;
 
-                @foreach(var column in _timetableManager.Grid.Columns)
-                {
-                    foreach (var cell in column.Cells)
-                    {
-                        var style = "timetable-body-cell grid-border" + (cell.Type == CellType.Disabled ? " disabled" : "");
-                        <GridItem CssClass=@style
-                                  Direction=SpanDirection.Vertical
-                                  RowIndex=@(cell.RowIndex + 1)
-                                  SlotId=@(cell.Type != CellType.Disabled ? cell.Id : null)
-                                  OnClick="@(() => HandleOpenCreateModal(cell.DateTime))"
-                                  ColumnIndex=@(!isMonthView ? column.Index + 1 : column.Index) />
-                    }
-                }
-
-                @foreach (var column in _timetableManager.Grid.Columns)
-                {
-                    <GridItem CssClass="timetable-head-title grid-border"
-                              Direction=SpanDirection.Horizontal  
-                              RowIndex=1
-                              OnClick=@(() => HandleChangedToDayAsync(column.DayOfWeek))
-                              ColumnIndex=@(isMonthView ? column.Index : (column.Index + 1))>
-                        @(DateTimeHelper.GetLocalizedName(column.DayOfWeek).Capitalize())
-                    </GridItem>
-
-                    @foreach (var cell in column.Cells)
-                    {                            
-                        foreach (var cellItem in cell.Items)
+                        for (var i = 1; i <= _timetableManager.Grid.RowTitles.Count(); i++)
                         {
-                            var direction = isMonthView || cell.Type == CellType.Header ? SpanDirection.Horizontal : SpanDirection.Vertical;
-                            <GridItem Offset=@cell.Items.Count
-                                      Direction=@direction
-                                      ColumnIndex=@(isMonthView ? column.Index : column.Index + 1)
-                                      RowIndex=@(cell.Type == CellType.Header ? 2 : cell.RowIndex + 1)
-                                      Span=@cellItem.Span>
-                                <TimetableEvent CellItem=@cellItem
-                                                OnEventUpdated="(UpdateAction<TEvent> props) => HandleEventUpdatedAsync(props)"
-                                                OnEventDelete="(DeleteAction<TEvent> props) => HandleEventDeletedAsync(props)"
-                                                AdditionalFields="@AdditionalFields"
-                                                Order=@cell.Items.IndexOf(cellItem)
-                                                Direction=@direction
-                                                BackgroundColor=@(cell.Type == CellType.Header ? StyleConfig.HeaderEventBgColor : StyleConfig.RegularEventBgColor) />
+                            var startRow = i * rowSpan - 1;
+                            var title = _timetableManager.Grid.RowTitles.ElementAt(i - 1);
+                            <GridItem CssClass="timetable-row-title grid-border"
+                                      RowIndex=@startRow
+                                      ColumnIndex=1
+                                      Direction=SpanDirection.Vertical
+                                      Span=@rowSpan>
+                                @title
                             </GridItem>
                         }
                     }
-                }
+
+                    @foreach(var column in _timetableManager.Grid.Columns)
+                    {
+                        foreach (var cell in column.Cells)
+                        {
+                            var style = "timetable-body-cell grid-border" + (cell.Type == CellType.Disabled ? " disabled" : "");
+                            <GridItem CssClass=@style
+                                      Direction=SpanDirection.Vertical
+                                      RowIndex=@(cell.RowIndex + 1)
+                                      SlotId=@(cell.Type != CellType.Disabled ? cell.Id : null)
+                                      OnClick="@(() => HandleOpenCreateModal(cell.DateTime))"
+                                      ColumnIndex=@(!isMonthView ? column.Index + 1 : column.Index) />
+                        }
+                    }
+
+                    @foreach (var column in _timetableManager.Grid.Columns)
+                    {
+                        <GridItem CssClass="timetable-head-title grid-border"
+                                  Direction=SpanDirection.Horizontal  
+                                  RowIndex=1
+                                  OnClick=@(() => HandleChangedToDayAsync(column.DayOfWeek))
+                                  ColumnIndex=@(isMonthView ? column.Index : (column.Index + 1))>
+                            @(DateTimeHelper.GetLocalizedName(column.DayOfWeek).Capitalize())
+                        </GridItem>
+
+                        @foreach (var cell in column.Cells)
+                        {                            
+                            foreach (var cellItem in cell.Items)
+                            {
+                                var direction = isMonthView || cell.Type == CellType.Header ? SpanDirection.Horizontal : SpanDirection.Vertical;
+                                <GridItem Offset=@cell.Items.Count
+                                          Direction=@direction
+                                          ColumnIndex=@(isMonthView ? column.Index : column.Index + 1)
+                                          RowIndex=@(cell.Type == CellType.Header ? 2 : cell.RowIndex + 1)
+                                          Span=@cellItem.Span>
+                                    <TimetableEvent CellItem=@cellItem
+                                                    OnEventUpdated="(UpdateAction<TEvent> props) => HandleEventUpdatedAsync(props)"
+                                                    OnEventDelete="(DeleteAction<TEvent> props) => HandleEventDeletedAsync(props)"
+                                                    AdditionalFields="@AdditionalFields"
+                                                    Order=@cell.Items.IndexOf(cellItem)
+                                                    Direction=@direction
+                                                    BackgroundColor=@(cell.Type == CellType.Header ? StyleConfig.HeaderEventBgColor : StyleConfig.RegularEventBgColor) />
+                                </GridItem>
+                            }
+                        }
+                    }
+                </div>
             </div>
         </div>
-    </div>
+    </CascadingValue>
 </CascadingValue>

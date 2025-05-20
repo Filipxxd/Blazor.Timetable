@@ -18,16 +18,15 @@ namespace Blazor.Timetable.Components;
 
 public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 {
-    private bool _firstRender = false;
+    private readonly ModalService _modalService = new();
     private DotNetObjectReference<Timetable<TEvent>> _objectReference = default!;
     private TimetableManager<TEvent> _timetableManager = default!;
     private PropertyAccessors<TEvent> _eventProps = default!;
     private IJSObjectReference _jsModule = default!;
+    private bool _firstRender = false;
 
     [Inject] private IJSRuntime JsRuntime { get; set; } = default!;
     [Inject] private IEnumerable<IDisplayService> DisplayServices { get; set; } = default!;
-    [Inject] private ModalService ModalService { get; set; } = default!;
-    [Inject] private Localizer L { get; set; } = default!;
 
     [Parameter, EditorRequired] public IList<TEvent> Events { get; set; } = default!;
     [Parameter, EditorRequired] public EventCallback<IList<TEvent>> EventsChanged { get; set; } = default!;
@@ -157,7 +156,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
                 { "OnCancel", EventCallback.Factory.Create(this, UpdateGrid)}
             };
 
-            ModalService.Show<GroupMoveModal>(parameters);
+            _modalService.Show<GroupMoveModal>(parameters, false);
         }
         else
         {
@@ -286,7 +285,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             { "AdditionalFields", AdditionalFields }
         };
 
-        ModalService.Show<EventModal<TEvent>>(parameters);
+        _modalService.Show<EventModal<TEvent>>(parameters);
     }
 
     private void UpdateGrid()

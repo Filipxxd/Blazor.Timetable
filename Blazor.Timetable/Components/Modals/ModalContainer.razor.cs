@@ -5,7 +5,7 @@ namespace Blazor.Timetable.Components.Modals;
 
 public partial class ModalContainer : IDisposable
 {
-    [Inject] private ModalService ModalService { get; set; } = default!;
+    [CascadingParameter] internal ModalService ModalService { get; set; } = default!;
 
     protected override void OnInitialized()
     {

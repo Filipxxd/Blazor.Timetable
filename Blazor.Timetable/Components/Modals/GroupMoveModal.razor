@@ -19,12 +19,13 @@
 </div>
 
 @code {
-    [Inject] private ModalService ModalService { get; set; } = default!;
     [Inject] private Localizer Localizer { get; set; } = default!;
 
     [Parameter] public EventCallback OnSingleMove { get; set; } = default!;
     [Parameter] public EventCallback OnGroupMove { get; set; } = default!;
     [Parameter] public EventCallback OnCancel { get; set; } = default!;
+
+    [CascadingParameter] internal ModalService ModalService { get; set; } = default!;
 
     private async Task SingleClickedAsync()
     {

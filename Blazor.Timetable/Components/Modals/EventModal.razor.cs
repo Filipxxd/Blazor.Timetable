@@ -11,7 +11,6 @@ namespace Blazor.Timetable.Components.Modals;
 
 public partial class EventModal<TEvent> where TEvent : class
 {
-    [Inject] private ModalService ModalService { get; set; } = default!;
     [Inject] private Localizer Localizer { get; set; } = default!;
 
     private readonly IList<Func<bool>> _validationFuncs = [];
@@ -26,6 +25,7 @@ public partial class EventModal<TEvent> where TEvent : class
     [Parameter] public EventCallback<UpdateAction<TEvent>> OnUpdate { get; set; }
     [Parameter] public EventCallback<DeleteAction<TEvent>> OnDelete { get; set; }
 
+    [CascadingParameter] internal ModalService ModalService { get; set; } = default!;
     [CascadingParameter] public TimetableConfig Config { get; set; } = default!;
 
     private EventDescriptor<TEvent> EventDescriptor { get; set; } = default!;

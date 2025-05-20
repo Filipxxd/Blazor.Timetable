@@ -7,9 +7,10 @@ internal sealed class ModalService
     public event Action? OnModalChanged;
 
     public bool IsOpen { get; private set; }
+    public bool IsClosable { get; private set; }
     public RenderFragment? ModalContent { get; private set; }
 
-    public void Show<TComponent>(IDictionary<string, object> parameters)
+    public void Show<TComponent>(IDictionary<string, object> parameters, bool closable = true)
     {
         ModalContent = builder =>
         {
@@ -22,6 +23,7 @@ internal sealed class ModalService
             builder.CloseComponent();
         };
         IsOpen = true;
+        IsClosable = closable;
         NotifyStateChanged();
     }
 

@@ -7,7 +7,6 @@ namespace Blazor.Timetable.Components.Modals;
 
 public partial class ImportModal<TEvent> where TEvent : class
 {
-    [Inject] private ModalService ModalService { get; set; } = default!;
     [Inject] private Localizer Localizer { get; set; } = default!;
 
     public ImportType Type { get; set; } = ImportType.Append;
@@ -16,6 +15,8 @@ public partial class ImportModal<TEvent> where TEvent : class
 
     [Parameter] public EventCallback<ImportAction<TEvent>> OnSubmit { get; set; }
     [Parameter] public IList<TEvent> ImportedEvents { get; set; } = [];
+
+    [CascadingParameter] internal ModalService ModalService { get; set; } = default!;
 
     private async Task SubmitAsync()
     {

@@ -16,7 +16,6 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
     private readonly IEnumerable<DisplayType> _displayTypes = [DisplayType.Day, DisplayType.Week, DisplayType.Month];
     private IEnumerable<DisplayType> AvailableDisplayTypes => _displayTypes.Where(x => x != CurrentDisplayType).OrderBy(x => x);
 
-    [Inject] private ModalService ModalService { get; set; } = default!;
     [Inject] private Localizer Localizer { get; set; } = default!;
     [Inject] private IJSRuntime JsRuntime { get; set; } = default!;
 
@@ -27,6 +26,8 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter] public EventCallback<DisplayType> OnDisplayTypeChanged { get; set; }
     [Parameter] public EventCallback OnCreateClicked { get; set; }
     [Parameter] public EventCallback<ImportAction<TEvent>> OnImport { get; set; }
+
+    [CascadingParameter] internal ModalService ModalService { get; set; } = default!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
