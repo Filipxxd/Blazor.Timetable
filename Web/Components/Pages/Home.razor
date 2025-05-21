@@ -11,9 +11,9 @@
 
 <PageTitle>Example page</PageTitle>
 
-<Timetable @bind-Events=Events 
-           TEvent=TimetableEvent
-           Title="e => e.Title"
+<Timetable @bind-Events=Subjects
+           TEvent=Subject
+           Title="e => e.Name"
            DateFrom="e => e.StartTime"
            DateTo="e => e.EndTime"
            GroupId="e => e.GroupId"
@@ -25,11 +25,11 @@
                 TimeFrom=new(0, 0),
                 TimeTo=new(23, 59),
                 Is24HourFormat=true
-            }"
-
-            OnEventChanged=HandleEventChanged
-            OnPreviousClicked=HandlePreviousClicked 
-            OnNextClicked=HandleNextClicked>
+           }"
+           
+           OnEventChanged=HandleUpdated
+           OnPreviousClicked=HandlePreviousClicked 
+           OnNextClicked=HandleNextClicked>
     <AdditionalFields>
         <Input Model=@context
                Label="Description"
@@ -44,7 +44,7 @@
 </Timetable>
 
 @code{
-    public IList<TimetableEvent> Events { get; set; } = new EventGenerator().GenerateHardcodedEvents();
+    public IList<Subject> Subjects { get; set; } = new EventGenerator().GenerateHardcodedEvents();
 
     private string? ComplexValidationExample(int? value)
     {
@@ -67,7 +67,7 @@
         // TODO: Custom behaviour
     }
     
-    public void HandleEventChanged(TimetableEvent timetableEvent){
+    public void HandleUpdated(Subject subject){
         // TODO: Update the event in the database
     }
 }
