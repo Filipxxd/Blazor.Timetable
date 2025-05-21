@@ -1,4 +1,4 @@
-﻿<div @onclick=HandleClick 
+﻿<div @onclick=HandleClickAsync 
      class="button @ButtonStyle" 
      style="@Style">
     <span class="button-title">
@@ -20,7 +20,7 @@
         _ => ""
     };
 
-    private async Task HandleClick(MouseEventArgs e)
+    private async Task HandleClickAsync(MouseEventArgs e)
     {
         await OnClick.InvokeAsync(e);
     }
