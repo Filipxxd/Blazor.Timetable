@@ -17,7 +17,12 @@ public partial class ModalContainer : IDisposable
         InvokeAsync(StateHasChanged);
     }
 
-    private void Close() => ModalService.Close();
+    private void Close()
+    {
+        if (!ModalService.IsClosable) return;
+
+        ModalService.Close();
+    }
 
     public void Dispose()
     {
