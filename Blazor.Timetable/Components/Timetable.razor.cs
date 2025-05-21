@@ -65,10 +65,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         _objectReference = DotNetObjectReference.Create(this);
 
         _eventProps = new PropertyAccessors<TEvent>(DateFrom, DateTo, Title, GroupId, AdditionalProps);
-        _timetableManager = new TimetableManager<TEvent>()
-        {
-            Props = _eventProps
-        };
+        _timetableManager = new TimetableManager<TEvent>(_eventProps);
 
         var selectors = new List<ISelector<TEvent>> {
             new Selector<TEvent, DateTime>("DateFrom", DateFrom),
@@ -92,13 +89,9 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     {
         if (_firstRender)
         {
-            _timetableManager.DisplayType = TimetableConfig.DefaultDisplayType;
-            _timetableManager.CurrentDate = TimetableConfig.DefaultDate;
-
-            while (!_timetableManager.CurrentDate.IsValidFor(TimetableConfig.Days, TimetableConfig.Months))
-            {
-                _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(1);
-            }
+            var date = DateTime.Now.ToDateOnly();
+            _timetableManager.CurrentDate = DateTimeHelper.GetNextValidDate(date, TimetableConfig.Days, TimetableConfig.Months);
+            _timetableManager.DisplayType = TimetableConfig.DisplayType;
         }
 
         TimetableConfig.Validate();
@@ -219,7 +212,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     private async Task HandleDisplayTypeChangedAsync(DisplayType displayType)
     {
         _timetableManager.DisplayType = displayType;
-        _timetableManager.CurrentDate = TimetableConfig.DefaultDate;
+        _timetableManager.CurrentDate = DateTime.Now.ToDateOnly();
 
         await OnNextClicked.InvokeAsync();
     }
@@ -255,16 +248,14 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         if (_timetableManager.DisplayType == DisplayType.Month && cellDate.Month != _timetableManager.CurrentDate.Month)
             return;
 
-        var template = Activator.CreateInstance<TEvent>();
-        _eventProps.SetDateFrom(template, cellDate);
-        _eventProps.SetDateTo(template, cellDate.AddMinutes(TimetableConstants.TimeSlotInterval));
-        _eventProps.SetTitle(template, string.Empty);
-
-        var templateDesc = new EventDescriptor<TEvent>(template, _eventProps);
+        var eventDescriptor = EventDescriptor<TEvent>.Create(_eventProps);
+        eventDescriptor.DateFrom = cellDate;
+        eventDescriptor.DateTo = cellDate.AddMinutes(TimetableConstants.TimeSlotInterval);
+        eventDescriptor.Title = string.Empty;
 
         var onCreate = EventCallback.Factory.Create<CreateAction<TEvent>>(this, async props =>
         {
-            var created = _timetableManager.CreateEvents(templateDesc, props.Repetition, props.RepeatUntil, props.RepeatDays);
+            var created = _timetableManager.CreateEvents(eventDescriptor, props.Repetition, props.RepeatUntil, props.RepeatDays);
 
             foreach (var e in created)
                 Events.Add(e);
@@ -279,7 +270,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
         var parameters = new Dictionary<string, object>
         {
-            { "OriginalEventDescriptor", templateDesc },
+            { "OriginalEventDescriptor", eventDescriptor },
             { "State", EventModalState.Create },
             { "OnCreate", onCreate },
             { "AdditionalFields", AdditionalFields }

@@ -11,7 +11,7 @@
 
 <PageTitle>Example page</PageTitle>
 
-<Timetable @bind-Events=Subjects
+<Timetable @bind-Events=Subjects 
            TEvent=Subject
            Title="e => e.Name"
            DateFrom="e => e.StartTime"
@@ -20,16 +20,14 @@
            AdditionalProps=@([x => x.Description, x => x.Occupancy])
 
            TimetableConfig="new(){
-                DefaultDisplayType=DisplayType.Week,
+                DisplayType=DisplayType.Week,
                 Days=[ DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday],
                 TimeFrom=new(0, 0),
                 TimeTo=new(23, 59),
                 Is24HourFormat=true
-           }"
-           
-           OnEventChanged=HandleUpdated
-           OnPreviousClicked=HandlePreviousClicked 
-           OnNextClicked=HandleNextClicked>
+            }"
+
+            OnEventChanged=HandleEventChanged>
     <AdditionalFields>
         <Input Model=@context
                Label="Description"
@@ -56,18 +54,8 @@
 
         return null; // No error -> valid
     }
-
-    public void HandleNextClicked()
-    {
-        // TODO: Custom behaviour
-    }
-
-    public void HandlePreviousClicked()
-    {
-        // TODO: Custom behaviour
-    }
     
-    public void HandleUpdated(Subject subject){
-        // TODO: Update the event in the database
+    private void HandleEventChanged(Subject subject){
+        // TODO: Update the subject in the database
     }
 }

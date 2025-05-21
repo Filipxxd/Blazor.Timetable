@@ -1,9 +1,21 @@
-﻿using Blazor.Timetable.Models.Configuration;
+﻿using Blazor.Timetable.Common.Enums;
+using Blazor.Timetable.Common.Extensions;
+using Blazor.Timetable.Models.Configuration;
 
 namespace Blazor.Timetable.Common.Helpers;
 
 internal static class DateTimeHelper
 {
+    public static DateOnly GetNextValidDate(DateOnly currentDate, IList<DayOfWeek> days, IList<Month> months)
+    {
+        while (!currentDate.IsValidFor(days, months))
+        {
+            currentDate = currentDate.AddDays(1);
+        }
+
+        return currentDate;
+    }
+
     public static DateOnly GetStartOfWeekDate(DateOnly currentDate, DayOfWeek firstDayOfWeek)
     {
         var currentDayOfWeek = (int)currentDate.DayOfWeek;

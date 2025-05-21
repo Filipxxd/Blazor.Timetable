@@ -44,7 +44,7 @@ public partial class EventModal<TEvent> where TEvent : class
 
         EventDescriptor = State == EventModalState.Create
             ? OriginalEventDescriptor
-            : OriginalEventDescriptor.Copy();
+            : OriginalEventDescriptor.DeepCopy();
     }
 
     private void RegisterValidation(Func<bool> fn)

@@ -1,7 +1,6 @@
 ﻿using Blazor.Timetable.Common;
 using Blazor.Timetable.Common.Enums;
 using Blazor.Timetable.Common.Exceptions;
-using Blazor.Timetable.Common.Extensions;
 
 namespace Blazor.Timetable.Models.Configuration;
 
@@ -39,14 +38,9 @@ public sealed class TimetableConfig
     public bool Is24HourFormat { get; init; } = true;
 
     /// <summary>
-    /// Initial display type of the timetable. Defaults to <see cref="DisplayType.Week"/>.
+    /// Initial display type of the timetable on component initialization. Defaults to <see cref="DisplayType.Week"/>.
     /// </summary>
-    public DisplayType DefaultDisplayType { get; init; } = DisplayType.Week;
-
-    /// <summary>
-    /// Default date for the timetable. Defaults to date of <see cref="DateTime.Now"/>.
-    /// </summary>
-    public DateOnly DefaultDate { get; init; } = DateTime.Now.ToDateOnly();
+    public DisplayType DisplayType { get; init; } = DisplayType.Week;
 
     internal void Validate()
     {
