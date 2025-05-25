@@ -166,15 +166,15 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     private async Task HandleNextClickedAsync()
     {
         _timetableManager.CurrentDate = _timetableManager.CurrentDate.GetValidDateFor(_timetableManager.DisplayType, TimetableConfig.Days, TimetableConfig.Months, true);
-        await OnNextClicked.InvokeAsync();
         UpdateGrid();
+        await OnNextClicked.InvokeAsync();
     }
 
     private async Task HandlePreviousClickedAsync()
     {
         _timetableManager.CurrentDate = _timetableManager.CurrentDate.GetValidDateFor(_timetableManager.DisplayType, TimetableConfig.Days, TimetableConfig.Months, false);
-        await OnPreviousClicked.InvokeAsync();
         UpdateGrid();
+        await OnPreviousClicked.InvokeAsync();
     }
 
     private async Task HandleEventUpdatedAsync(UpdateAction<TEvent> props)
@@ -214,6 +214,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         _timetableManager.DisplayType = displayType;
         _timetableManager.CurrentDate = DateTime.Now.ToDateOnly();
 
+        UpdateGrid();
         await OnNextClicked.InvokeAsync();
     }
 
@@ -221,9 +222,9 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     {
         _timetableManager.CurrentDate = DateTimeHelper.GetDateForDay(_timetableManager.CurrentDate, dayOfWeek, TimetableConfig.Days.First());
         _timetableManager.DisplayType = DisplayType.Day;
+        UpdateGrid();
         await OnChangedToDay.InvokeAsync(dayOfWeek);
         await OnDisplayTypeChanged.InvokeAsync(DisplayType.Day);
-        UpdateGrid();
     }
 
     private async Task HandleImportAsync(ImportAction<TEvent> props)
@@ -238,9 +239,8 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
             Events = props.Events;
         }
 
-        await OnEventsImported.InvokeAsync(props);
-
         UpdateGrid();
+        await OnEventsImported.InvokeAsync(props);
     }
 
     private void HandleOpenCreateModal(DateTime cellDate)
