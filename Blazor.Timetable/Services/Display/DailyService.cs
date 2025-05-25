@@ -1,5 +1,4 @@
-﻿using Blazor.Timetable.Common;
-using Blazor.Timetable.Common.Enums;
+﻿using Blazor.Timetable.Common.Enums;
 using Blazor.Timetable.Common.Extensions;
 using Blazor.Timetable.Common.Helpers;
 using Blazor.Timetable.Models;
@@ -25,7 +24,26 @@ internal sealed class DailyService : IDisplayService
             Cells = []
         };
 
-        var headerItems = events
+        var midnight = date.ToDateTimeMidnight();
+        var timeSlots = DisplayServiceHelper.GetTimeSlots(config.TimeFrom, config.TimeTo);
+
+        var relevantEvents = events
+            .Where(timetableEvent =>
+            {
+                var eventStart = props.GetDateFrom(timetableEvent);
+                var eventEnd = props.GetDateTo(timetableEvent);
+                var dateStart = eventStart.ToDateOnly();
+                var dateEnd = eventEnd.ToDateOnly();
+                var spansMultipleDays = dateStart <= date && dateEnd >= date && dateStart != dateEnd;
+                var startsOnDate = dateStart == date;
+
+                return spansMultipleDays ||
+                       (startsOnDate &&
+                        new TimeOnly(eventStart.Hour, eventStart.Minute) < config.TimeTo &&
+                        new TimeOnly(eventEnd.Hour, eventEnd.Minute) > config.TimeFrom);
+            }).ToList();
+
+        var headerItems = relevantEvents
             .Where(timetableEvent =>
             {
                 var eventStart = props.GetDateFrom(timetableEvent);
@@ -33,12 +51,11 @@ internal sealed class DailyService : IDisplayService
                 var timeStart = new TimeOnly(eventStart.Hour, eventStart.Minute);
                 var timeEnd = new TimeOnly(eventEnd.Hour, eventEnd.Minute);
                 var dateStart = eventStart.ToDateOnly();
-
-                var spansMultipleDays = eventStart.Day != eventEnd.Day;
+                var dateEnd = eventEnd.ToDateOnly();
+                var spansMultipleDays = dateStart <= date && eventEnd.ToDateOnly() >= date && dateStart != dateEnd;
                 var outOfRange = timeStart < config.TimeFrom || timeEnd > config.TimeTo;
 
-                return (spansMultipleDays && dateStart < date || dateStart == date)
-                    && (outOfRange || spansMultipleDays);
+                return spansMultipleDays && (outOfRange || spansMultipleDays);
             })
             .Select(timetableEvent => new CellItem<TEvent>
             {
@@ -48,18 +65,14 @@ internal sealed class DailyService : IDisplayService
             .OrderByDescending(ci => (ci.EventDescriptor.DateTo - ci.EventDescriptor.DateFrom).TotalHours)
             .ToList();
 
-        var headerCell = new Cell<TEvent>()
+        var headerCell = new Cell<TEvent>
         {
-            DateTime = date.ToDateTimeMidnight(),
+            DateTime = midnight,
             Type = CellType.Header,
             RowIndex = 1,
             Items = headerItems
         };
-
         column.Cells.Add(headerCell);
-
-        var timeSlots = DisplayServiceHelper.GetTimeSlots(config.TimeFrom, config.TimeTo);
-        var midnight = date.ToDateTimeMidnight();
 
         var regularCells = timeSlots.Select((slotTime, slotIndex) =>
         {
@@ -67,21 +80,19 @@ internal sealed class DailyService : IDisplayService
                 .AddHours(slotTime.Hour)
                 .AddMinutes(slotTime.Minute);
 
-            var cellItems = events
+            var cellItems = relevantEvents
                 .Where(timetableEvent =>
                 {
                     var eventStart = props.GetDateFrom(timetableEvent);
                     var eventEnd = props.GetDateTo(timetableEvent);
-
                     var timeStart = new TimeOnly(eventStart.Hour, eventStart.Minute);
-                    var timeEnd = new TimeOnly(eventEnd.Hour, eventEnd.Minute);
                     var dateStart = eventStart.ToDateOnly();
 
-                    return timeStart >= config.TimeFrom
-                        && timeEnd <= config.TimeTo
-                        && dateStart == date
-                        && timeStart.Hour == slotTime.Hour
-                        && timeStart.Minute == slotTime.Minute;
+                    return dateStart == date &&
+                           timeStart == slotTime &&
+                           timeStart >= config.TimeFrom &&
+                           timeStart < config.TimeTo &&
+                           eventStart.Date == eventEnd.Date;
                 })
                 .Select(timetableEvent => new CellItem<TEvent>
                 {
@@ -95,14 +106,18 @@ internal sealed class DailyService : IDisplayService
             {
                 DateTime = cellTime,
                 Type = CellType.Normal,
-                RowIndex = slotIndex + slotTime.Minute % TimetableConstants.TimeSlotInterval + 2,
+                RowIndex = slotIndex + 2,
                 Items = cellItems
             };
         }).ToList();
 
         column.Cells.AddRange(regularCells);
 
-        var title = string.Format(CultureConfig.CultureInfo, "{0:dddd d. MMMM yyyy}", date);
+        var title = string.Format(
+            CultureConfig.CultureInfo,
+            "{0:dddd d. MMMM yyyy}",
+            date
+        );
 
         return new Grid<TEvent>
         {
