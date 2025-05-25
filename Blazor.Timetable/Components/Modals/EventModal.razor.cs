@@ -81,8 +81,14 @@ public partial class EventModal<TEvent> where TEvent : class
     }
 
 
-    private void ToggleDelete()
+    private async Task ToggleDelete()
     {
+        if (SelectedScope == ActionScope.Single)
+        {
+            await DeleteAsync();
+            return;
+        }
+
         State = State == EventModalState.DeleteConfirm
             ? EventModalState.Edit
             : EventModalState.DeleteConfirm;
