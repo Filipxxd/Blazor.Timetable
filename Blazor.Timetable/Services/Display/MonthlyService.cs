@@ -21,6 +21,12 @@ internal sealed class MonthlyService : IDisplayService
         var monthEnd = weeks.Last().Last();
         var columnCount = weeks.First().Count;
         var columns = new List<Column<TEvent>>();
+        var relevantEvents = events.Where(timetableEvent =>
+        {
+            var dateStart = props.GetDateFrom(timetableEvent).ToDateOnly();
+            var dateEnd = props.GetDateTo(timetableEvent).ToDateOnly();
+            return dateStart <= monthEnd && dateEnd >= monthStart;
+        }).ToList();
 
         for (var colIndex = 0; colIndex < columnCount; colIndex++)
         {
@@ -44,77 +50,63 @@ internal sealed class MonthlyService : IDisplayService
                     Items = []
                 };
 
-                if (isCurrentMonth)
+                if (!isCurrentMonth)
                 {
-                    var maxSpan = columnCount - colIndex;
-                    var firstOfRowIsCurrent = weeks[rowIndex].First().Month == date.Month;
-                    if (weeks[rowIndex].Any(d => d.Month != date.Month) && firstOfRowIsCurrent)
-                    {
-                        maxSpan -= weeks[rowIndex].Count(d => d.Month != date.Month);
-                    }
-
-                    var cellItems = events
-                        .Where(timetableEvent =>
-                        {
-                            var dateStart = props.GetDateFrom(timetableEvent).ToDateOnly();
-                            var dateEnd = props.GetDateTo(timetableEvent).ToDateOnly();
-
-                            var spansDay = dateStart <= cellDate && dateEnd >= cellDate;
-                            var isFirstInRow = weeks[rowIndex].FindIndex(d => d.Month == date.Month) == colIndex;
-
-                            return dateStart == cellDate || (spansDay && isFirstInRow);
-                        })
-                        .Select(timetableEvent =>
-                        {
-                            var dateStart = props.GetDateFrom(timetableEvent).ToDateOnly();
-                            var dateEnd = props.GetDateTo(timetableEvent).ToDateOnly();
-
-                            var overlapStart = dateStart >= cellDate
-                                ? dateStart
-                                : cellDate;
-                            var overlapEnd = dateEnd < monthEnd
-                                ? dateEnd
-                                : monthEnd;
-                            var dayCount = (int)
-                                ((overlapEnd.ToDateTimeMidnight() - overlapStart.ToDateTimeMidnight()).TotalDays + 1);
-
-                            return new CellItem<TEvent>
-                            {
-                                EventDescriptor = new EventDescriptor<TEvent>(timetableEvent, props),
-                                Span = Math.Min(dayCount, maxSpan)
-                            };
-                        })
-                        .OrderByDescending(ci => ci.Span)
-                        .ToList();
-
-                    cell.Items = cellItems;
+                    column.Cells.Add(cell);
+                    continue;
                 }
 
+                var maxSpan = columnCount - colIndex;
+                var firstOfRowIsCurrent = weeks[rowIndex].First().Month == date.Month;
+
+                if (weeks[rowIndex].Any(d => d.Month != date.Month) && firstOfRowIsCurrent)
+                    maxSpan -= weeks[rowIndex].Count(d => d.Month != date.Month);
+
+                var cellItems = relevantEvents
+                    .Where(timetableEvent =>
+                    {
+                        var dateStart = props.GetDateFrom(timetableEvent).ToDateOnly();
+                        var dateEnd = props.GetDateTo(timetableEvent).ToDateOnly();
+                        var spansDay = dateStart <= cellDate && dateEnd >= cellDate;
+                        var isFirstInRow = weeks[rowIndex].FindIndex(d => d.Month == date.Month) == colIndex;
+
+                        return dateStart == cellDate || (spansDay && isFirstInRow);
+                    })
+                    .Select(timetableEvent =>
+                    {
+                        var dateStart = props.GetDateFrom(timetableEvent).ToDateOnly();
+                        var dateEnd = props.GetDateTo(timetableEvent).ToDateOnly();
+                        var overlapStart = dateStart >= cellDate ? dateStart : cellDate;
+                        var overlapEnd = dateEnd < monthEnd ? dateEnd : monthEnd;
+                        var dayCount = (int)((overlapEnd.ToDateTimeMidnight() - overlapStart.ToDateTimeMidnight()).TotalDays + 1);
+
+                        return new CellItem<TEvent>
+                        {
+                            EventDescriptor = new EventDescriptor<TEvent>(timetableEvent, props),
+                            Span = Math.Min(dayCount, maxSpan)
+                        };
+                    }).OrderByDescending(ci => ci.Span).ToList();
+
+                cell.Items = cellItems;
                 column.Cells.Add(cell);
             }
-
             columns.Add(column);
         }
 
-        var title = string.Format(CultureConfig.CultureInfo, "{0:MMMM yyyy}", date);
-
         return new Grid<TEvent>
         {
-            Title = title.CapitalizeWords(),
+            Title = string.Format(CultureConfig.CultureInfo, "{0:MMMM yyyy}", date).CapitalizeWords(),
             Columns = columns
         };
     }
 
-    public static List<List<DateOnly>> CalculateMonthGridDates(DateOnly date, IList<DayOfWeek> days)
+    private static List<List<DateOnly>> CalculateMonthGridDates(DateOnly date, IList<DayOfWeek> days)
     {
         var firstOfMonth = new DateOnly(date.Year, date.Month, 1);
         var lastOfMonth = firstOfMonth.AddMonths(1).AddDays(-1);
         var startOffset = ((int)firstOfMonth.DayOfWeek - (int)days[0] + 7) % 7;
         var gridStart = firstOfMonth.AddDays(-startOffset);
-        var dayOffsets = days
-            .Select(d => ((int)d - (int)days[0] + 7) % 7)
-            .ToArray();
-
+        var dayOffsets = days.Select(d => ((int)d - (int)days[0] + 7) % 7).ToArray();
         var maxWeekIndex = (lastOfMonth.DayNumber - gridStart.DayNumber) / 7;
         var firstWeekIndex = 0;
 
@@ -127,10 +119,11 @@ internal sealed class MonthlyService : IDisplayService
         }
 
         var weeks = new List<List<DateOnly>>();
+
         for (var weekIndex = firstWeekIndex; weekIndex <= maxWeekIndex; weekIndex++)
         {
             var weekStart = gridStart.AddDays(weekIndex * 7);
-            weeks.Add([.. dayOffsets.Select(weekStart.AddDays)]);
+            weeks.Add(dayOffsets.Select(off => weekStart.AddDays(off)).ToList());
         }
 
         return weeks;

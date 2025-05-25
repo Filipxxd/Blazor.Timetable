@@ -1,5 +1,4 @@
-﻿using Blazor.Timetable.Common;
-using Blazor.Timetable.Common.Enums;
+﻿using Blazor.Timetable.Common.Enums;
 using Blazor.Timetable.Common.Extensions;
 using Blazor.Timetable.Common.Helpers;
 using Blazor.Timetable.Models;
@@ -21,12 +20,17 @@ internal sealed class WeeklyService : IDisplayService
         var weekDates = CalculateGridDates(date, config.Days);
         var weekStart = weekDates.First();
         var weekEnd = weekDates.Last();
+        var relevantEvents = events.Where(timetableEvent =>
+        {
+            var eventStart = props.GetDateFrom(timetableEvent);
+            var eventEnd = props.GetDateTo(timetableEvent);
+            return eventStart <= weekEnd.ToDateTimeMidnight().AddDays(1) && eventEnd >= weekStart.ToDateTimeMidnight();
+        }).ToList();
 
         var columns = weekDates.Select((columnDate, columnIndex) =>
         {
             var isFirstColumn = columnDate == weekStart;
-
-            var headerItems = events
+            var headerItems = relevantEvents
                 .Where(timetableEvent =>
                 {
                     var eventStart = props.GetDateFrom(timetableEvent);
@@ -35,9 +39,6 @@ internal sealed class WeeklyService : IDisplayService
                     var endTime = new TimeOnly(eventEnd.Hour, eventEnd.Minute);
                     var startDate = eventStart.ToDateOnly();
                     var endDate = eventEnd.ToDateOnly();
-
-                    //var isSingleDayOutsideTimeRange = startDate == columnDate && startDate == endDate && (startTime < config.TimeFrom || endTime > config.TimeTo);
-                    //var isMultiDay = startDate == columnDate && startDate != endDate;
 
                     var outOfRange = startTime > config.TimeTo || endTime > config.TimeTo || startTime < config.TimeFrom;
                     var spansMultipleDays = eventStart.Day != eventEnd.Day;
@@ -60,7 +61,6 @@ internal sealed class WeeklyService : IDisplayService
                     var overlapEnd = eventEnd < weekEnd.ToDateTimeMidnight()
                         ? eventEnd
                         : weekEnd.ToDateTimeMidnight().AddDays(1);
-
                     var totalDays = (overlapEnd - overlapStart).TotalDays;
                     var spanDays = (int)(totalDays == Math.Floor(totalDays)
                         ? totalDays
@@ -72,9 +72,7 @@ internal sealed class WeeklyService : IDisplayService
                         EventDescriptor = new EventDescriptor<TEvent>(timetableEvent, props),
                         Span = Math.Min(Math.Max(spanDays, 1), maxSpan)
                     };
-                })
-                .OrderByDescending(ci => ci.Span)
-                .ToList();
+                }).OrderByDescending(ci => ci.Span).ToList();
 
             var cells = new List<Cell<TEvent>>
             {
@@ -90,14 +88,12 @@ internal sealed class WeeklyService : IDisplayService
             var timeSlots = DisplayServiceHelper.GetTimeSlots(config.TimeFrom, config.TimeTo);
             var midnight = columnDate.ToDateTimeMidnight();
 
-            for (var i = 0; i < timeSlots.Count; i++)
+            foreach (var slotTime in timeSlots)
             {
-                var slotTime = timeSlots[i];
                 var cellDateTime = midnight
                     .AddHours(slotTime.Hour)
                     .AddMinutes(slotTime.Minute);
-
-                var cellItems = events
+                var cellItems = relevantEvents
                     .Where(timetableEvent =>
                     {
                         var eventStart = props.GetDateFrom(timetableEvent).ToDateOnly();
@@ -124,7 +120,7 @@ internal sealed class WeeklyService : IDisplayService
                 {
                     DateTime = cellDateTime,
                     Type = CellType.Normal,
-                    RowIndex = i + (slotTime.Minute % TimetableConstants.TimeSlotInterval) + 2,
+                    RowIndex = timeSlots.IndexOf(slotTime) + 2,
                     Items = cellItems
                 });
             }
