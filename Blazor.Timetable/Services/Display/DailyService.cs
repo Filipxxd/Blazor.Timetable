@@ -37,10 +37,7 @@ internal sealed class DailyService : IDisplayService
                 var spansMultipleDays = dateStart <= date && dateEnd >= date && dateStart != dateEnd;
                 var startsOnDate = dateStart == date;
 
-                return spansMultipleDays ||
-                       (startsOnDate &&
-                        new TimeOnly(eventStart.Hour, eventStart.Minute) < config.TimeTo &&
-                        new TimeOnly(eventEnd.Hour, eventEnd.Minute) > config.TimeFrom);
+                return spansMultipleDays || (dateStart == date && dateEnd == date);
             }).ToList();
 
         var headerItems = relevantEvents
@@ -55,7 +52,7 @@ internal sealed class DailyService : IDisplayService
                 var spansMultipleDays = dateStart <= date && eventEnd.ToDateOnly() >= date && dateStart != dateEnd;
                 var outOfRange = timeStart < config.TimeFrom || timeEnd > config.TimeTo;
 
-                return spansMultipleDays && (outOfRange || spansMultipleDays);
+                return outOfRange || spansMultipleDays;
             })
             .Select(timetableEvent => new CellItem<TEvent>
             {
