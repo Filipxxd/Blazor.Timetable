@@ -177,4 +177,28 @@
   <data name="ActionScope" xml:space="preserve">
     <value>Apply on</value>
   </data>
+  <data name="ValidationNotEmpty" xml:space="preserve">
+    <value>Cannot be empty</value>
+  </data>
+  <data name="ValidationBeginAfter" xml:space="preserve">
+    <value>Must start after {0}</value>
+  </data>
+  <data name="ValidationMaxLength" xml:space="preserve">
+    <value>Cannot exceed {0} characters</value>
+  </data>
+  <data name="ValidationBeginAfterStart" xml:space="preserve">
+    <value>Cannot be before start</value>
+  </data>
+  <data name="ValidationEndBy" xml:space="preserve">
+    <value>Cannot end after {0}</value>
+  </data>
+  <data name="ValidationAfterEnd" xml:space="preserve">
+    <value>Must end by {0}</value>
+  </data>
+  <data name="ValidationInvalidMonth" xml:space="preserve">
+    <value>This month is not allowed</value>
+  </data>
+  <data name="ValidationInvalidDay" xml:space="preserve">
+    <value>This day is not allowed</value>
+  </data>
 </root>

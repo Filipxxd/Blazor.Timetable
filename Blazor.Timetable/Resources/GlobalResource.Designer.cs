@@ -239,5 +239,77 @@ namespace Blazor.Timetable.Resources {
                 return ResourceManager.GetString("RepetitionWeekly", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Must end by {0}.
+        /// </summary>
+        internal static string ValidationAfterEnd {
+            get {
+                return ResourceManager.GetString("ValidationAfterEnd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Must start after {0}.
+        /// </summary>
+        internal static string ValidationBeginAfter {
+            get {
+                return ResourceManager.GetString("ValidationBeginAfter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot be before start.
+        /// </summary>
+        internal static string ValidationBeginAfterStart {
+            get {
+                return ResourceManager.GetString("ValidationBeginAfterStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot end after {0}.
+        /// </summary>
+        internal static string ValidationEndBy {
+            get {
+                return ResourceManager.GetString("ValidationEndBy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This day is not allowed.
+        /// </summary>
+        internal static string ValidationInvalidDay {
+            get {
+                return ResourceManager.GetString("ValidationInvalidDay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This month is not allowed.
+        /// </summary>
+        internal static string ValidationInvalidMonth {
+            get {
+                return ResourceManager.GetString("ValidationInvalidMonth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot exceed {0} characters.
+        /// </summary>
+        internal static string ValidationMaxLength {
+            get {
+                return ResourceManager.GetString("ValidationMaxLength", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot be empty.
+        /// </summary>
+        internal static string ValidationNotEmpty {
+            get {
+                return ResourceManager.GetString("ValidationNotEmpty", resourceCulture);
+            }
+        }
     }
 }
