@@ -29,7 +29,7 @@ public sealed class CsvImportTransformerTests
             new Selector<TestEvent, string>("Property1", e => e.Property1)
         }.ToList();
 
-        var transformer = new CsvImportTransformer<TestEvent>();
+        var transformer = new CsvImportTransformer();
         using var ms = ToStream(string.Empty);
 
         var result = transformer.Transform(ms, selectors).ToList();
@@ -51,7 +51,7 @@ public sealed class CsvImportTransformerTests
             new Selector<TestEvent, int>("IntegerProperty", e => e.IntegerProperty)
         }.ToList();
 
-        var transformer = new CsvImportTransformer<TestEvent>();
+        var transformer = new CsvImportTransformer();
 
         List<TestEvent> events;
         using (var ms = ToStream(csv))
@@ -78,7 +78,7 @@ public sealed class CsvImportTransformerTests
             new Selector<TestEvent, string>("Property1", e => e.Property1)
         }.ToList();
 
-        var transformer = new CsvImportTransformer<TestEvent>();
+        var transformer = new CsvImportTransformer();
 
         using var ms = ToStream(csv);
         var result = transformer.Transform(ms, selectors).ToList();
@@ -107,7 +107,7 @@ public sealed class CsvImportTransformerTests
             new Selector<TestEvent, int?>("NullableIntegerProperty", e => e.NullableIntegerProperty)
         }.ToList();
 
-        var transformer = new CsvImportTransformer<TestEvent>();
+        var transformer = new CsvImportTransformer();
 
         using var ms = ToStream(csv);
         var ev = transformer.Transform(ms, selectors).Single();
@@ -140,7 +140,7 @@ public sealed class CsvImportTransformerTests
                 parser: s => DateTime.ParseExact(s, "dd/MM", CultureInfo.InvariantCulture))
         }.ToList();
 
-        var transformer = new CsvImportTransformer<TestEvent>();
+        var transformer = new CsvImportTransformer();
 
         using var ms = ToStream(csv);
         var ev = transformer.Transform(ms, selectors).Single();
@@ -165,7 +165,7 @@ public sealed class CsvImportTransformerTests
             new Selector<TestEvent, int>("IntegerProperty", e => e.IntegerProperty)
         }.ToList();
 
-        var transformer = new CsvImportTransformer<TestEvent>();
+        var transformer = new CsvImportTransformer();
 
         using var ms = ToStream(csv);
         var ev = transformer.Transform(ms, selectors).Single();
