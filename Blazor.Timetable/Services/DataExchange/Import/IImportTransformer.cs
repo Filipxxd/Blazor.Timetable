@@ -2,8 +2,8 @@
 
 namespace Blazor.Timetable.Services.DataExchange.Import;
 
-public interface IImportTransformer<TEvent>
-    where TEvent : class
+public interface IImportTransformer
 {
-    IList<TEvent> Transform(Stream stream, IList<ISelector<TEvent>> selectors);
+    IList<TEvent> Transform<TEvent>(Stream stream, IList<ISelector<TEvent>> selectors)
+        where TEvent : class;
 }

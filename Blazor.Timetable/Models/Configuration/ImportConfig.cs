@@ -14,7 +14,7 @@ public sealed class ImportConfig<TEvent>
     public long MaxFileSizeBytes { get; init; } = 10_485_760;
 
     /// <summary>Implement this interface to parse a Stream into a sequence of TEvent.</summary>
-    public IImportTransformer<TEvent> Transformer { get; init; } = new CsvImportTransformer<TEvent>();
+    public IImportTransformer Transformer { get; init; } = new CsvImportTransformer();
 
     /// <summary>
     /// The list of selectors to map the CSV columns to the properties of TEvent.

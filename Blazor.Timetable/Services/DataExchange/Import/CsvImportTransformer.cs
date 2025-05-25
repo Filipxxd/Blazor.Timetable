@@ -4,10 +4,10 @@ using System.Text;
 
 namespace Blazor.Timetable.Services.DataExchange.Import;
 
-public sealed class CsvImportTransformer<TEvent> : IImportTransformer<TEvent>
-    where TEvent : class
+public sealed class CsvImportTransformer : IImportTransformer
 {
-    public IList<TEvent> Transform(Stream stream, IList<ISelector<TEvent>> selectors)
+    public IList<TEvent> Transform<TEvent>(Stream stream, IList<ISelector<TEvent>> selectors)
+        where TEvent : class
     {
         var eventsList = new List<TEvent>();
 
