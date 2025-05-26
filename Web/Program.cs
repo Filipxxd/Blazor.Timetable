@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();// req
 
-builder.Services.AddBlazorTimetable().Localize("cs"); // req
+builder.Services.AddBlazorTimetable(); // req
 
 var app = builder.Build();
 

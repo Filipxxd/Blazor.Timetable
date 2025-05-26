@@ -1,4 +1,5 @@
-﻿using Blazor.Timetable.Models.Configuration;
+﻿using Blazor.Timetable.Common.Enums;
+using Blazor.Timetable.Models.Configuration;
 using Blazor.Timetable.Services;
 using Blazor.Timetable.Services.Display;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,8 +26,15 @@ public static class ServiceExtensions
         return services;
     }
 
-    public static IServiceCollection Localize(this IServiceCollection services, string culture)
+    public static IServiceCollection Localize(this IServiceCollection services, Language language)
     {
+        var culture = language switch
+        {
+            Language.English => "en",
+            Language.Czech => "cs",
+            _ => throw new ArgumentException("Language is not supported.", nameof(language))
+        };
+
         CultureConfig.SetCulture(new CultureInfo(culture));
 
         return services;
