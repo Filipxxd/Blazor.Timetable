@@ -21,14 +21,6 @@ export const dragDrop = {
                 speed: 300
             },
 
-            ////modifiers: [
-            ////    interact.modifiers.restrict({
-            ////        restriction: timetableSelector,
-            ////        endOnly: true,
-            ////        elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
-            ////    })
-            ////],
-
             listeners: {
                 start(event) {
                     const target = event.target;
