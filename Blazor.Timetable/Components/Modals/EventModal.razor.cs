@@ -1,6 +1,5 @@
 ﻿using Blazor.Timetable.Common.Enums;
 using Blazor.Timetable.Common.Extensions;
-using Blazor.Timetable.Common.Helpers;
 using Blazor.Timetable.Models.Actions;
 using Blazor.Timetable.Models.Configuration;
 using Blazor.Timetable.Models.Grid;
@@ -125,9 +124,6 @@ public partial class EventModal<TEvent> where TEvent : class
 
     private string? ValidateDateFrom(DateTime dateTimeFrom)
     {
-        if (dateTimeFrom.TimeOfDay.ToTimeOnly() < Config.TimeFrom)
-            return Localizer.GetLocalizedString("ValidationEndBy", DateTimeHelper.FormatHour(Config.TimeFrom.Hour, Config.Is24HourFormat));
-
         return ValidateDate(dateTimeFrom);
     }
 
@@ -135,9 +131,6 @@ public partial class EventModal<TEvent> where TEvent : class
     {
         if (dateTimeTo <= EventDescriptor.DateFrom)
             return Localizer["ValidationBeginAfterStart"];
-
-        if (dateTimeTo.TimeOfDay.ToTimeOnly() > Config.TimeTo)
-            return Localizer.GetLocalizedString("ValidationEndBy", DateTimeHelper.FormatHour(Config.TimeTo.Hour, Config.Is24HourFormat));
 
         return ValidateDate(dateTimeTo);
     }

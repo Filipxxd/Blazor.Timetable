@@ -189,9 +189,6 @@
   <data name="ValidationBeginAfterStart" xml:space="preserve">
     <value>Nesmí být před začátkem</value>
   </data>
-  <data name="ValidationEndBy" xml:space="preserve">
-    <value>Nesmí končit po {0}</value>
-  </data>
   <data name="ValidationAfterEnd" xml:space="preserve">
     <value>Musí končit do {0}</value>
   </data>

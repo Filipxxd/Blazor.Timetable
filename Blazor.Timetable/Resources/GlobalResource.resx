@@ -189,9 +189,6 @@
   <data name="ValidationBeginAfterStart" xml:space="preserve">
     <value>Cannot be before start</value>
   </data>
-  <data name="ValidationEndBy" xml:space="preserve">
-    <value>Cannot end after {0}</value>
-  </data>
   <data name="ValidationAfterEnd" xml:space="preserve">
     <value>Must end by {0}</value>
   </data>

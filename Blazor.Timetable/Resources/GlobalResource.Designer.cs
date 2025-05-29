@@ -268,15 +268,6 @@ namespace Blazor.Timetable.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cannot end after {0}.
-        /// </summary>
-        internal static string ValidationEndBy {
-            get {
-                return ResourceManager.GetString("ValidationEndBy", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to This day is not allowed.
         /// </summary>
         internal static string ValidationInvalidDay {
