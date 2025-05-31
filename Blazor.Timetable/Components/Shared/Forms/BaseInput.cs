@@ -10,7 +10,7 @@ public abstract class BaseInput<TEvent, TType> : ComponentBase where TEvent : cl
     private Func<TEvent, TType?> _getter = default!;
     private Action<TEvent, TType?> _setter = default!;
 
-    protected readonly Guid _id = Guid.NewGuid();
+    protected readonly Guid Id = Guid.NewGuid();
 
     protected string? ErrorMessage { get; private set; }
     protected bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);

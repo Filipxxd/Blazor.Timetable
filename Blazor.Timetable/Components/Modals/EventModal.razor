@@ -28,7 +28,7 @@
                 @if (State == EventModalState.Create)
                 {
                     <Dropdown Model=this
-                              Label=@Localizer["EventRepetitionType"]
+                              Label=@Localizer["RepetitionType"]
                               Selector="x => x.SelectedRepeatability"
                               Options=RepetitionOptions />
 
@@ -48,6 +48,14 @@
                             <input type="number" class="form-control" @bind=RepeatAfterDays min="1" />
                         </div>
                     }
+                }
+                
+                @if (EventDescriptor.HasGroupdAssigned)
+                {
+                    <Dropdown Model=this
+                              Label=@Localizer["ActionScope"]
+                              Selector="x => x.SelectedScope"
+                              Options=Scopes />
                 }
 
                 <div style="margin-top: 1rem">
@@ -69,9 +77,9 @@
                 @if (EventDescriptor.HasGroupdAssigned)
                 {
                     <Dropdown Model=this
-                              Label=@Localizer["ButtonClose"]
+                              Label=@Localizer["ActionScope"]
                               Selector="x => x.SelectedScope" 
-                              Options="Scopes" />
+                              Options=Scopes />
                 }
 
                 <div>
@@ -79,7 +87,7 @@
                             OnClick=DeleteAsync 
                             ButtonType=ButtonType.Delete />
 
-                    <Button Title=@Localizer["ButtonClose"] 
+                    <Button Title=@Localizer["ButtonCancel"]
                             OnClick=ModalService.Close 
                             ButtonType=ButtonType.Cancel 
                             Style="margin-left: 1rem;" />

@@ -24,15 +24,15 @@ public sealed class CsvImportTransformerTests
     [Fact]
     public void Transform_ShouldReturnEmpty_WhenStreamHasNoLines()
     {
-        var mappers = new ISelector<TestEvent>[]
+        var selectors = new ISelector<TestEvent>[]
         {
             new Selector<TestEvent, string>("Property1", e => e.Property1)
         }.ToList();
 
-        var transformer = new CsvImportTransformer<TestEvent>(mappers);
+        var transformer = new CsvImportTransformer();
         using var ms = ToStream(string.Empty);
 
-        var result = transformer.Transform(ms).ToList();
+        var result = transformer.Transform(ms, selectors).ToList();
         result.Should().BeEmpty();
     }
 
@@ -45,17 +45,17 @@ public sealed class CsvImportTransformerTests
             "Hello;42"
         }.JoinToString(Environment.NewLine);
 
-        var mappers = new ISelector<TestEvent>[]
+        var selectors = new ISelector<TestEvent>[]
         {
             new Selector<TestEvent, string>("Property1", e => e.Property1),
             new Selector<TestEvent, int>("IntegerProperty", e => e.IntegerProperty)
         }.ToList();
 
-        var transformer = new CsvImportTransformer<TestEvent>(mappers);
+        var transformer = new CsvImportTransformer();
 
         List<TestEvent> events;
         using (var ms = ToStream(csv))
-            events = transformer.Transform(ms).ToList();
+            events = [.. transformer.Transform(ms, selectors)];
 
         events.Should().HaveCount(1);
         var ev = events[0];
@@ -73,15 +73,15 @@ public sealed class CsvImportTransformerTests
             "C;D"
         }.JoinToString(Environment.NewLine);
 
-        var mappers = new ISelector<TestEvent>[]
+        var selectors = new ISelector<TestEvent>[]
         {
             new Selector<TestEvent, string>("Property1", e => e.Property1)
         }.ToList();
 
-        var transformer = new CsvImportTransformer<TestEvent>(mappers);
+        var transformer = new CsvImportTransformer();
 
         using var ms = ToStream(csv);
-        var result = transformer.Transform(ms).ToList();
+        var result = transformer.Transform(ms, selectors).ToList();
 
         result.Should().HaveCount(2);
         result[0].Property1.Should().Be("A");
@@ -98,7 +98,7 @@ public sealed class CsvImportTransformerTests
 
         var csv = new[] { header, row }.JoinToString(Environment.NewLine);
 
-        var mappers = new ISelector<TestEvent>[]
+        var selectors = new ISelector<TestEvent>[]
         {
             new Selector<TestEvent, int>("IntegerProperty", e => e.IntegerProperty),
             new Selector<TestEvent, double>("DoubleProperty", e => e.DoubleProperty),
@@ -107,10 +107,10 @@ public sealed class CsvImportTransformerTests
             new Selector<TestEvent, int?>("NullableIntegerProperty", e => e.NullableIntegerProperty)
         }.ToList();
 
-        var transformer = new CsvImportTransformer<TestEvent>(mappers);
+        var transformer = new CsvImportTransformer();
 
         using var ms = ToStream(csv);
-        var ev = transformer.Transform(ms).Single();
+        var ev = transformer.Transform(ms, selectors).Single();
 
         ev.IntegerProperty.Should().Be(123);
         ev.DoubleProperty.Should().BeApproximately(456.78, 0.001);
@@ -127,7 +127,7 @@ public sealed class CsvImportTransformerTests
 
         var csv = new[] { header, row }.JoinToString(Environment.NewLine);
 
-        var mappers = new ISelector<TestEvent>[]
+        var selectors = new ISelector<TestEvent>[]
         {
             new Selector<TestEvent, double>(
                 "DoubleProperty", e => e.DoubleProperty,
@@ -140,10 +140,10 @@ public sealed class CsvImportTransformerTests
                 parser: s => DateTime.ParseExact(s, "dd/MM", CultureInfo.InvariantCulture))
         }.ToList();
 
-        var transformer = new CsvImportTransformer<TestEvent>(mappers);
+        var transformer = new CsvImportTransformer();
 
         using var ms = ToStream(csv);
-        var ev = transformer.Transform(ms).Single();
+        var ev = transformer.Transform(ms, selectors).Single();
 
         ev.DoubleProperty.Should().Be(456);
         ev.BooleanProperty.Should().BeTrue();
@@ -159,16 +159,16 @@ public sealed class CsvImportTransformerTests
             "X;Y;7"
         }.JoinToString(Environment.NewLine);
 
-        var mappers = new ISelector<TestEvent>[]
+        var selectors = new ISelector<TestEvent>[]
         {
             new Selector<TestEvent, string>("Property1", e => e.Property1),
             new Selector<TestEvent, int>("IntegerProperty", e => e.IntegerProperty)
         }.ToList();
 
-        var transformer = new CsvImportTransformer<TestEvent>(mappers);
+        var transformer = new CsvImportTransformer();
 
         using var ms = ToStream(csv);
-        var ev = transformer.Transform(ms).Single();
+        var ev = transformer.Transform(ms, selectors).Single();
 
         ev.Property1.Should().Be("X");
         ev.IntegerProperty.Should().Be(7);

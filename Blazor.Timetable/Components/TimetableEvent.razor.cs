@@ -14,9 +14,6 @@ public partial class TimetableEvent<TEvent>
 {
     private readonly Stopwatch _clickStopwatch = new();
 
-    [Inject] private ModalService ModalService { get; set; } = default!;
-    [Inject] private Localizer Localizer { get; set; } = default!;
-
     [Parameter] public CellItem<TEvent> CellItem { get; set; } = default!;
     [Parameter] public string BackgroundColor { get; set; } = default!;
     [Parameter] public SpanDirection Direction { get; set; }
@@ -24,6 +21,8 @@ public partial class TimetableEvent<TEvent>
     [Parameter] public RenderFragment<TEvent> AdditionalFields { get; set; } = default!;
     [Parameter] public EventCallback<UpdateAction<TEvent>> OnEventUpdated { get; set; } = default!;
     [Parameter] public EventCallback<DeleteAction<TEvent>> OnEventDelete { get; set; } = default!;
+
+    [CascadingParameter] internal ModalService ModalService { get; set; } = default!;
 
     private string EventStyle =>
         $"background-color: {BackgroundColor}; " +
@@ -56,6 +55,6 @@ public partial class TimetableEvent<TEvent>
             { "AdditionalFields", AdditionalFields }
         };
 
-        ModalService.Show<EventModal<TEvent>>("", parameters);
+        ModalService.Show<EventModal<TEvent>>(parameters);
     }
 }

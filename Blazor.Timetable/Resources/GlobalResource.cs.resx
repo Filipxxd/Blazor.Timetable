@@ -151,12 +151,51 @@
     <value>Pouze tento</value>
   </data>
   <data name="MoveGroup" xml:space="preserve">
-    <value>Vše</value>
+    <value>Všechny</value>
   </data>
   <data name="GroupMoveDescription" xml:space="preserve">
     <value>Tato událost je součástí skupiny. Chcete změny aplikovat na celou skupinu nebo pouze na tuto událost?</value>
   </data>
   <data name="ImportType" xml:space="preserve">
     <value>Způsob importu</value>
+  </data>
+  <data name="RepetitionOnce" xml:space="preserve">
+    <value>Jednou</value>
+  </data>
+  <data name="RepetitionDaily" xml:space="preserve">
+    <value>Denně</value>
+  </data>
+  <data name="RepetitionWeekly" xml:space="preserve">
+    <value>Týdně</value>
+  </data>
+  <data name="RepetitionMonthly" xml:space="preserve">
+    <value>Měsíčně</value>
+  </data>
+  <data name="RepetitionCustom" xml:space="preserve">
+    <value>Vlastní</value>
+  </data>
+  <data name="ActionScope" xml:space="preserve">
+    <value>Aplikovat na</value>
+  </data>
+  <data name="ValidationNotEmpty" xml:space="preserve">
+    <value>Nesmí být prázdné</value>
+  </data>
+  <data name="ValidationBeginAfter" xml:space="preserve">
+    <value>Musí začínat po {0}</value>
+  </data>
+  <data name="ValidationMaxLength" xml:space="preserve">
+    <value>Nesmí být delší než {0} znaků</value>
+  </data>
+  <data name="ValidationBeginAfterStart" xml:space="preserve">
+    <value>Nesmí být před začátkem</value>
+  </data>
+  <data name="ValidationAfterEnd" xml:space="preserve">
+    <value>Musí končit do {0}</value>
+  </data>
+  <data name="ValidationInvalidMonth" xml:space="preserve">
+    <value>Tento měsíc není povolen</value>
+  </data>
+  <data name="ValidationInvalidDay" xml:space="preserve">
+    <value>Tento den není povolen</value>
   </data>
 </root>

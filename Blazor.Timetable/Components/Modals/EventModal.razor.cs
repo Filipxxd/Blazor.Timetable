@@ -1,6 +1,5 @@
 ﻿using Blazor.Timetable.Common.Enums;
 using Blazor.Timetable.Common.Extensions;
-using Blazor.Timetable.Common.Helpers;
 using Blazor.Timetable.Models.Actions;
 using Blazor.Timetable.Models.Configuration;
 using Blazor.Timetable.Models.Grid;
@@ -11,7 +10,6 @@ namespace Blazor.Timetable.Components.Modals;
 
 public partial class EventModal<TEvent> where TEvent : class
 {
-    [Inject] private ModalService ModalService { get; set; } = default!;
     [Inject] private Localizer Localizer { get; set; } = default!;
 
     private readonly IList<Func<bool>> _validationFuncs = [];
@@ -26,6 +24,7 @@ public partial class EventModal<TEvent> where TEvent : class
     [Parameter] public EventCallback<UpdateAction<TEvent>> OnUpdate { get; set; }
     [Parameter] public EventCallback<DeleteAction<TEvent>> OnDelete { get; set; }
 
+    [CascadingParameter] internal ModalService ModalService { get; set; } = default!;
     [CascadingParameter] public TimetableConfig Config { get; set; } = default!;
 
     private EventDescriptor<TEvent> EventDescriptor { get; set; } = default!;
@@ -44,7 +43,7 @@ public partial class EventModal<TEvent> where TEvent : class
 
         EventDescriptor = State == EventModalState.Create
             ? OriginalEventDescriptor
-            : OriginalEventDescriptor.Copy();
+            : OriginalEventDescriptor.DeepCopy();
     }
 
     private void RegisterValidation(Func<bool> fn)
@@ -81,8 +80,14 @@ public partial class EventModal<TEvent> where TEvent : class
     }
 
 
-    private void ToggleDelete()
+    private async Task ToggleDelete()
     {
+        if (SelectedScope == ActionScope.Single)
+        {
+            await DeleteAsync();
+            return;
+        }
+
         State = State == EventModalState.DeleteConfirm
             ? EventModalState.Edit
             : EventModalState.DeleteConfirm;
@@ -108,30 +113,24 @@ public partial class EventModal<TEvent> where TEvent : class
         return valid;
     }
 
-    private static string? ValidateTitle(string title)
+    private string? ValidateTitle(string title)
     {
-        if (string.IsNullOrWhiteSpace(title)) return "Required";
+        if (string.IsNullOrWhiteSpace(title)) return Localizer["ValidationNotEmpty"];
 
-        if (title.Length > 128) return "Max length 128";
+        if (title.Length > 128) return Localizer.GetLocalizedString("ValidationMaxLength", 128);
 
         return null;
     }
 
     private string? ValidateDateFrom(DateTime dateTimeFrom)
     {
-        if (dateTimeFrom.TimeOfDay.ToTimeOnly() < Config.TimeFrom)
-            return $"Must start after {DateTimeHelper.FormatHour(Config.TimeFrom.Hour, Config.Is24HourFormat)}";
-
         return ValidateDate(dateTimeFrom);
     }
 
     private string? ValidateDateTo(DateTime dateTimeTo)
     {
         if (dateTimeTo <= EventDescriptor.DateFrom)
-            return "Must be after start";
-
-        if (dateTimeTo.TimeOfDay.ToTimeOnly() > Config.TimeTo)
-            return $"Must end by {DateTimeHelper.FormatHour(Config.TimeTo.Hour, Config.Is24HourFormat)}";
+            return Localizer["ValidationBeginAfterStart"];
 
         return ValidateDate(dateTimeTo);
     }
@@ -139,7 +138,7 @@ public partial class EventModal<TEvent> where TEvent : class
     private string? ValidateRepeatUntilDate(DateTime repeatUntilDate)
     {
         if (repeatUntilDate <= EventDescriptor.DateTo)
-            return "Must be after event end";
+            return Localizer["ValidationBeAfterEnd"];
 
         return null;
     }
@@ -147,10 +146,10 @@ public partial class EventModal<TEvent> where TEvent : class
     private string? ValidateDate(DateTime dateTime)
     {
         if (!Config.Months.Contains((Month)dateTime.Month))
-            return $"Invalid month: {dateTime.Month}";
+            return Localizer.GetLocalizedString("ValidationInvalidMonth", dateTime.Month);
 
         if (!Config.Days.Contains(dateTime.DayOfWeek))
-            return $"Invalid day: {dateTime.DayOfWeek}";
+            return Localizer.GetLocalizedString("ValidationInvalidDay", dateTime.DayOfWeek);
 
         return null;
     }

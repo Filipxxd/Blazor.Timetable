@@ -9,8 +9,6 @@ using Blazor.Timetable.Models.Configuration;
 using Blazor.Timetable.Models.DataExchange;
 using Blazor.Timetable.Models.Grid;
 using Blazor.Timetable.Services;
-using Blazor.Timetable.Services.DataExchange.Export;
-using Blazor.Timetable.Services.DataExchange.Import;
 using Blazor.Timetable.Services.Display;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -20,16 +18,15 @@ namespace Blazor.Timetable.Components;
 
 public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 {
-    private bool _firstRender = false;
+    private readonly ModalService _modalService = new();
     private DotNetObjectReference<Timetable<TEvent>> _objectReference = default!;
     private TimetableManager<TEvent> _timetableManager = default!;
     private PropertyAccessors<TEvent> _eventProps = default!;
     private IJSObjectReference _jsModule = default!;
+    private bool _firstRender = false;
 
     [Inject] private IJSRuntime JsRuntime { get; set; } = default!;
     [Inject] private IEnumerable<IDisplayService> DisplayServices { get; set; } = default!;
-    [Inject] private ModalService ModalService { get; set; } = default!;
-    [Inject] private Localizer L { get; set; } = default!;
 
     [Parameter, EditorRequired] public IList<TEvent> Events { get; set; } = default!;
     [Parameter, EditorRequired] public EventCallback<IList<TEvent>> EventsChanged { get; set; } = default!;
@@ -53,6 +50,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter] public EventCallback<TEvent> OnTitleClicked { get; set; } = default!;
     [Parameter] public EventCallback<DisplayType> OnDisplayTypeChanged { get; set; }
     [Parameter] public EventCallback<DayOfWeek> OnChangedToDay { get; set; } = default!;
+    [Parameter] public EventCallback<ImportAction<TEvent>> OnEventsImported { get; set; } = default!;
     [Parameter] public EventCallback<TEvent> OnEventCreated { get; set; } = default!;
     [Parameter] public EventCallback<IList<TEvent>> OnGroupEventCreated { get; set; } = default!;
     [Parameter] public EventCallback<TEvent> OnEventChanged { get; set; } = default!;
@@ -67,31 +65,23 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         _objectReference = DotNetObjectReference.Create(this);
 
         _eventProps = new PropertyAccessors<TEvent>(DateFrom, DateTo, Title, GroupId, AdditionalProps);
-        _timetableManager = new TimetableManager<TEvent>()
-        {
-            Props = _eventProps
+        _timetableManager = new TimetableManager<TEvent>(_eventProps);
+
+        var selectors = new List<ISelector<TEvent>> {
+            new Selector<TEvent, DateTime>("DateFrom", DateFrom),
+            new Selector<TEvent, DateTime>("DateTo", DateTo),
+            new Selector<TEvent, string>("Title", Title!),
+            new Selector<TEvent, string>("GroupIdentifier", GroupId)
         };
 
         ExportConfig = new ExportConfig<TEvent>
         {
-            FileName = "EventExport",
-            Transformer = new CsvTransformer(),
-            Properties = [
-                new Selector<TEvent, DateTime>("DateFrom", DateFrom),
-                new Selector<TEvent, DateTime>("DateTo", DateTo),
-                new Selector<TEvent, string>("Title", Title!)
-            ]
+            Selectors = selectors
         };
 
         ImportConfig = new ImportConfig<TEvent>
         {
-            AllowedExtensions = ["csv"],
-            MaxFileSizeBytes = 5_000_000,
-            Transformer = new CsvImportTransformer<TEvent>([
-              new Selector<TEvent,DateTime>("DateFrom", DateFrom),
-              new Selector<TEvent,DateTime>("DateTo", DateTo),
-              new Selector<TEvent,string>("Title", Title!)
-            ])
+            Selectors = selectors
         };
     }
 
@@ -99,17 +89,14 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     {
         if (_firstRender)
         {
-            _timetableManager.DisplayType = TimetableConfig.DefaultDisplayType;
-            _timetableManager.CurrentDate = TimetableConfig.DefaultDate;
-
-            while (!_timetableManager.CurrentDate.IsValidFor(TimetableConfig.Days, TimetableConfig.Months))
-            {
-                _timetableManager.CurrentDate = _timetableManager.CurrentDate.AddDays(1);
-            }
+            var date = DateTime.Now.ToDateOnly();
+            _timetableManager.CurrentDate = DateTimeHelper.GetNextValidDate(date, TimetableConfig.Days, TimetableConfig.Months);
+            _timetableManager.DisplayType = TimetableConfig.DisplayType;
         }
 
         TimetableConfig.Validate();
         ExportConfig.Validate();
+        ImportConfig.Validate();
         StyleConfig.Validate();
 
         UpdateGrid();
@@ -119,7 +106,6 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     {
         if (firstRender)
         {
-            await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Blazor.Timetable/interact.min.js");
             _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/Blazor.Timetable/Components/Timetable.razor.js");
             await _jsModule.InvokeVoidAsync("dragDrop.init", _objectReference);
             _firstRender = false;
@@ -127,7 +113,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
     }
 
     [JSInvokable]
-    public async Task MoveEvent(Guid eventId, Guid targetCellId)
+    public async Task MoveEventAsync(Guid eventId, Guid targetCellId)
     {
         var eventItem = _timetableManager.Grid.FindItemByItemId(eventId);
 
@@ -163,7 +149,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
                 { "OnCancel", EventCallback.Factory.Create(this, UpdateGrid)}
             };
 
-            ModalService.Show<GroupMoveModal>("Move", parameters);
+            _modalService.Show<GroupMoveModal>(parameters, false);
         }
         else
         {
@@ -177,21 +163,21 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         }
     }
 
-    private async Task HandleNextClicked()
+    private async Task HandleNextClickedAsync()
     {
         _timetableManager.CurrentDate = _timetableManager.CurrentDate.GetValidDateFor(_timetableManager.DisplayType, TimetableConfig.Days, TimetableConfig.Months, true);
-        await OnNextClicked.InvokeAsync();
         UpdateGrid();
+        await OnNextClicked.InvokeAsync();
     }
 
-    private async Task HandlePreviousClicked()
+    private async Task HandlePreviousClickedAsync()
     {
         _timetableManager.CurrentDate = _timetableManager.CurrentDate.GetValidDateFor(_timetableManager.DisplayType, TimetableConfig.Days, TimetableConfig.Months, false);
-        await OnPreviousClicked.InvokeAsync();
         UpdateGrid();
+        await OnPreviousClicked.InvokeAsync();
     }
 
-    private async Task HandleEventUpdated(UpdateAction<TEvent> props)
+    private async Task HandleEventUpdatedAsync(UpdateAction<TEvent> props)
     {
         if (props.Scope == ActionScope.Single)
         {
@@ -207,40 +193,41 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         UpdateGrid();
     }
 
-    private void HandleEventDeleted(DeleteAction<TEvent> deleteProps)
+    private async Task HandleEventDeletedAsync(DeleteAction<TEvent> deleteProps)
     {
         if (deleteProps.Scope == ActionScope.Single)
         {
             var deletedEvent = _timetableManager.DeleteEvent(Events, deleteProps);
-            OnEventDeleted.InvokeAsync(deletedEvent);
+            await OnEventDeleted.InvokeAsync(deletedEvent);
         }
         else
         {
             var deletedEvents = _timetableManager.DeleteGroupEvent(Events, deleteProps);
-            OnGroupEventDeleted.InvokeAsync(deletedEvents);
+            await OnGroupEventDeleted.InvokeAsync(deletedEvents);
         }
 
         UpdateGrid();
     }
 
-    private async Task HandleDisplayTypeChanged(DisplayType displayType)
+    private async Task HandleDisplayTypeChangedAsync(DisplayType displayType)
     {
         _timetableManager.DisplayType = displayType;
-        _timetableManager.CurrentDate = TimetableConfig.DefaultDate;
+        _timetableManager.CurrentDate = DateTime.Now.ToDateOnly();
 
+        UpdateGrid();
         await OnNextClicked.InvokeAsync();
     }
 
-    private async Task HandleChangedToDay(DayOfWeek dayOfWeek)
+    private async Task HandleChangedToDayAsync(DayOfWeek dayOfWeek)
     {
         _timetableManager.CurrentDate = DateTimeHelper.GetDateForDay(_timetableManager.CurrentDate, dayOfWeek, TimetableConfig.Days.First());
         _timetableManager.DisplayType = DisplayType.Day;
+        UpdateGrid();
         await OnChangedToDay.InvokeAsync(dayOfWeek);
         await OnDisplayTypeChanged.InvokeAsync(DisplayType.Day);
-        UpdateGrid();
     }
 
-    private void HandleImport(ImportAction<TEvent> props)
+    private async Task HandleImportAsync(ImportAction<TEvent> props)
     {
         if (props.Type == ImportType.Append)
         {
@@ -253,6 +240,7 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         }
 
         UpdateGrid();
+        await OnEventsImported.InvokeAsync(props);
     }
 
     private void HandleOpenCreateModal(DateTime cellDate)
@@ -260,16 +248,14 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
         if (_timetableManager.DisplayType == DisplayType.Month && cellDate.Month != _timetableManager.CurrentDate.Month)
             return;
 
-        var template = Activator.CreateInstance<TEvent>();
-        _eventProps.SetDateFrom(template, cellDate);
-        _eventProps.SetDateTo(template, cellDate.AddMinutes(TimetableConstants.TimeSlotInterval));
-        _eventProps.SetTitle(template, string.Empty);
-
-        var templateDesc = new EventDescriptor<TEvent>(template, _eventProps);
+        var eventDescriptor = EventDescriptor<TEvent>.Create(_eventProps);
+        eventDescriptor.DateFrom = cellDate;
+        eventDescriptor.DateTo = cellDate.AddMinutes(TimetableConstants.TimeSlotInterval);
+        eventDescriptor.Title = string.Empty;
 
         var onCreate = EventCallback.Factory.Create<CreateAction<TEvent>>(this, async props =>
         {
-            var created = _timetableManager.CreateEvents(templateDesc, props.Repetition, props.RepeatUntil, props.RepeatDays);
+            var created = _timetableManager.CreateEvents(eventDescriptor, props.Repetition, props.RepeatUntil, props.RepeatDays);
 
             foreach (var e in created)
                 Events.Add(e);
@@ -284,13 +270,13 @@ public partial class Timetable<TEvent> : IAsyncDisposable where TEvent : class
 
         var parameters = new Dictionary<string, object>
         {
-            { "OriginalEventDescriptor", templateDesc },
+            { "OriginalEventDescriptor", eventDescriptor },
             { "State", EventModalState.Create },
             { "OnCreate", onCreate },
             { "AdditionalFields", AdditionalFields }
         };
 
-        ModalService.Show<EventModal<TEvent>>("Add", parameters);
+        _modalService.Show<EventModal<TEvent>>(parameters);
     }
 
     private void UpdateGrid()

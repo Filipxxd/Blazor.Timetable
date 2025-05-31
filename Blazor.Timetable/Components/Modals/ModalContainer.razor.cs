@@ -5,7 +5,7 @@ namespace Blazor.Timetable.Components.Modals;
 
 public partial class ModalContainer : IDisposable
 {
-    [Inject] private ModalService ModalService { get; set; } = default!;
+    [CascadingParameter] internal ModalService ModalService { get; set; } = default!;
 
     protected override void OnInitialized()
     {
@@ -17,7 +17,12 @@ public partial class ModalContainer : IDisposable
         InvokeAsync(StateHasChanged);
     }
 
-    private void Close() => ModalService.Close();
+    private void Close()
+    {
+        if (!ModalService.IsClosable) return;
+
+        ModalService.Close();
+    }
 
     public void Dispose()
     {

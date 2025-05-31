@@ -3,29 +3,31 @@
 @using Blazor.Timetable.Common.Enums
 @using Blazor.Timetable.Components.Shared.Forms
 @using Blazor.Timetable.Models
+@using Blazor.Timetable.Models.Configuration
+@using Blazor.Timetable.Models.DataExchange
+@using Blazor.Timetable.Services.DataExchange.Export
+@using Blazor.Timetable.Services.DataExchange.Import
 @rendermode InteractiveServer
 
 <PageTitle>Example page</PageTitle>
 
-<Timetable @bind-Events=Events 
-           TEvent=TimetableEvent
-           Title="e => e.Title"
+<Timetable @bind-Events=Subjects 
+           TEvent=Subject
+           Title="e => e.Name"
            DateFrom="e => e.StartTime"
            DateTo="e => e.EndTime"
            GroupId="e => e.GroupId"
            AdditionalProps=@([x => x.Description, x => x.Occupancy])
 
            TimetableConfig="new(){
-                DefaultDisplayType=DisplayType.Week,
+                DisplayType=DisplayType.Week,
                 Days=[ DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday],
                 TimeFrom=new(0, 0),
                 TimeTo=new(23, 59),
                 Is24HourFormat=true
             }"
 
-            OnEventChanged=HandleEventChanged
-            OnPreviousClicked=HandlePreviousClicked 
-            OnNextClicked=HandleNextClicked>
+            OnEventChanged=HandleEventChanged>
     <AdditionalFields>
         <Input Model=@context
                Label="Description"
@@ -40,7 +42,7 @@
 </Timetable>
 
 @code{
-    public IList<TimetableEvent> Events { get; set; } = new EventGenerator().GenerateHardcodedEvents();
+    public IList<Subject> Subjects { get; set; } = new EventGenerator().GenerateHardcodedEvents();
 
     private string? ComplexValidationExample(int? value)
     {
@@ -52,18 +54,8 @@
 
         return null; // No error -> valid
     }
-
-    public void HandleNextClicked()
-    {
-        // TODO: Custom behaviour
-    }
-
-    public void HandlePreviousClicked()
-    {
-        // TODO: Custom behaviour
-    }
     
-    public void HandleEventChanged(TimetableEvent timetableEvent){
-        // TODO: Update the event in the database
+    private void HandleEventChanged(Subject subject){
+        // TODO: Update the subject in the database
     }
 }

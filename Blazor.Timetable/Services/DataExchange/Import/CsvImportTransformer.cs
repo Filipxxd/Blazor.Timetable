@@ -4,18 +4,10 @@ using System.Text;
 
 namespace Blazor.Timetable.Services.DataExchange.Import;
 
-internal sealed class CsvImportTransformer<TEvent> : IImportTransformer<TEvent>
-    where TEvent : class
+public sealed class CsvImportTransformer : IImportTransformer
 {
-    private readonly IList<ISelector<TEvent>> _mappers;
-
-    public CsvImportTransformer(IList<ISelector<TEvent>> mappers)
-    {
-        _mappers = mappers ??
-          throw new ArgumentNullException(nameof(mappers));
-    }
-
-    public IList<TEvent> Transform(Stream stream)
+    public IList<TEvent> Transform<TEvent>(Stream stream, IList<ISelector<TEvent>> selectors)
+        where TEvent : class
     {
         var eventsList = new List<TEvent>();
 
@@ -33,7 +25,7 @@ internal sealed class CsvImportTransformer<TEvent> : IImportTransformer<TEvent>
         for (var i = 0; i < headers.Length; i++)
         {
             var colName = headers[i];
-            var mapper = _mappers.FirstOrDefault(m => m.Name == colName);
+            var mapper = selectors.FirstOrDefault(m => m.Name == colName);
             if (mapper != null)
                 indexMap[i] = mapper;
         }
@@ -48,10 +40,10 @@ internal sealed class CsvImportTransformer<TEvent> : IImportTransformer<TEvent>
             var fields = row.Split(CsvGenerator.Separator);
             foreach (var kv in indexMap)
             {
-                var raw = fields.Length > kv.Key
+                var value = fields.Length > kv.Key
                             ? CsvGenerator.Unescape(fields[kv.Key])
                             : string.Empty;
-                kv.Value.SetValue(entity, raw);
+                kv.Value.SetValue(entity, value);
             }
 
             eventsList.Add(entity);

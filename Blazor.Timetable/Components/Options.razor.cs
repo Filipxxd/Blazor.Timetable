@@ -16,7 +16,6 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
     private readonly IEnumerable<DisplayType> _displayTypes = [DisplayType.Day, DisplayType.Week, DisplayType.Month];
     private IEnumerable<DisplayType> AvailableDisplayTypes => _displayTypes.Where(x => x != CurrentDisplayType).OrderBy(x => x);
 
-    [Inject] private ModalService ModalService { get; set; } = default!;
     [Inject] private Localizer Localizer { get; set; } = default!;
     [Inject] private IJSRuntime JsRuntime { get; set; } = default!;
 
@@ -28,6 +27,8 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
     [Parameter] public EventCallback OnCreateClicked { get; set; }
     [Parameter] public EventCallback<ImportAction<TEvent>> OnImport { get; set; }
 
+    [CascadingParameter] internal ModalService ModalService { get; set; } = default!;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -38,23 +39,23 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
         }
     }
 
-    private async Task HandleCreateClicked()
+    private async Task HandleCreateClickedAsync()
     {
         await OnCreateClicked.InvokeAsync();
     }
 
-    private async Task Import()
+    private async Task HandleImportClickedAsync()
     {
         if (_jsModule is null || _dotNetRef is null) return;
         await _jsModule.InvokeVoidAsync("promptFileSelect", _dotNetRef, ImportConfig.MaxFileSizeBytes, ImportConfig.AllowedExtensions);
     }
 
     [JSInvokable]
-    public async Task ReceiveFileBase64(string base64)
+    public async Task ReceiveFileBase64Async(string base64)
     {
         var content = Convert.FromBase64String(base64);
         var stream = new MemoryStream(content, writable: false);
-        var items = ImportConfig.Transformer.Transform(stream);
+        var items = ImportConfig.Transformer.Transform(stream, ImportConfig.Selectors);
 
         await stream.DisposeAsync();
 
@@ -64,14 +65,14 @@ public partial class Options<TEvent> : IAsyncDisposable where TEvent : class
             { "OnSubmit", OnImport }
         };
 
-        ModalService.Show<ImportModal<TEvent>>("Import", parameters);
+        ModalService.Show<ImportModal<TEvent>>(parameters);
     }
 
-    private async Task Export()
+    private async Task HandleExportClickedAsync()
     {
         if (_jsModule is null) return;
 
-        var transformResult = ExportConfig.Transformer.Transform(Events, ExportConfig.Properties);
+        var transformResult = ExportConfig.Transformer.Transform(Events, ExportConfig.Selectors);
         var fileName = $"{ExportConfig.FileName}.{transformResult.FileExtension}";
 
         using var stream = transformResult.StreamReference;

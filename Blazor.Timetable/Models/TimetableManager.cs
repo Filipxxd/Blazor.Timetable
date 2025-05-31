@@ -8,11 +8,16 @@ namespace Blazor.Timetable.Models;
 internal sealed class TimetableManager<TEvent> where
     TEvent : class
 {
-    public required PropertyAccessors<TEvent> Props { get; init; }
+    public PropertyAccessors<TEvent> Props { get; init; }
 
     public Grid<TEvent> Grid { get; set; } = default!;
-    public DateOnly CurrentDate { get; set; }
+    public DateOnly CurrentDate { get; set; } = DateTime.Now.ToDateOnly();
     public DisplayType DisplayType { get; set; }
+
+    public TimetableManager(PropertyAccessors<TEvent> props)
+    {
+        Props = props;
+    }
 
     public IList<TEvent> CreateEvents(
             EventDescriptor<TEvent> templateDescriptor,
@@ -20,7 +25,7 @@ internal sealed class TimetableManager<TEvent> where
             DateOnly? repeatUntil,
             int? repeatDays = null)
     {
-        var rootDesc = templateDescriptor.Copy();
+        var rootDesc = templateDescriptor.DeepCopy();
         var result = new List<EventDescriptor<TEvent>> { rootDesc };
 
         if (repetition != Repeatability.Once)
@@ -46,7 +51,7 @@ internal sealed class TimetableManager<TEvent> where
                 if (nextFrom.ToDateOnly() > repeatUntil)
                     break;
 
-                var desc = rootDesc.Copy();
+                var desc = rootDesc.DeepCopy();
                 desc.DateFrom = nextFrom;
                 desc.DateTo = baseTo + (nextFrom - baseFrom);
                 desc.GroupId = groupId;

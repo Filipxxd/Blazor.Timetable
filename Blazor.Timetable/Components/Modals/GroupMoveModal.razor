@@ -4,41 +4,42 @@
 
 <div class="action-buttons">
     <Button Title=@Localizer["MoveSingle"]
-            OnClick=MoveSingle 
+            OnClick=SingleClickedAsync 
             ButtonType=ButtonType.Confirm />
     
     <Button Title=@Localizer["MoveGroup"]
-            OnClick=MoveGroup 
+            OnClick=GroupClickedAsync 
             ButtonType=ButtonType.Confirm 
             Style="margin-left: 1rem;" />
     
     <Button Title=@Localizer["ButtonCancel"]
-            OnClick=Cancel 
+            OnClick=CancelClickedAsync 
             ButtonType=ButtonType.Cancel 
             Style="margin-left: 1rem;" />
 </div>
 
 @code {
-    [Inject] private ModalService ModalService { get; set; } = default!;
     [Inject] private Localizer Localizer { get; set; } = default!;
 
     [Parameter] public EventCallback OnSingleMove { get; set; } = default!;
     [Parameter] public EventCallback OnGroupMove { get; set; } = default!;
     [Parameter] public EventCallback OnCancel { get; set; } = default!;
 
-    private async Task MoveSingle()
+    [CascadingParameter] internal ModalService ModalService { get; set; } = default!;
+
+    private async Task SingleClickedAsync()
     {
         await OnSingleMove.InvokeAsync();
         ModalService.Close();
     }
 
-    private async Task MoveGroup()
+    private async Task GroupClickedAsync()
     {
         await OnGroupMove.InvokeAsync();
         ModalService.Close();
     }
 
-    private async Task Cancel()
+    private async Task CancelClickedAsync()
     {
         await OnCancel.InvokeAsync();
         ModalService.Close();

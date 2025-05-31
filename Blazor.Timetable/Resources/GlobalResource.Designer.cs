@@ -61,6 +61,15 @@ namespace Blazor.Timetable.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Apply on.
+        /// </summary>
+        internal static string ActionScope {
+            get {
+                return ResourceManager.GetString("ActionScope", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
         internal static string ButtonCancel {
@@ -178,11 +187,119 @@ namespace Blazor.Timetable.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Custom.
+        /// </summary>
+        internal static string RepetitionCustom {
+            get {
+                return ResourceManager.GetString("RepetitionCustom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Daily.
+        /// </summary>
+        internal static string RepetitionDaily {
+            get {
+                return ResourceManager.GetString("RepetitionDaily", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Monthly.
+        /// </summary>
+        internal static string RepetitionMonthly {
+            get {
+                return ResourceManager.GetString("RepetitionMonthly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Once.
+        /// </summary>
+        internal static string RepetitionOnce {
+            get {
+                return ResourceManager.GetString("RepetitionOnce", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Repetition.
         /// </summary>
         internal static string RepetitionType {
             get {
                 return ResourceManager.GetString("RepetitionType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Weekly.
+        /// </summary>
+        internal static string RepetitionWeekly {
+            get {
+                return ResourceManager.GetString("RepetitionWeekly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Must end by {0}.
+        /// </summary>
+        internal static string ValidationAfterEnd {
+            get {
+                return ResourceManager.GetString("ValidationAfterEnd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Must start after {0}.
+        /// </summary>
+        internal static string ValidationBeginAfter {
+            get {
+                return ResourceManager.GetString("ValidationBeginAfter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot be before start.
+        /// </summary>
+        internal static string ValidationBeginAfterStart {
+            get {
+                return ResourceManager.GetString("ValidationBeginAfterStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This day is not allowed.
+        /// </summary>
+        internal static string ValidationInvalidDay {
+            get {
+                return ResourceManager.GetString("ValidationInvalidDay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This month is not allowed.
+        /// </summary>
+        internal static string ValidationInvalidMonth {
+            get {
+                return ResourceManager.GetString("ValidationInvalidMonth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot exceed {0} characters.
+        /// </summary>
+        internal static string ValidationMaxLength {
+            get {
+                return ResourceManager.GetString("ValidationMaxLength", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot be empty.
+        /// </summary>
+        internal static string ValidationNotEmpty {
+            get {
+                return ResourceManager.GetString("ValidationNotEmpty", resourceCulture);
             }
         }
     }

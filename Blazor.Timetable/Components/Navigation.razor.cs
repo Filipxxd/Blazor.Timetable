@@ -2,7 +2,7 @@
 
 namespace Blazor.Timetable.Components;
 
-public partial class Header
+public partial class Navigation
 {
     [Parameter] public string Title { get; set; } = default!;
     [Parameter] public EventCallback OnNextClicked { get; set; }

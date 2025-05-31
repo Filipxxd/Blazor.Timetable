@@ -16,4 +16,9 @@ internal sealed class Localizer
     {
         get => _resourceManager.GetString(key, CultureConfig.CultureInfo) ?? key;
     }
+
+    public string GetLocalizedString(string key, params object[] args)
+    {
+        return string.Format(this[key], args);
+    }
 }

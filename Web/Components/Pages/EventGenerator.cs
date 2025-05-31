@@ -2,12 +2,12 @@
 
 public sealed class EventGenerator
 {
-    private int _currentEventId = 1;
-    public List<TimetableEvent> GenerateHardcodedEvents()
+    private int _id = 1;
+    public List<Subject> GenerateHardcodedEvents()
     {
         var now = DateTime.Now.Date.AddDays(1);
 
-        var events = new List<TimetableEvent>
+        var events = new List<Subject>
         {
             CreateEvent("Math Class", now.AddDays(-5).AddHours(9), 1.5),
             CreateEvent("English Class", now.AddDays(-4).AddHours(10), 1),
@@ -33,16 +33,16 @@ public sealed class EventGenerator
         return events;
     }
 
-    private TimetableEvent CreateEvent(string title, DateTime start, double? durationHours = null, bool untilEndOfDay = false)
+    private Subject CreateEvent(string title, DateTime start, double? durationHours = null, bool untilEndOfDay = false)
     {
         var end = untilEndOfDay
             ? new DateTime(start.Year, start.Month, start.Day, 23, 59, 59)
             : start.AddHours(durationHours ?? 1);
 
-        var ev = new TimetableEvent
+        var ev = new Subject
         {
-            Id = _currentEventId++,
-            Title = title,
+            Id = _id++,
+            Name = title,
             StartTime = start,
             EndTime = end,
             Description = "Scheduled school class"

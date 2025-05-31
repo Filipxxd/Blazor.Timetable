@@ -32,7 +32,7 @@ export function promptFileSelect(dotNetRef, maxSize, allowedExtensions) {
             binary += String.fromCharCode(u8[i]);
         }
         const base64 = btoa(binary);
-        dotNetRef.invokeMethodAsync('ReceiveFileBase64', base64);
+        dotNetRef.invokeMethodAsync('ReceiveFileBase64Async', base64);
     };
     inp.click();
 }
