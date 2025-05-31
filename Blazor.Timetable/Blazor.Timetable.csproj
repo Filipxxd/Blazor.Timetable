@@ -11,14 +11,19 @@
 		<Title>Blazor Timetable</Title>
 		<Version>0.9.7</Version>
 		<Authors>Filipxxd</Authors>
-		<PackageLicenseFile>../LICENSE</PackageLicenseFile>
-		<PackageReadmeFile>../README.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<AssemblyName>Blazor.Timetable</AssemblyName>		
 		<WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>		
     </PropertyGroup>
-
+	
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'" />
+
+	<ItemGroup>
+		<None Include="../LICENSE" Pack="true" PackagePath="" />
+		<None Include="../README.md" Pack="true" PackagePath="" />
+	</ItemGroup>	
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.15" />
