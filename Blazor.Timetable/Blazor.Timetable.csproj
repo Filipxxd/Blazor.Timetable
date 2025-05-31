@@ -9,9 +9,10 @@
 		<PackageId>Blazor.Timetable</PackageId>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>Blazor Timetable</Title>
-		<Version>0.9.6</Version>
+		<Version>0.9.7</Version>
 		<Authors>Filipxxd</Authors>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageReadmeFile>../README.md</PackageReadmeFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<AssemblyName>Blazor.Timetable</AssemblyName>		
 		<WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>		
@@ -23,13 +24,6 @@
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.15" />
 		<PackageReference Include="Microsoft.Extensions.Localization" Version="9.0.4" />
     </ItemGroup>
-
-	<ItemGroup>
-		<None Include="..\LICENSE">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-	</ItemGroup>
 
 	<ItemGroup>
 		<Compile Update="Resources\GlobalResource.Designer.cs">
