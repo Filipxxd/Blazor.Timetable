@@ -13,6 +13,7 @@
 		<Authors>Filipxxd</Authors>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/Filipxxd/Blazor.Timetable</RepositoryUrl>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<AssemblyName>Blazor.Timetable</AssemblyName>		
 		<WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>		
