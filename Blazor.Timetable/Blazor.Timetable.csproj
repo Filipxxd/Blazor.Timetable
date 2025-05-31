@@ -11,7 +11,7 @@
 		<Title>Blazor Timetable</Title>
 		<Version>0.9.7</Version>
 		<Authors>Filipxxd</Authors>
-		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageLicenseFile>../LICENSE</PackageLicenseFile>
 		<PackageReadmeFile>../README.md</PackageReadmeFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<AssemblyName>Blazor.Timetable</AssemblyName>		
