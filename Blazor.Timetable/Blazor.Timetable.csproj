@@ -9,10 +9,11 @@
 		<PackageId>Blazor.Timetable</PackageId>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>Blazor Timetable</Title>
-		<Version>0.9.7</Version>
+		<Version>1.0.0</Version>
 		<Authors>Filipxxd</Authors>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/Filipxxd/Blazor.Timetable</RepositoryUrl>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<AssemblyName>Blazor.Timetable</AssemblyName>		
 		<WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>		

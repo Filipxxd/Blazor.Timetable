@@ -16,8 +16,14 @@ public partial class GridItem
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
     private string Style => Direction == SpanDirection.Horizontal
-        ? $"display: grid; grid-template-rows: repeat({Offset}, 1fr); grid-column: {ColumnIndex} {(Span.HasValue ? $"/ span {Span}" : null)}; grid-row: {RowIndex}"
-        : $"display: grid; grid-template-columns: repeat({Offset}, 1fr); grid-column: {ColumnIndex}; grid-row: {RowIndex} {(Span.HasValue ? $"/ span {Span}" : null)};";
+        ? $"display: grid; " +
+          $"grid-template-rows: repeat({Offset}, 1fr); " +
+          $"grid-column: {ColumnIndex} {(Span.HasValue ? $"/ span {Span}" : null)}; " +
+          $"grid-row: {RowIndex}"
+        : $"display: grid; " +
+          $"grid-template-columns: repeat({Offset}, 1fr); " +
+          $"grid-column: {ColumnIndex}; " +
+          $"grid-row: {RowIndex} {(Span.HasValue ? $"/ span {Span}" : null)};";
 
     private async Task HandleClickAsync()
         => await OnClick.InvokeAsync();
