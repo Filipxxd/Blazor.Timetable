@@ -8,28 +8,28 @@
 A flexible, extensible, and feature-rich timetable/scheduler component for Blazor. 
 It enables you to display, create, update, delete, import/export, and drag-and-drop events in day/week/month views with customization support.
 
+
 ## Table of Contents
 
 1. [Features](#features)
-2. [Getting Started](#getting-started)
-    - [Prerequisites](#prerequisites)
-    - [Project Setup](#project-setup)
-    - [Minimal Setup](#minimal-setup)
-3. [Configuration](#configuration)
-    - [TimetableConfig](#timetableconfig)
-    - [ExportConfig](#exportconfig)
-    - [ImportConfig](#importconfig)
-    - [Localization](#localization)
-4. [Callbacks](#callbacks)
-    - [State Change Callbacks](#state-change-callbacks)
-    - [Event Management Callbacks](#event-management-callbacks)
-5. [Additional Event Properties](#additional-event-properties)
-    - [Steps to Add Additional Properties](#steps-to-add-additional-properties)
-    - [Validation](#validation)
-    - [Custom Input Components](#custom-input-components)
-6. [Properties and Parameters](#properties-and-parameters)
-7. [Acknowledgments](#acknowledgments)
-8. [License](#license)
+2. [Prerequisites](#prerequisites)
+3. [Project Setup](#project-setup)
+4. [Minimal Setup](#minimal-setup)
+5. [Configuration](#configuration)
+   - [TimetableConfig](#timetableconfig)
+   - [ExportConfig](#exportconfig)
+   - [ImportConfig](#importconfig)
+   - [Localization](#localization)
+6. [Callbacks](#callbacks)
+   - [State Change Callbacks](#state-change-callbacks)
+   - [Event Management Callbacks](#event-management-callbacks)
+7. [Additional Event Properties](#additional-event-properties)
+   - [Steps to Add Additional Properties](#steps-to-add-additional-properties)
+   - [Validation](#validation)
+   - [Custom Input Components](#custom-input-components)
+8. [Properties and Parameters](#properties-and-parameters)
+9. [Acknowledgments](#acknowledgments)
+10. [License](#license)
 
 ## Features
 - Day, Week, Month views
@@ -43,14 +43,14 @@ It enables you to display, create, update, delete, import/export, and drag-and-d
     - Days & Months
     - Extensible/Custom Import & Export Implementation
 
-## Getting Started
-
-### Prerequisites
+## Prerequisites
 
 - .NET 8+ SDK and Runtime
-- Blazor-friendly IDE like Visual Studio
+- Blazor-friendly IDE like Visual Studio 2019+ or Visual Studio Code with C# extension:
+    - [C# for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp)
+    - [C# Dev Kit](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit) 
 
-### Project Setup
+## Project Setup
 
 This tutorial covers setting up a Blazor Server Interactive project.
 
@@ -113,16 +113,16 @@ For .NET 9:
 <link rel="stylesheet" href="@Assets["BlazorTimetableExample.styles.css"]" />
 ~~~
 
-### Minimal Setup
+## Minimal Setup
 
 This section provides a step-by-step guide to integrating the `Timetable` component into your Blazor Server project.
 
-#### Step 1: Navigate to parent component
+### Step 1: Navigate to parent component
 
 Navigate to the `Home.razor` component, or another suitable component of your choice, which will act as the parent for the `Timetable` component. 
 This is where you will define the timetable and manage events.
 
-#### Step 2: Define the Appointment Model
+### Step 2: Define the Appointment Model
 
 Define an `Appointment` class anywhere in your project to represent events.
 This model must define properties for the title (`string`), start and end of the event (`DateTime`) and nullable group identifier (`string?`):
@@ -134,11 +134,12 @@ public class Appointment
     public DateTime From { get; set; }
     public DateTime To { get; set; }
     public string? GroupId { get; set; }
+
     // Include any additional properties as needed
 }
 ```
 
-#### Step 3: Create a List of your Appointments
+### Step 3: Create a List of your Appointments
 
 Inside the selected component, add `@code` block to initialize a list for `Appointment` objects.
 This list will be bound to the `Timetable` component for interactive event management. 
@@ -150,7 +151,7 @@ Ensure the collection passed to the `Timetable` is of type `IList<TEvent>`, wher
 }
 ```
 
-#### Step 4: Integrate the Timetable Component
+### Step 4: Integrate the Timetable Component
 
 Within your component, use the `@rendermode InteractiveServer` directive to enable interactivity. 
 Then, implement the `Timetable` component, passing in the necessary parameters:
@@ -201,7 +202,7 @@ The complete code block of `Home.razor` should resemble the following:
 }
 ```
 
-#### Step 5: Run the app
+### Step 5: Run the app
 
 The project is now ready to run. You can start the application using the following command:
 ```bash
@@ -285,7 +286,7 @@ Usage:
 You can supply `toStringConverter` argument with method to format the value into its `string`. 
 For example converting the `DateTo` to specific format:
 ```csharp
-new Selector<TEvent, DateTime>("DateTo", e => e.To, toStringConverter: e => e.ToString("dd__MM__yyyy")),
+new Selector<TEvent, DateTime>("DateTo", e => e.To, toStringConverter: e => e.ToString("dd__MM__yyyy"))
 ```
 
 ### ImportConfig  
@@ -324,7 +325,7 @@ Usage:
 You can supply `parser` argument with method to format the value from the string to its property datatype.
 For example converting string to the date time:
 ```csharp
-new Selector<TEvent, DateTime>("DateTo", DateTo, parser: raw => DateTime.ParseExact(raw, "dd__MM__yyyy", CultureInfo.InvariantCulture)),
+new Selector<TEvent, DateTime>("DateTo", DateTo, parser: raw => DateTime.ParseExact(raw, "dd__MM__yyyy", CultureInfo.InvariantCulture))
 ```
 
 ### Localization
