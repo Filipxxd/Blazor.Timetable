@@ -1,16 +1,16 @@
-﻿<div class="modal-wrapper @(ModalService.IsOpen ? "show" : "hide")"
+﻿<div class="timetable-modal-wrapper @(ModalService.IsOpen ? "show" : "hide")"
      @onmousedown=Close>
-    <div class="modal" @onmousedown:stopPropagation>
-        <div class="modal-header">
+    <div class="timetable-modal" @onmousedown:stopPropagation>
+        <div class="timetable-modal-header">
             @if (ModalService.IsClosable)
             {                
-                <span class="modal-title"></span>
+                <span class="timetable-modal-title"></span>
                 <div class="close-button" @onclick=Close>
                     <CloseIcon />
                 </div>
             }
         </div>
-        <div class="modal-body">
+        <div class="timetable-modal-body">
             @ModalService.ModalContent
         </div>
     </div>
