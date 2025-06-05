@@ -1,6 +1,9 @@
 # Blazor.Timetable
 
-[![NuGet](https://img.shields.io/nuget/v/Blazor.Timetable)](https://www.nuget.org/packages/Blazor.Timetable) [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE) [![Build Status](https://github.com/Filipxxd/Blazor.Timetable/actions/workflows/build-test.yml/badge.svg)](https://github.com/Filipxxd/Blazor.Timetable/actions/workflows/dotnet.yml/badge.svg)
+[![NuGet](https://img.shields.io/nuget/v/Blazor.Timetable)](https://www.nuget.org/packages/Blazor.Timetable) 
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE) 
+[![Build Status](https://github.com/Filipxxd/Blazor.Timetable/actions/workflows/build-test.yml/badge.svg)](https://github.com/Filipxxd/Blazor.Timetable/actions/workflows/build-test.yml/badge.svg)
+[![Deploy Status](https://github.com/Filipxxd/Blazor.Timetable/actions/workflows/deploy-nuget.yml/badge.svg)](https://github.com/Filipxxd/Blazor.Timetable/actions/workflows/deploy-nuget.yml/badge.svg)
 
 A flexible, extensible, and feature-rich timetable/scheduler component for Blazor. It enables you to display, create, update, delete, import/export, and drag-and-drop events in day/week/month views with customization support.
 
