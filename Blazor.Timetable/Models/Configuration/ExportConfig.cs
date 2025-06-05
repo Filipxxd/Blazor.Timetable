@@ -42,5 +42,14 @@ public sealed class ExportConfig<TEvent> where TEvent : class
         const int maxFileNameLength = 255;
         if (FileName.Length > maxFileNameLength)
             throw new InvalidSetupException("FileName is too long.");
+
+        var duplicateNames = Selectors
+            .GroupBy(selector => selector.Name)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key)
+            .ToList();
+
+        if (duplicateNames.Count != 0)
+            throw new InvalidSetupException($"Duplicate selector names found: {string.Join(", ", duplicateNames)}");
     }
 }

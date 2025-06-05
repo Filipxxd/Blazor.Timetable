@@ -2,7 +2,7 @@
 
 <CascadingValue Name="RegisterValidation" IsFixed Value=@((Action<Func<bool>>)RegisterValidation)>
     <CascadingValue Name="StateChanged" IsFixed Value=@((Action)StateHasChanged)>
-        <div class="modal-container">
+        <div class="timetable-modal-container">
             @if (State == EventModalState.Create || State == EventModalState.Edit)
             {
                 <Input Model=EventDescriptor
