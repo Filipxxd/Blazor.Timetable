@@ -31,5 +31,14 @@ public sealed class ImportConfig<TEvent>
 
         if (MaxFileSizeBytes < 10_485_760)
             throw new InvalidSetupException("Max Size in bytes must be at least 10MB.");
+
+        var duplicateNames = Selectors
+            .GroupBy(selector => selector.Name)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key)
+            .ToList();
+
+        if (duplicateNames.Count != 0)
+            throw new InvalidSetupException($"Duplicate selector names found: {string.Join(", ", duplicateNames)}");
     }
 }
