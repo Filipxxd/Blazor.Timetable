@@ -9,7 +9,7 @@
 		<PackageId>Blazor.Timetable</PackageId>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>Blazor Timetable</Title>
-		<Version>1.0.1</Version>
+		<Version>1.0.2</Version>
 		<Authors>Filipxxd</Authors>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>

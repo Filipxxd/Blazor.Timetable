@@ -83,10 +83,22 @@ internal sealed class TimetableManager<TEvent> where
         if (currentCell.Type == CellType.Normal)
         {
             var duration = cellItem.EventDescriptor.DateTo - cellItem.EventDescriptor.DateFrom;
-            var newEndDate = targetCell.DateTime.Add(duration);
 
-            cellItem.EventDescriptor.DateFrom = targetCell.DateTime;
-            cellItem.EventDescriptor.DateTo = newEndDate;
+            if (DisplayType == DisplayType.Month)
+            {
+                var originalFrom = cellItem.EventDescriptor.DateFrom;
+                var newStartDate = new DateTime(targetCell.DateTime.Year, targetCell.DateTime.Month, targetCell.DateTime.Day, originalFrom.Hour, originalFrom.Minute, originalFrom.Second);
+                var newEndDate = newStartDate.Add(duration);
+
+                cellItem.EventDescriptor.DateFrom = newStartDate;
+                cellItem.EventDescriptor.DateTo = newEndDate;
+            }
+            else
+            {
+                var newEndDate = targetCell.DateTime.Add(duration);
+                cellItem.EventDescriptor.DateFrom = targetCell.DateTime;
+                cellItem.EventDescriptor.DateTo = newEndDate;
+            }
 
             currentCell.Items.Remove(cellItem);
             targetCell.Items.Add(cellItem);
