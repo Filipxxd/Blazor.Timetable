@@ -273,7 +273,7 @@ Usage:
            
            ExportConfig=@(new ExportConfig<Appointment>{
                 FileName = "FileName",
-                Transformer = new CsvTransformer(),
+                Transformer = new CsvExportTransformer(),
                 Selectors = new List<ISelector<Appointment>> {
                    new Selector<Appointment, DateTime>("DateFrom", e => e.From),
                    new Selector<Appointment, DateTime>("DateTo", e => e.To),
