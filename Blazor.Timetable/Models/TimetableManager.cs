@@ -147,20 +147,29 @@ internal sealed class TimetableManager<TEvent> where
             return null;
 
         var originalDateFrom = cellItem.EventDescriptor.DateFrom;
-        var offset = targetCell.DateTime - originalDateFrom;
-
         foreach (var eventItem in relatedEvents)
         {
             var eventFrom = Props.GetDateFrom(eventItem);
             var eventTo = Props.GetDateTo(eventItem);
 
-            var newEventFrom = eventFrom + offset;
-            var newEventTo = eventTo + offset;
+            DateTime newEventFrom, newEventTo;
+
+            if (DisplayType == DisplayType.Month)
+            {
+                newEventFrom = new DateTime(targetCell.DateTime.Year, targetCell.DateTime.Month, targetCell.DateTime.Day, eventFrom.Hour, eventFrom.Minute, eventFrom.Second);
+                var duration = eventTo - eventFrom;
+                newEventTo = newEventFrom.Add(duration);
+            }
+            else
+            {
+                var offset = targetCell.DateTime - originalDateFrom;
+                newEventFrom = eventFrom + offset;
+                newEventTo = eventTo + offset;
+            }
 
             Props.SetDateFrom(eventItem, newEventFrom);
             Props.SetDateTo(eventItem, newEventTo);
         }
-
         return relatedEvents;
     }
 
